@@ -1,9 +1,9 @@
-ï»¿# HANDOFF
+# HANDOFF
 
 - layer_id: L00
 - status: BLOCKED
 - completed_at: 2026-08-10
-- commit_hash: (pending push)
+- commit_hash: 58003c5
 - previous_layer_commit: n/a
 - spec_version: investing-insight-spec-v1.6
 
@@ -38,10 +38,10 @@ cd apps/web && set API_BASE_URL=http://127.0.0.1:8000 && npm run dev
 ## Next Layer Eligibility
 
 - eligible: **no**
-- reason: P1 open (Supabase URL/DB URL). L01 ê¸ˆì§€ until L00 PASS.
+- reason: P1 open (Supabase URL/DB URL). L01 ±İÁö until L00 PASS.
 
 ## Notes for Next Layer / User
 
-1. `.env.local`ì˜ `SUPABASE_URL` / keysë¥¼ **ì‹¤ì œ** Supabase í”„ë¡œì íŠ¸ ê°’ìœ¼ë¡œ êµì²´
-2. `SUPABASE_DB_URL` (Postgres URI) ì¶”ê°€ í›„ `python scripts/migrate.py`
-3. `/health/db` 200 í™•ì¸ â†’ L00 QA ì¬ì‹¤í–‰ â†’ PASS/FREEZE â†’ L01
+1. `.env.local`ÀÇ `SUPABASE_URL` / keys¸¦ **½ÇÁ¦** Supabase ÇÁ·ÎÁ§Æ® °ªÀ¸·Î ±³Ã¼
+2. `SUPABASE_DB_URL` (Postgres URI) Ãß°¡ ÈÄ `python scripts/migrate.py`
+3. `/health/db` 200 È®ÀÎ ¡æ L00 QA Àç½ÇÇà ¡æ PASS/FREEZE ¡æ L01
