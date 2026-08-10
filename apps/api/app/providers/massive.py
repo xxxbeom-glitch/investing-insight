@@ -78,6 +78,13 @@ class MassiveClient:
         results = data.get("results") or []
         return results[0] if results else None
 
+    def get_daily_aggs(self, ticker: str, start: str, end: str, *, adjusted: bool = True) -> dict[str, Any]:
+        path = f"/v2/aggs/ticker/{ticker}/range/1/day/{start}/{end}"
+        return self._request(
+            f"{self.base_url}{path}",
+            {"adjusted": str(adjusted).lower(), "sort": "asc", "limit": 50000},
+        )
+
 
 def stable_raw_hash(payload: Any) -> str:
     blob = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
