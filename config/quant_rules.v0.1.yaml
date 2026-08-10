@@ -1,2 +1,11 @@
-﻿# Placeholder — fill in L00+/quant layers. Version when changed.
+﻿# Quant rules — fixed experiment weights for MVP (do not churn lightly).
 version: quant-rules-v0.1
+weights:
+  growth: 20
+  quality: 20
+  cashflow: 15
+  health: 15
+  valuation: 15
+  momentum: 15
+shortlist_size: 20
+neutral_score: 50

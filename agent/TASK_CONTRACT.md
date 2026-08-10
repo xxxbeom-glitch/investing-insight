@@ -1,15 +1,15 @@
 ﻿# Active Task Contract
 
 ## Task
-- Task ID: L05
-- Layer: L05_snapshot_engine
+- Task ID: L06
+- Layer: L06_quant_engine
 
 ## Goal
-Snapshot Engine Blocking AC ALL PASS
+Quant Engine Blocking AC ALL PASS
 
 ## Result
-- PASS — ready for L06
+- PASS — ready for L07
 
 ## Verification
-- [x] integration snapshot tests
-- [x] manifest schema + no future leakage
+- [x] unit formula tests
+- [x] deterministic integration scores

@@ -1,2 +1,2 @@
 ﻿# Active Track
-L00–L05 **PASS** → next **L06 Quant**
+L00–L06 **PASS** → next **L07 Research Packet**
