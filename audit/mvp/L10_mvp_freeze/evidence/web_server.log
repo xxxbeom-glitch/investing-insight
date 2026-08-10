@@ -20,3 +20,24 @@
  GET /audit 200 in 600ms
  ✓ Compiled /settings in 100ms
  GET /settings 200 in 150ms
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\investing-insight\apps\web\.next\server\app\page\app-build-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\investing-insight\\apps\\web\\.next\\server\\app\\page\\app-build-manifest.json'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1268ms
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\investing-insight\apps\web\.next\server\app\page\app-build-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\investing-insight\\apps\\web\\.next\\server\\app\\page\\app-build-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'D:\project\investing-insight\apps\web\.next\server\app\page\app-build-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\project\\investing-insight\\apps\\web\\.next\\server\\app\\page\\app-build-manifest.json'
+}
+[?25h

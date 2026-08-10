@@ -1,0 +1,152 @@
+{
+  "generated_at": "2026-08-10T21:42:25.748Z",
+  "finding": "ER-P1-03",
+  "method": "playwright_headless_chromium",
+  "web_base": "http://127.0.0.1:3000",
+  "api_base": "http://127.0.0.1:8000",
+  "target_run_id": "89064263-8b6c-4a58-aeb4-0704ab539d9a",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "path": "Dashboard → Runs → Run Detail → Candidates → Company/Evidence → Audit → Settings",
+  "checks": [
+    {
+      "check": "dashboard_brand",
+      "ok": true,
+      "detail": "brand present"
+    },
+    {
+      "check": "dashboard_latest_run",
+      "ok": true,
+      "detail": "latest run label"
+    },
+    {
+      "check": "dashboard_llm_profile",
+      "ok": true,
+      "detail": "profile/model on dashboard"
+    },
+    {
+      "check": "dashboard_latest_link",
+      "ok": true,
+      "detail": "href=/runs/9e0896c5-7513-4e11-938f-427c53fc6462"
+    },
+    {
+      "check": "runs_historical_list",
+      "ok": true,
+      "detail": "run_detail_links=50"
+    },
+    {
+      "check": "runs_shows_versions",
+      "ok": true,
+      "detail": "version columns"
+    },
+    {
+      "check": "latest_vs_historical",
+      "ok": true,
+      "detail": "latest=/runs/9e0896c5-7513-4e11-938f-427c53fc6462 list_n=50"
+    },
+    {
+      "check": "run_detail_id",
+      "ok": true,
+      "detail": "89064263-8b6c-4a58-aeb4-0704ab539d9a"
+    },
+    {
+      "check": "run_model_visible",
+      "ok": true,
+      "detail": "requested/resolved model"
+    },
+    {
+      "check": "run_effort_visible",
+      "ok": true,
+      "detail": "reasoning effort"
+    },
+    {
+      "check": "run_profile_visible",
+      "ok": true,
+      "detail": "profile version"
+    },
+    {
+      "check": "run_hashes_visible",
+      "ok": true,
+      "detail": "hash columns"
+    },
+    {
+      "check": "candidates_page",
+      "ok": true,
+      "detail": "candidates"
+    },
+    {
+      "check": "candidates_qa_fail_visible",
+      "ok": true,
+      "detail": "QA FAIL in candidates table"
+    },
+    {
+      "check": "candidate_company_links",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "check": "company_evidence_section",
+      "ok": true,
+      "detail": "evidence"
+    },
+    {
+      "check": "company_qa_fail_visible",
+      "ok": true,
+      "detail": "QA FAIL on company"
+    },
+    {
+      "check": "company_quant_or_research",
+      "ok": true,
+      "detail": "sections"
+    },
+    {
+      "check": "audit_page",
+      "ok": true,
+      "detail": "audit"
+    },
+    {
+      "check": "audit_qa_fail_or_status",
+      "ok": true,
+      "detail": "qa statuses"
+    },
+    {
+      "check": "settings_profile_visible",
+      "ok": true,
+      "detail": "profile"
+    },
+    {
+      "check": "settings_model_effort_visible",
+      "ok": true,
+      "detail": "model+effort"
+    },
+    {
+      "check": "settings_provider_flags",
+      "ok": true,
+      "detail": "flags only"
+    },
+    {
+      "check": "settings_no_raw_secret_text",
+      "ok": true,
+      "detail": "body text scan"
+    },
+    {
+      "check": "settings_no_raw_secret_html",
+      "ok": true,
+      "detail": "html scan"
+    },
+    {
+      "check": "settings_no_leak_banner",
+      "ok": true,
+      "detail": "leak banner absent"
+    },
+    {
+      "check": "viewport_1280_plus",
+      "ok": true,
+      "detail": "width=1440"
+    }
+  ],
+  "pass": true,
+  "screenshots_dir": "audit/mvp/L10_mvp_freeze/evidence/playwright_er_p1_03"
+}

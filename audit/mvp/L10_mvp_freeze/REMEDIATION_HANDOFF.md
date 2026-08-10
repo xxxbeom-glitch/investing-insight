@@ -11,7 +11,7 @@ Post-MVP not started. Ready for **external re-review**. Do **not** create `mvp-v
 |----|--------|----------|
 | ER-P1-01 | PASS | `audit/mvp/L10_mvp_freeze/evidence/registry_ingest_stats.json`, `registry_qa_report.json` |
 | ER-P1-02 | PASS | `audit/mvp/L10_mvp_freeze/evidence/live_research_run.json` |
-| ER-P1-03 | PASS | `browser_acceptance.json`, `browser_acceptance_checklist.md` |
+| ER-P1-03 | PASS (Playwright headless) | `evidence/browser_acceptance_playwright.json`, screenshots under `evidence/playwright_er_p1_03/` |
 | ER-P1-04 | PASS (with unknowns noted) | L03–L10 audit metadata backfill + `evidence/llm_config_versions_erp104.md` |
 
 ## Registry (ER-P1-01)

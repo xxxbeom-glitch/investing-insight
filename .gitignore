@@ -76,3 +76,8 @@ storage/raw/**
 # IDE
 .vscode/
 !.vscode/extensions.json
+
+# local playwright harness for ER-P1-03
+scripts/.pw/
+apps/web/.env.local
+
