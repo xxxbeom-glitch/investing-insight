@@ -1,0 +1,112 @@
+[
+  {
+    "ticker": "AAPL",
+    "name": "Apple Inc",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "XNAS",
+    "type": "CS",
+    "active": true,
+    "cik": "0000320193",
+    "composite_figi": "BBG000B9XRY4",
+    "share_class_figi": "BBG001S5N8V8",
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "IBM",
+    "name": "International Business Machines Corporation",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "XNYS",
+    "type": "CS",
+    "active": true,
+    "cik": "0000051143",
+    "composite_figi": "BBG000BLNNH6",
+    "share_class_figi": "BBG001S5S399",
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "BABA",
+    "name": "Alibaba Group Holding Ltd",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "XNYS",
+    "type": "ADRC",
+    "active": true,
+    "cik": "0001577552",
+    "composite_figi": "BBG006G2JBB6",
+    "share_class_figi": "BBG006G2JBK5",
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "SPY",
+    "name": "SPDR S&P 500 ETF Trust",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "ARCX",
+    "type": "ETF",
+    "active": true,
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "VXX",
+    "name": "iPath Series B S&P 500 VIX Short-Term Futures ETN",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "BATS",
+    "type": "ETN",
+    "active": true,
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "PREFER",
+    "name": "Example Preferred Shares",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "XNYS",
+    "type": "PFD",
+    "active": true,
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "WRNT",
+    "name": "Example Warrant",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "XNAS",
+    "type": "WARRANT",
+    "active": true,
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "VNQ",
+    "name": "Vanguard Real Estate ETF",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "ARCX",
+    "type": "ETF",
+    "active": true,
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "O",
+    "name": "Realty Income Corporation REIT",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "XNYS",
+    "type": "CS",
+    "active": true,
+    "cik": "0000726728",
+    "currency_name": "usd"
+  },
+  {
+    "ticker": "DEAD",
+    "name": "Delisted Example",
+    "market": "stocks",
+    "locale": "us",
+    "primary_exchange": "XNAS",
+    "type": "CS",
+    "active": false,
+    "currency_name": "usd"
+  }
+]
