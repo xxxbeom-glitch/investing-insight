@@ -1,2 +1,2 @@
 ﻿# Active Track
-L00–L09 **PASS** → next **L10 MVP Freeze**
+**MVP v0.1 PASS / FROZEN** (mvp-v0.1-pass) — Post-MVP 착수 금지

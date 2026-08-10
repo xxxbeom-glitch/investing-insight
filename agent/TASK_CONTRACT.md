@@ -1,15 +1,16 @@
 ﻿# Active Task Contract
 
 ## Task
-- Task ID: L09
-- Layer: L09_pc_web
+- Task ID: L10
+- Layer: L10_mvp_freeze
 
 ## Goal
-PC Web Vertical Slice Blocking AC ALL PASS
+MVP All-Pass Freeze & Handoff
 
 ## Result
-- PASS — ready for L10
+- PASS — STOP for external review
 
 ## Verification
-- [x] next build
-- [x] reads API + no secret leak
+- [x] L00–L09 PASS
+- [x] secret_scan + pytest
+- [x] MVP_HANDOFF.md + tag mvp-v0.1-pass
