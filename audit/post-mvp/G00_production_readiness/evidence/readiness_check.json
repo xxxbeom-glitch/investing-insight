@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-08-10T21:54:51.108904+00:00",
+  "gate": "G00",
+  "pass": true,
+  "checks": [
+    {
+      "check": "doc:PRODUCTION_READINESS.md",
+      "ok": true,
+      "detail": "docs\\ops\\PRODUCTION_READINESS.md"
+    },
+    {
+      "check": "doc:RUNBOOK_BACKUP_RESTORE.md",
+      "ok": true,
+      "detail": "docs\\ops\\RUNBOOK_BACKUP_RESTORE.md"
+    },
+    {
+      "check": "doc:RUNBOOK_SECRET_ROTATION.md",
+      "ok": true,
+      "detail": "docs\\ops\\RUNBOOK_SECRET_ROTATION.md"
+    },
+    {
+      "check": "doc:RUNBOOK_FAILURE_QUARANTINE.md",
+      "ok": true,
+      "detail": "docs\\ops\\RUNBOOK_FAILURE_QUARANTINE.md"
+    },
+    {
+      "check": "doc:RUNBOOK_HEALTH_MONITORING.md",
+      "ok": true,
+      "detail": "docs\\ops\\RUNBOOK_HEALTH_MONITORING.md"
+    },
+    {
+      "check": "supabase_url_set",
+      "ok": true,
+      "detail": "flag_only"
+    },
+    {
+      "check": "supabase_secret_set",
+      "ok": true,
+      "detail": "flag_only"
+    },
+    {
+      "check": "supabase_db_set",
+      "ok": true,
+      "detail": "flag_only"
+    },
+    {
+      "check": "openai_key_set",
+      "ok": true,
+      "detail": "flag_only"
+    },
+    {
+      "check": "massive_key_set",
+      "ok": true,
+      "detail": "flag_only"
+    },
+    {
+      "check": "sec_ua_set",
+      "ok": true,
+      "detail": "flag_only"
+    },
+    {
+      "check": "llm_profiles_load",
+      "ok": true,
+      "detail": "llm-profile-v0.1"
+    },
+    {
+      "check": "llm_roles_present",
+      "ok": true,
+      "detail": "company_research/research_qa/final_judgment"
+    },
+    {
+      "check": "report_payload_no_raw_secret",
+      "ok": true,
+      "detail": "flags_only_json"
+    },
+    {
+      "check": "ops_docs_heuristic_clean",
+      "ok": true,
+      "detail": "no key-shaped blobs"
+    }
+  ]
+}

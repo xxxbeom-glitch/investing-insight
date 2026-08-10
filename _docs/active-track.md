@@ -1,4 +1,8 @@
 ﻿# Active Track
-**L10 remediation DONE** on `review/l10-remediation-er-p1` — awaiting external re-review.  
-Baseline `mvp-v0.1-pass` @ `e98ff33` **unchanged**. Post-MVP 금지.  
-See `audit/mvp/L10_mvp_freeze/REMEDIATION_HANDOFF.md`
+
+**MVP v0.1 external re-review: PASS**
+- baseline tag: `mvp-v0.1-pass` @ `e98ff33` (unchanged)
+- review-pass tag: `mvp-v0.1-review-pass` @ `c1a6692`
+- branch: `post-mvp/phase-1`
+
+**Current:** Post-MVP Gate 0 — Production Readiness **PASS** → next **Milestone 1 — Automation & Deployment**

@@ -1,14 +1,16 @@
 ﻿# MVP Handoff
 
 ## Final Status
-Baseline freeze: PASS (`mvp-v0.1-pass`). External review was CONDITIONAL NO-GO; L10 remediation completed on `review/l10-remediation-er-p1`. Post-MVP 구현 금지. 외부 재검토 대기.
+**MVP v0.1 external re-review: PASS.**  
+Post-MVP는 `post-mvp/phase-1`에서 Gate 0(Production Readiness)부터 진행한다.  
+MVP frozen baseline(audit L00–L10 / tag `mvp-v0.1-pass`)은 수정하지 않는다.
 
 ## Git
-- Baseline tag: `mvp-v0.1-pass` (target commit **`e98ff33`**)
+- Baseline tag: `mvp-v0.1-pass` → **`e98ff33`** (unchanged)
 - Prior freeze content commit: **`67c9c2d`**
-- Remediation branch: `review/l10-remediation-er-p1`
-- Remediation detail: `audit/mvp/L10_mvp_freeze/REMEDIATION_HANDOFF.md`
-- Do not move/rewrite `mvp-v0.1-pass`. New tag `mvp-v0.1-review-pass` only after external re-review.
+- External re-review PASS tag: `mvp-v0.1-review-pass` → **`c1a6692`**
+- Remediation evidence: `audit/mvp/L10_mvp_freeze/REMEDIATION_HANDOFF.md`
+- Active branch for Post-MVP: `post-mvp/phase-1`
 
 ## Versions
 - System Spec: investing-insight-spec-v1.6
@@ -22,22 +24,23 @@ Baseline freeze: PASS (`mvp-v0.1-pass`). External review was CONDITIONAL NO-GO; 
 ### Baseline freeze sample
 - run_id: afe422f2-2b2d-4aa6-8606-bd5d24356cc5
 - snapshot_id: 73c39991-01a4-5e6d-9b0b-f2e6ab19c6f9
-- content_hash: 5fb7a83bf533fafc35056024c6d40a71b22b775cc76ada68f01d370e2203d9fb
 
-### Live Research→QA→Judgment (ER-P1-02 remediation)
+### Live Research→QA→Judgment (ER-P1-02)
 - run_id: 89064263-8b6c-4a58-aeb4-0704ab539d9a
 - judgment_id: c27abda1-e195-48af-b3a5-a9dfb92e4da7
-- evidence: audit/mvp/L10_mvp_freeze/evidence/live_research_run.json
+
+### Playwright UI (ER-P1-03)
+- evidence: `audit/mvp/L10_mvp_freeze/evidence/browser_acceptance_playwright.json`
 
 ## Layer PASS Commits
 - L00 7db06de · L01 37d4fc1 · L02 e184d41 · L03 be7a006 · L04 6fbcff7
 - L05 4a9086e · L06 7752b5e · L07 960457c · L08 765c5f0 · L09 eb2002c
+- L10 freeze `67c9c2d` / handoff `e98ff33` · remediation UI `c1a6692`
 
 ## QA Summary
 - P0 Open: 0
-- P1 Open: 0 (ER-P1-01…04 remediated — pending external re-review)
-- P2 Open: full browser E2E automation suite
-- P3 Open: UI polish
+- P1 Open: 0
+- External review: PASS (`mvp-v0.1-review-pass`)
 
 ## Test Commands
 ```text
@@ -47,23 +50,9 @@ $env:PYTHONPATH="apps\api"
 cd apps\web; npm run build
 ```
 
-## Reproduction Steps
-1. Configure `.env.local` (never commit)
-2. `python scripts/migrate.py`
-3. Sample ingest scripts (universe/daily/sec) as used in L01–L03
-4. Snapshot → quant → packet/research/QA/judgment modules
-5. API `:8000` + Web `:3000` for PC audit UI
-
-## Audit Completeness
-`audit/mvp/L00` … `L10` each has PLAN/IMPLEMENTATION/TEST_RESULTS/QA_REPORT/OPEN_ISSUES/CHANGELOG/HANDOFF
-
 ## Known Limitations
-- Company Research live call depends on OpenAI Responses accepting configured model id (fail-closed, no silent fallback)
-- MVP sample universe is small (lab fixtures), not full US registry
-- Mobile/tablet out of scope
-
-## P2/P3 Backlog
-See L10 OPEN_ISSUES and Post-MVP roadmap (do not implement now)
+- Full browser E2E suite beyond core Playwright path remains P2
+- Hosted deploy / schedulers blocked until Gate 0 + Milestone 1
 
 ## External Reviewer Notes
-> Do not start Post-MVP implementation until external review is complete.
+> MVP baseline is frozen. Post-MVP starts at Gate 0 Production Readiness on `post-mvp/phase-1`.
