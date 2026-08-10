@@ -2,15 +2,20 @@
 
 ## Current Task
 
-- Task ID: SPEC-160
-- Status: COMPLETED (커밋 예정)
+- Task ID: L00
+- Status: BLOCKED (credentials)
 
 ## Completed
 
-- SoT → `investing-insight-spec-v1.6`
-- 불변식/구조/SECURITY/env/config/schemas 동기화
+- L00 PLAN + FastAPI/Next foundation + tests/scripts
+- Most AC PASS; DB connection/migrate blocked
+
+## Open Blockers
+
+- Real `SUPABASE_URL` + keys (not `xxxxx.supabase.co`)
+- `SUPABASE_DB_URL` for SQL migrations
 
 ## Next Action
 
-1. 실키는 `.env.local`에 두고 `.env`와 변수명을 v1.6에 맞출 것 (사용자)
-2. **L00 PLAN** 시작
+1. User: fix `.env.local` Supabase values
+2. Agent: re-run `/health/db` + `migrate.py` → L00 PASS → L01

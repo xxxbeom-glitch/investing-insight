@@ -1,48 +1,50 @@
 # investing-insight
 
 PC Web 기반 미국 주식 AI 리서치·판단 감사 시스템.  
-자동매매가 아니라 **선별 근거를 재현·검증**하는 것이 V1 목표다.
+설계 SoT: [`investing-insight-spec-v1.6/`](./investing-insight-spec-v1.6/README.md)
 
-## 설계 SoT
+## 현재
 
-`investing-insight-spec-v1.6/` — [README](./investing-insight-spec-v1.6/README.md) 읽기 순서 따름.
+- **L00 Foundation** 구현 중/차단: 실 Supabase 프로젝트 URL 필요 (placeholder `xxxxx.supabase.co`면 DB health FAIL)
+- 증거: `audit/mvp/L00_foundation/`
 
-## 현재 상태
+## 로컬 실행 (MVP lab)
 
-- 설계서 **v1.6** SoT · Cursor 규칙은 Layer Loop/Audit + 제품 불변식
-- 저장소 골격 · `config/` · `packages/schemas/` 예시 동기화
-- 런타임 앱·의존성 **미설치** · 다음: **L00 Foundation**
+```powershell
+# 1) secrets
+copy .env.example .env.local   # 실값 입력 (SUPABASE_* 등)
 
-현황: `_docs/active-track.md`
+# 2) API
+cd apps\api
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+cd ..\..
+$env:PYTHONPATH="apps\api"
+.\apps\api\.venv\Scripts\uvicorn app.main:app --app-dir apps\api --host 127.0.0.1 --port 8000
 
-## MVP 운영 경계 (v1.6)
+# 3) Web (다른 터미널)
+cd apps\web
+npm install
+$env:API_BASE_URL="http://127.0.0.1:8000"
+npm run dev
+```
 
-- Web/API: 로컬 · DB: **Supabase PostgreSQL** · Firebase 금지
-- ingest/research: 수동 실행 · 공개 배포/스케줄러는 Production Readiness 이후
-- LLM: OpenAI Responses · profile은 `config/llm_profiles.*` · key만 env
+## 테스트 / 유틸
 
-## 권장 스택
+```powershell
+.\apps\api\.venv\Scripts\python.exe -m pytest tests -q
+.\apps\api\.venv\Scripts\python.exe scripts\secret_scan.py
+.\apps\api\.venv\Scripts\python.exe scripts\check_client_secrets.py
+.\apps\api\.venv\Scripts\python.exe scripts\migrate.py --check
+.\apps\api\.venv\Scripts\python.exe scripts\migrate.py   # needs SUPABASE_DB_URL
+.\apps\api\.venv\Scripts\python.exe scripts\generate_audit_layer.py L01_universe
+```
 
-| 영역 | 스택 |
+## 스택
+
+| 영역 | 기술 |
 |------|------|
-| Web | Next.js + TypeScript (App Router), PC-only |
-| API | Python FastAPI + Pydantic |
+| Web | Next.js 15 + TS (`apps/web`) |
+| API | FastAPI (`apps/api`) |
 | DB | Supabase PostgreSQL |
-| Raw | `storage/raw/` |
-| Config | `config/` (versioned, non-secret) |
-
-## 폴더 요약
-
-| 경로 | 역할 |
-|------|------|
-| `apps/web` / `apps/api` | PC UI · FastAPI |
-| `src/*` | ingest → quant → research |
-| `config/` | llm/quant 등 비-secret 설정 |
-| `packages/schemas/` | JSON Schema 계약 예시 |
-| `audit/` | Layer 감사 산출물 |
-| `agent/` | 작업 계약·체크리스트 |
-| `_logs/` | harness 메모 |
-
-## 보안
-
-실키는 `.env.local`만. 커밋 금지 — `SECURITY.md` · `.env.example`.
+| Config | `config/*.yaml` (비-secret) |

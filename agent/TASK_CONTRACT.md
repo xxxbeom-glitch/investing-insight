@@ -28,4 +28,4 @@ Foundation · Supabase · Config · Audit framework. Blocking AC ALL PASS.
 
 ## Result
 
-- IN_PROGRESS
+- BLOCKED — P1 Supabase placeholder / missing SUPABASE_DB_URL. L01 not started.

@@ -58,6 +58,7 @@ coverage/
 # Python
 .venv/
 venv/
+apps/api/.venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/

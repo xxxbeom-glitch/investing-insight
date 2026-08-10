@@ -1,7 +1,7 @@
 ﻿# Active Track
 
 > **갱신:** 2026-08-10 · `_logs/decision-log.md`  
-> **진행 중:** **L00 Foundation**  
+> **진행 중:** **L00 BLOCKED** — 실 Supabase URL/`SUPABASE_DB_URL` 필요  
 > **설계 SoT:** `investing-insight-spec-v1.6/`  
 > **Layer 증거:** `audit/mvp/L00_foundation/`
 
