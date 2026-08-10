@@ -9,9 +9,9 @@ PC Web 기반 미국 주식 AI 리서치·판단 감사 시스템.
 
 ## 현재 상태
 
-- 지침 라이브러리(`D:\project\markdown`) **web pack** 반영 + 이 제품용으로 경로·QA 커스터마이즈
-- 저장소 골격만 존재 (`apps/`, `src/`, …) — **런타임 앱·의존성 미설치**
-- 다음: 설계서 기준으로 남은 결정 합의 → **L00 Foundation**
+- 설계서 v1.5 SoT · Cursor 규칙은 **Layer Loop/Audit + 제품 불변식**에 정렬
+- 저장소 골격만 존재 — **런타임 앱·의존성 미설치**
+- 다음: **L00 Foundation** (`07_MVP_LAYER_PLAN.md` · `agent/LAYER_CHECKLIST.md`)
 
 현황 1장: `_docs/active-track.md`
 

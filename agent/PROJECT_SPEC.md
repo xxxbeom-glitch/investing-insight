@@ -35,7 +35,9 @@
 |------|------|
 | 화면/기능 스펙 | `investing-insight-spec-v1.5/` |
 | 확정 결정 | `…/00_PROJECT_DECISIONS.md` |
-| Cursor 규칙 | `.cursor/rules/` |
+| Cursor 규칙 | `.cursor/rules/` (`15` 불변식 · `25` Layer audit) |
+| Layer 체크리스트 | `agent/LAYER_CHECKLIST.md` |
+| Layer 템플릿 | `audit/mvp/_templates/` |
 | 현재 작업 계약 | `agent/TASK_CONTRACT.md` |
 | 현황 1장 | `_docs/active-track.md` |
 

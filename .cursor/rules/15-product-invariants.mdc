@@ -1,0 +1,36 @@
+---
+description: 제품 불변식 — 설계서 00/09 확정 결정을 임의 변경 금지
+alwaysApply: true
+---
+
+# Product Invariants
+
+SoT: `investing-insight-spec-v1.5/00_PROJECT_DECISIONS.md` · `09_CURSOR_MASTER_PROMPT.md` §7  
+확정 결정을 **추론·확대·축소하지 않는다.**
+
+## 범위
+
+- 미국 only: NYSE + NASDAQ
+- 포함: 일반 상장회사 보통주 + ADR
+- 제외: ETF/ETN/REIT/SPAC/우선주/BDC/CEF/워런트/권리증권/투자회사형 등
+- PC Web only · 모바일 QA 비범위
+- **자동매매·주문·타이밍·포지션 사이징 아님**
+
+## 데이터 · 판단
+
+- **FACT**와 **AI ASSESSMENT** 분리 저장
+- 정량 점수·날짜·중복·스키마·future leakage 차단은 **코드** (LLM 대체 금지)
+- LLM은 리서치·비교·반대논리·불확실성
+- Snapshot `cutoff` 이후 정보 **사용 금지**
+- 과거 Snapshot / Judgment **수정 금지** (새 버전만)
+- SELECTED에는 risk + bear case + invalidation 필수
+- 중요 AI fact claim에는 evidence ref 필수
+- 최종 선정 수 **강제 금지**
+
+## MVP 진행
+
+- L00→L10 순서 · 이전 Layer P0/P1 open이면 다음 금지
+- MVP L10 ALL PASS 후 **중단** (Post-MVP 자동 착수 금지)
+- secret/API key를 코드·audit·로그에 기록 금지
+
+모호하면 `00_PROJECT_DECISIONS`를 다시 읽고 질문.

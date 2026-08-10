@@ -16,8 +16,8 @@ alwaysApply: true
 | **활성** | API · Research | `apps/api/` · `src/` |
 | **설계** | System Design v1.5 | `investing-insight-spec-v1.5/` |
 | **운영** | 에이전트 계약 | `agent/` |
-| **감사** | MVP audit | `audit/mvp/` |
-| **로그** | harness logs | `_logs/` |
+| **감사** | Layer PASS 증거 | `audit/mvp/` (`25-layer-audit`) |
+| **로그** | harness 메모 | `_logs/` (audit 대체 아님) |
 
 ## 승인 (전역)
 

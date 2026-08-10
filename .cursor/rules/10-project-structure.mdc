@@ -19,12 +19,13 @@ investing-insight/
 ├── migrations/
 ├── tests/
 ├── storage/raw/                # immutable raw (gitignore)
-├── audit/mvp/
-├── docs/                       # 구현 메모 (설계 SoT 아님)
+├── audit/mvp/                  # Layer audit (PASS 증거)
+│   └── _templates/             # PLAN 등 빈 템플릿
+├── docs/                       # 구현 메모만 (설계 SoT 아님)
 ├── scripts/
 ├── investing-insight-spec-v1.5/  # 설계 SoT
-├── _docs/                      # active-track + design 포인터
-├── _logs/                      # harness logs
+├── _docs/                      # active-track (현황 1장)
+├── _logs/                      # harness logs (audit 대체 아님)
 ├── fonts/
 ├── SECURITY.md
 └── README.md
@@ -37,9 +38,10 @@ investing-insight/
 | UI | `apps/web/` |
 | API | `apps/api/` |
 | 도메인 파이프라인 | `src/*` |
-| 설계 | `investing-insight-spec-v1.5/` |
-| 감사 산출물 | `audit/` |
-| harness 현황 | `_docs/active-track.md` |
+| 설계 SoT | `investing-insight-spec-v1.5/` |
+| Layer 증거 | `audit/mvp/LXX_*/` |
+| 현황 1장 | `_docs/active-track.md` |
+| 구현 잡메모 | `docs/` (SoT 아님) |
 
 ## 금지
 

@@ -4,40 +4,39 @@
 
 ## Task
 
-- Task ID: BOOTSTRAP-001
+- Task ID: RULES-001
 - Screen ID: n/a
 - Figma reference: n/a
 
 ## Goal
 
-markdown 라이브러리 지침 + 설계서 v1.5에 맞춘 저장소 골격·규칙을 준비한다. 런타임 앱은 만들지 않는다.
+설계서 Loop/Audit에 맞게 Cursor 지침을 정리한다. L00 코드는 포함하지 않는다.
 
 ## Required
 
-- web pack 규칙·로그·폰트·SECURITY
-- 설계서 layout에 맞는 빈 디렉터리
-- active-track / PROJECT_SPEC / decision-log 초기화
+- 불필요 규칙 삭제
+- product invariants · layer audit · git freeze 정렬
+- audit 템플릿 · LAYER_CHECKLIST
 
 ## Allowed Scope
 
-- `.cursor/rules/`, `agent/`, `_docs/`, `_logs/`, 골격 폴더, README, `.gitignore`, `.env.example`
+- `.cursor/rules/`, `agent/`, `audit/mvp/_templates/`, `_docs/`, `_logs/`, README(필요 시)
 
 ## Forbidden
 
-- Next/FastAPI 앱 생성·dependency 설치 (합의·L00 전)
-- 설계서 결정 임의 변경
-- Post-MVP 범위 구현
+- L00 앱 생성·dependency 설치
+- 설계서 본문 임의 변경
+- `.env` 커밋
 
 ## Verification
 
-- [x] 폴더 트리·규칙 경로가 설계서와 모순 없음 (문서 기준)
-- [ ] 앱 실행 (해당 없음)
-- [ ] L00 Blocking QA (미착수)
+- [x] 규칙 파일이 설계서 게이트와 모순 없음 (문서 대조)
+- [ ] L00 실행 (해당 없음)
 
 ## Done When
 
-- 부트스트랩 커밋 가능 상태 · 설계서 기준 남은 논의 포인트가 사용자에게 전달됨
+- 하네스 정리 커밋 완료
 
 ## Result
 
-- DONE — 초기 커밋 `06604cd`
+- DONE (커밋 후 갱신)

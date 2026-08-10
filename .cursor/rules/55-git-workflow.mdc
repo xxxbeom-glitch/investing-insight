@@ -1,37 +1,43 @@
 ---
-description: QA PASS 이후 git commit 규칙
-alwaysApply: false
+description: Layer PASS·FREEZE 기준 git commit 규칙
+alwaysApply: true
 ---
 
 # Git Workflow
 
-- **QA PASS 전에는 commit하지 않는다.**
-- commit 전 반드시 `git status` 확인.
-- 요청 범위 밖 변경 파일이 있으면 commit하지 말고 **먼저 보고**.
-- 작업 단위가 명확할 때만 commit (섞인 변경은 분리·승인 후).
-- **push는 절대 하지 않는다.** 사용자가 명시적으로 요청할 때만 push.
-- commit message 형식: `[scope] 작업 내용` (한글, 이해하기 쉽게)
+SoT: `05_QA_LOOP_AUDIT.md` §8–9 · `09_CURSOR_MASTER_PROMPT.md` §5
+
+## Layer 작업
+
+- **Layer PASS commit**은 Blocking QA PASS + audit 최신화 + tests 재실행 후에만
+- PASS 전에도 **중간 checkpoint commit**은 가능 (메시지에 WIP/부분 명시) — PASS로 간주 금지
+- PASS 후 순서: audit 갱신 → tests 재실행 → commit → **hash를 HANDOFF.md에 기록** → 다음 Layer
+- commit 전 `git status` · 범위 밖 파일이면 중단하고 보고
+- **push는 사용자 명시 요청 없이 금지**
+- 메시지: `[LXX] 짧은 한글 이유` 또는 `[rules]` / `[setup]` 등 scope
 
 예시:
-- `[setup] 아임웹 전용 폴더 구조 리셋`
-- `[rules] Cursor 하네스 규칙 추가`
-- `[template-c] hero 섹션 Figma 기준 반영`
-- `[qa] 모바일 overflow 수정`
+- `[L00] foundation health·migration·audit 골격 PASS`
+- `[L00] WIP: FastAPI health endpoint`
+- `[rules] Layer audit 하네스 정렬`
 
-적용 기준:
-- 사용자가 commit을 요청했고, 해당 작업이 QA PASS된 후.
+## MVP 완료
 
-비밀파일:
-- `.env`, 키, 자격증명, `local.properties`, `google-services.json` 등은 **커밋 금지**
-- 자세한 목록: 라이브러리 `00-common/SECURITY.md` (프로젝트에 복사해 두어도 됨)
-- commit 전 `git status`에서 비밀·범위 밖 파일이 있으면 중단하고 보고
+- tag: `mvp-v0.1-pass`
+- `MVP_HANDOFF.md` 작성 후 **중단**
 
-금지:
-- QA PASS 전 commit
-- 범위 밖 파일 포함 commit
-- 비밀파일 포함 commit
-- 사용자 요청 없는 push
-- 영문만·의미 불명 commit message
+## 비밀
 
-완료 기준:
-- QA PASS 확인 → status 클린(범위 내) → `[scope] 한글 메시지`로 commit 완료.
+- `.env`, 키, 자격증명, `storage/raw` 실데이터 **커밋 금지** (`SECURITY.md`)
+- status에 보이면 커밋하지 말고 보고
+
+## 금지
+
+- 설명만으로 PASS commit
+- 비밀파일 포함
+- 사용자 요청 없는 push / force push
+- PASS Layer audit 문서를 사후 변조 (regression은 CHANGELOG + 재QA)
+
+## 완료 기준
+
+- (PASS 시) evidence + audit + clean status(범위 내) + HANDOFF에 commit hash

@@ -12,9 +12,20 @@
 | 권장 스택 | Next.js · FastAPI · PostgreSQL | 버전·lock은 L00 |
 | 설계 SoT | `investing-insight-spec-v1.5/` | |
 | 코드 경로 | `apps/web` · `apps/api` · `src/` | |
-| SEO/AEO | 의도적 생략 | 개인 툴 |
+| SEO/AEO | 의도적 생략 · 규칙 파일 제거 | 2026-08-10 |
+| Cursor 하네스 | Layer audit + 불변식 · 템플릿 웹 규칙 제거 | 2026-08-10 |
 | 현재 Layer | L00 전 (골격) | |
-| 지침 출처 | `D:\project\markdown` pack `web` + 커스텀 | 2026-08-10 |
+
+---
+
+## 2026-08-10 — Cursor 하네스 설계서 정렬
+
+| # | 결정 |
+|---|------|
+| 1 | `30`/`40`/`45`/`46`/`73` 삭제 (본 제품과 무관) |
+| 2 | `15-product-invariants` · `25-layer-audit` alwaysApply 추가 |
+| 3 | Git은 Layer PASS/FREEZE + HANDOFF hash 기준 (`55`) |
+| 4 | Layer 증거는 `audit/mvp/` 우선, `_logs/`는 harness 메모 |
 
 ---
 

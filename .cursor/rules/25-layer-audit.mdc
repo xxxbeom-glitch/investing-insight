@@ -1,0 +1,75 @@
+---
+description: Layer Loop Engineering · audit 계약 · PASS/FREEZE 게이트
+alwaysApply: true
+---
+
+# Layer Audit & Loop
+
+SoT: `investing-insight-spec-v1.5/05_QA_LOOP_AUDIT.md` · `07_MVP_LAYER_PLAN.md` · `09_CURSOR_MASTER_PROMPT.md`
+
+## 루프 (모든 Layer 동일)
+
+```
+PLAN → IMPLEMENT → TEST → QA
+  → FAIL? → ROOT CAUSE → FIX → RETEST
+  → PASS → FREEZE → NEXT LAYER
+```
+
+Cursor의 「완료」문구는 PASS가 아니다.  
+PASS = Acceptance Criteria + **테스트 evidence** 일치.
+
+## 시작
+
+1. `audit/mvp/LXX_name/` 생성
+2. 템플릿: `audit/mvp/_templates/` 또는 spec `audit_templates/`
+3. **PLAN.md 먼저** (Goal / In·Out / Acceptance / Expected files / Tests first / Risks)
+4. Acceptance가 테스트 불가능한 문장이면 **구현 전** 고친다
+5. `agent/TASK_CONTRACT.md`를 이번 Layer로 교체
+
+## Audit 필수 파일
+
+```
+audit/mvp/LXX_layer_name/
+├─ PLAN.md
+├─ IMPLEMENTATION.md
+├─ TEST_RESULTS.md
+├─ QA_REPORT.md
+├─ CHANGELOG.md
+├─ OPEN_ISSUES.md
+└─ HANDOFF.md
+```
+
+메타(최소): layer_id, spec_version, started_at, completed_at, status, commit_hash, previous_layer_commit, files_changed, commands_run, acceptance_criteria, test evidence, P0–P3
+
+## Severity 게이트
+
+| 등급 | 다음 Layer |
+|------|------------|
+| P0 / P1 open | **금지** |
+| P2 / P3 | backlog 기록 후 진행 가능 |
+
+ALL PASS = P0=0 · P1=0 · Blocking Acceptance 전부 PASS · evidence 존재  
+(경고 0개가 아님)
+
+## FREEZE
+
+Layer PASS 후:
+1. tests 재실행
+2. audit 최신화
+3. git commit (`55-git-workflow.mdc`)
+4. commit hash → HANDOFF
+5. 다음 Layer
+
+PASS된 Layer를 고쳐야 하면: **과거 audit 문서를 고치지 않음** · CHANGELOG에 regression 이유 · 영향 Layer QA 재실행
+
+## MVP 종료 (L10)
+
+- 전체 suite · audit 완비 · tag `mvp-v0.1-pass` · `MVP_HANDOFF.md`
+- 그 후 Post-MVP **자동 진행 금지**
+
+## 금지
+
+- Blocking FAIL인데 다음 Layer
+- 설명만으로 PASS 선언
+- secret을 audit에 기록
+- audit 없이 Layer 완료 주장

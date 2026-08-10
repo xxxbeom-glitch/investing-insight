@@ -1,39 +1,39 @@
 ---
-description: Layer/화면 루프 — 설계서 Loop Engineering + harness
+description: 작업 시작·Layer 루프 요약 (상세는 25-layer-audit)
 alwaysApply: true
 ---
 
 # Harness Workflow
 
 > SoT: `investing-insight-spec-v1.5/` · 현황: `_docs/active-track.md`  
-> 루프: `PLAN → IMPLEMENT → TEST → QA → FIX → RETEST → PASS → FREEZE`  
-> Layer 게이트: `07_MVP_LAYER_PLAN.md`
+> 상세 게이트: `25-layer-audit.mdc` · 불변식: `15-product-invariants.mdc`
 
 ## 시작 전
 
-1. `00_PROJECT_DECISIONS.md` (임의 변경 금지)
-2. 현재 Layer · `agent/TASK_CONTRACT.md`
-3. `_logs/` 빠른 조회
+1. `00_PROJECT_DECISIONS.md`
+2. 현재 Layer · `agent/TASK_CONTRACT.md` · (있으면) 해당 `audit/.../OPEN_ISSUES.md`
+3. `_logs/decision-log.md` 유효 표
 4. 모호하면 질문
 
-## MVP Layer 규칙
+## 진행
 
-- **이전 Layer P0/P1 = 0 이고 Blocking QA PASS** 일 때만 다음 Layer
-- PASS는 설명문이 아니라 Acceptance Criteria **증거** (`05_QA_LOOP_AUDIT.md`)
-- 산출물: 테스트·로그·`audit/` (해당 Layer)
-- MVP ALL PASS 후: tag 봉인 · `MVP_HANDOFF` · **Post-MVP 자동 시작 금지**
+- MVP: **L00 → L10** 순서 (`07_MVP_LAYER_PLAN.md`)
+- 각 Layer: `25-layer-audit.mdc` 루프
+- UI 손볼 때: PC-only (`35` · `50` · `06_PC_WEB_UI.md`)
+- Deterministic(코드) before LLM
 
-## UI 구현 시 (해당하면)
+## 문서 역할
 
-```
-범위 1줄 → (Figma 있으면) 승인 → apps/web 구현 → 50 QA → qa-log → PASS
-```
-
-- PC only (`06_PC_WEB_UI.md`)
-- Deterministic(코드) before LLM (`README` §4.5)
+| 경로 | 역할 |
+|------|------|
+| `investing-insight-spec-v1.5/` | 설계 SoT |
+| `audit/mvp/` | Layer 증거·PASS 기록 (**우선**) |
+| `_docs/active-track.md` | 현황 1장 |
+| `_logs/` | harness 메모 (decision 등) |
+| `docs/` | 구현 메모 (SoT 아님) |
 
 ## 금지
 
-- 설계 확정 전 스택·스키마 임의 변경
-- Blocking FAIL인데 다음 Layer 진행
-- 검증 없이 “정상 동작” 주장
+- Blocking FAIL인데 다음 Layer
+- Post-MVP 자동 착수
+- 검증 없이 「정상 동작」 주장
