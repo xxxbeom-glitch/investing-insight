@@ -1,0 +1,432 @@
+﻿---
+description: Figma 1920 → CSS 수치 변환 규칙 (활성 site/ · WP 동결)
+alwaysApply: false
+globs:
+  - site/**/*
+  - wordpress/**/*
+---
+
+# Figma to Code
+
+> **출력 경로:** 기본 **`site/`** (개인 포트폴리오 · Vercel).  
+> `wordpress/{slug}/` · 구 `templates/` 는 **동결** — 사용자 **명시 재개** 시에만.
+
+## MCP 시작 시 보고 (코딩·폴더 생성 전)
+
+0. **Figma 댓글·주석** — `read_comments` + JSON 주석 스캔 · 아래 「Figma 댓글·주석」절차
+1. **최상위 프레임명** (원본) + 작업 경로 **`site/`** (기본) · WP 재개 시에만 `wordpress/{slug}/`
+2. **섹션 구조:** 하위 레이어 이름·개수
+3. 이후 레이아웃·수치 분석 (`20-harness-workflow.mdc` 참고)
+4. 사용자 승인 전 — 폴더 생성·코딩 **금지**
+
+## Figma 댓글·주석 — 필수
+
+> **댓글**(`read_comments`)과 **주석**(Annotations·Description·전달 메모)을 JSON·썸네일보다 **먼저** 확인한다.
+
+### Figma에서 구분
+
+| 구분 | Figma UI | MCP·확인 방법 |
+|------|----------|----------------|
+| **댓글** | Comments (💬 협업 댓글) | **`read_comments(file_key)`** |
+| **주석** | Dev Mode **Annotations** (주황 핀) | `add_figma_file` JSON · 노드 `description` · 전달 메모 레이어 |
+| **전달 메모** | 설명 텍스트·`note`/`memo`/`주석` 등 이름의 레이어 | JSON 레이어명·TEXT 내용 스캔 |
+
+> 주석 전용 MCP 도구는 **없음** — JSON 파싱 + (필요 시) Figma 화면에서 교차 확인.
+
+### 절차
+
+```
+add_figma_file / file_key 확보
+→ read_comments(file_key)
+→ add_figma_file JSON 파싱 — 이번 섹션 관련 주석·description·메모 레이어 추출
+→ 이번 섹션·페이지·범위와 관련 댓글·주석만 추려 요약
+→ (필요 시) view_node 썸네일
+```
+
+### JSON에서 주석 찾기 (해당 섹션 노드·자식)
+
+- 프레임·컴포넌트 **`description`** 필드
+- Dev Mode **annotation**·dev resource 관련 필드 (JSON에 있으면)
+- 전달용 **TEXT** · 이름에 `note` · `memo` · `주석` · `dev` · `전달` 포함 레이어
+- 이번 작업 **섹션 프레임 하위만** 스캔 — 파일 전체 무작위 나열 **금지**
+
+### 보고에 포함할 것
+
+| 항목 | 내용 |
+|------|------|
+| **관련 댓글** | 본문 요약 · 달린 프레임/노드(알 수 있으면) · 확정·보류·수정 지시 |
+| **관련 주석** | Annotation·description·메모 레이어 요약 · node-id(알 수 있으면) |
+| **이번 작업 반영** | 범위·카피·동작·인터랙션·납품 제외 항목 |
+| **댓글·주석 없음** | 「댓글 없음」·「주석 없음」 각각 1줄 명시 |
+
+### 우선순위 (댓글·주석 vs JSON)
+
+| 주제 | 우선 |
+|------|------|
+| **범위·카피·동작·보류·「하지 말 것」** | **댓글·주석** |
+| **padding·gap·색·font·bbox·Section BG** | **JSON** (`fills[]` 등) |
+| **댓글·주석과 JSON이 모순** | 구현 **금지** — 양쪽 1줄씩 보고 후 사용자 확인 |
+
+**금지:**
+- 댓글·주석 미확인 상태에서 범위·카피·동작을 JSON·썸네일만으로 추측
+- 해결되지 않은 댓글·주석 지시를 임의로 무시
+
+## MCP JSON 분석 (필수 — 코딩 전)
+
+> **썸네일만으로 수치·색·fill 확정 금지.** `add_figma_file` JSON(또는 동등 dump)을 **노드별 파싱**한 뒤 아래 절차를 따른다.
+
+### 데이터 소스 우선순위
+
+| 순위 | 소스 | 용도 |
+|------|------|------|
+| 0 | **`read_comments` + JSON 주석** | 댓글 · Annotations · `description` · 전달 메모 레이어 · **MCP 연결 직후 1순위** |
+| 1 | **`add_figma_file` JSON** | `fills[]` · padding · gap · bbox · TEXT color · gradient stops |
+| 2 | **`_harness/_figma-dump.txt`** 등 구조화 dump | 빠른 섹션 스캔 · JSON 교차 확인 |
+| 3 | **`view_node` 썸네일** | 레이아웃·구성 **참고만** — Section BG · overlay · hex **확정 근거로 사용 금지** |
+
+댓글·주석과 JSON이 충돌하면 **구현하지 않고** 보고한다. 수치·색은 JSON, 의도·범위는 댓글·주석을 각각 근거로 쓴다.
+
+JSON과 썸네일이 충돌하면 **JSON 우선**. TEXT color와 Section BG가 모순이면 **fill 상속·형제 섹션 대조**로 Section BG를 확정하고, head 타이포는 TEXT `fills[]` MCP 값을 따른다.
+
+### `fills[]` vs `backgroundColor` (Section BG)
+
+| 필드 | Section BG 근거로 사용 |
+|------|------------------------|
+| **`fills[]`** visible · `SOLID` / `IMAGE` / `GRADIENT_*` | **예** — 1순위 |
+| **`fills[]` 없음** | **부모 체인 상속** (아래 절차) |
+| **`backgroundColor`만 있고 `fills[]` 없음** | **아니오** — Figma 에디터 기본값 노이즈 (`#000000` 등). Section BG로 **금지** |
+
+### Section BG 결정 절차 (해당 섹션마다)
+
+```
+1. 섹션 프레임 node-id · fills[] 전수 확인
+2. fills[]에 visible SOLID → hex 기록 (fill opacity 있으면 rgba까지)
+3. fills[] 비어 있음 → 부모 프레임을 올라가며 visible SOLID fill 탐색
+   → 기록: Section BG: #hex (13:464 fill 없음 → 13:435 fills SOLID)
+4. IMAGE/GRADIENT만 있는 band·카드·패널 → Section BG가 아님 (Overlays·장식 bg)
+5. 페이지 내 직전·직후 형제 섹션 프레임도 동일 절차 → hex 나열
+6. 인접 섹션 hex가 다르면 CSS도 분리 (--color-bg 하나로 통합 금지)
+```
+
+**금지:**
+- fill 없음 → **「인접 섹션과 동일」** 추론
+- 카드·슬라이더·패널의 IMAGE/gradient가 어두워 보인다고 **섹션 전체 BG를 검정**으로 처리
+- `#fffefd` / `#f9f9f9` / `#fffefe` 등 **유사 hex를 하나로 반올림**해 공통 토큰만 사용
+
+### 인접 섹션 BG 대조 (필수)
+
+페이지 신규·배경 수정·2개 이상 섹션 일괄 구현 시, MCP 보고에 **표 1개** 포함:
+
+| Section (Figma name) | node-id | Section BG | 근거 |
+|----------------------|---------|------------|------|
+| (예) section-treatment | 13:464 | `#f9f9f9` | fill 없음 → 부모 `13:435` SOLID |
+| (예) section-strength | 13:507 | `#fffefd` | 프레임 `fills[]` SOLID |
+
+QA에서 **인접 두 섹션 경계**를 DevTools로 확인 — MCP 표와 불일치 시 FAIL.
+
+### 카드·패널 overlay vs Section BG (분리)
+
+| 레벨 | MCP 확인 | 보고 키 |
+|------|----------|---------|
+| **섹션 `<section>` BG** | 섹션 프레임 + 부모 상속 | `Section BG:` |
+| **카드·패널·히어로 band** | 해당 자식 프레임 `fills[]` | `Overlays:` |
+
+한 섹션 보고에 `Section BG`와 `Overlays` **둘 다** 적는다. 카드 gradient만 맞고 Section BG를 생략 **금지**.
+
+### MCP 분석 보고 — 섹션당 필수 줄
+
+```
+Shell: guttered | full-bleed | breakout · bg frame · content width · bbox
+Section BG: #hex · node-id · (fills SOLID | fill 없음 → 부모 node-id)
+Overlays: none | gradient(stops · opacity · y%) | flat rgba · 대상 node-id
+(페이지/2섹션+) 인접 Section BG 표
+Wrap children: (동일 content frame 내) 자식 node-id · x · w — **이미지·본문·grid 열이 같은 x/w인지** 표 1줄 이상
+```
+
+### Wrap 내 자식 정렬 (content block — 필수)
+
+> **부모 wrap(`.section-shell` / content frame) x·w가 맞아도**, HTML 태그별 UA margin 때문에 **형제끼리 좌우 폭이 달라질 수 있음**. MCP에서 **같은 content frame 안** 이미지·텍스트·grid 자식의 **x · width**를 나란히 적는다.
+
+| MCP 확인 | 보고 |
+|----------|------|
+| content frame node-id · w (예: 1440) | `Wrap: {id} w={px}` |
+| 그 안 이미지 RECTANGLE/FRAME | `img: {id} x= · w=` |
+| 그 안 TEXT / grid 열 | `copy col: {id} x= · w=` |
+| **모든 본문 자식 x·w 동일** | 불일치 시 Figma 오류 vs 구현 주의 표시 |
+
+**구현·QA:** shell PASS ≠ 자식 PASS. `50-qa-checklist.mdc` 「Wrap 내 DOM · box-model QA」 필수.
+
+### CSS 반영
+
+- MCP에서 섹션마다 BG hex가 다르면 **`--color-bg-{section}`** 또는 섹션별 `background` — **공통 `--color-bg` 단일값으로 묶지 않음**
+- breakout·full-bleed: 섹션 `background`와 bleed band bg **동일 hex** 유지
+
+적용 기준: Figma MCP로 색·배경·overlay를 읽는 **모든** 작업.
+금지: 위 「금지」 항목 전부 · JSON 미파싱 상태에서 Section BG 구현.
+
+- 기준 프레임 **1920px**. **1920 = 설계 기준** — 템플릿마다 gutter·내부 폭은 Figma MCP 수치 그대로 (고정 1840 등 가정 **금지**).
+- **모든 Figma px**(padding, gap, font-size, shell gutter, inner width 등) → **뷰포트 fluid 치환** (`30-figma-to-code.mdc` 「Fluid scale」).
+- vw 미적용: color, font-weight, 1px border, letter-spacing(Figma px 그대로)
+- 섹션 맞닿음(gap 0) → 바깥 margin 금지, **프레임 padding만**
+- padding 이중 적용 금지 — **섹션 gutter + inner `max-width` + inner 좌우 padding** 같은 요소에 **동시 금지** (`border-box` 이중 inset · 「Shell · gutter · inner」)
+- 이미지: Figma W×H → `aspect-ratio` + **`object-fit: cover`** (아래 「Image · card fill」)
+- **이미지:** 테마 `assets/images/`에 직접 배치 (루트 `_dev-images/` **삭제됨**)
+- **섹션 장식 bg:** `assets/images/` **직접** (news-bg, cta-bg 등)
+- 텍스트 박스: 고정 `width`/`height` px 금지 → clamp·min-height·auto
+- **텍스트 정렬:** Figma `textAlignHorizontal` → CSS `text-align` **1:1** (아래 「Typography · alignment」)
+- **Auto Layout 정렬:** `counterAxisAlignItems` / `primaryAxisAlignItems` → flex `align-items` / `justify-content` (MCP 값 그대로)
+- 히어로·섹션에 `min-height:100vh` 금지
+- 사용자 **하드코딩 요청** 시에만 `@1920` px 고정 허용
+
+## Fluid scale (필수 — 구현·QA 공통 원칙)
+
+**목표:** Figma @1920에 잡힌 **비율·관계**가 사용자 **모니터 뷰포트**에 맞게 같이 줄고/늘어난다. (폰트 포함)
+
+### 변환식
+
+```
+vw = figma_px ÷ 19.2
+CSS = clamp(min_px, {vw}vw, figma_px)   /* 타이포·gap·패딩 등 */
+```
+
+| 용도 | clamp min (max 대비) |
+|------|----------------------|
+| Display / Heading | 50% |
+| Body / UI / Caption | 62.5% |
+
+- **font-size, line-height( px ), padding, gap, gutter** → 위 clamp/vw 적용
+- **shell gutter** (섹션 좌우 pad): `max(min_px, {gutter÷19.2}vw)` — shell용 **figma px max cap 금지** (ultrawide 여백 과다 방지)
+- **shell 콘텐츠**(pad 안 블록): Figma width가 프레임 거의 풀폭이면 **`width: 100%`** — Figma px를 shell `max-width` cap으로 **금지**
+- **Figma 내부 narrow** (예: copy 1440): **해당 블록만** `max-width` + clamp/vw
+
+### 템플릿마다 다름 (Figma MCP 기준)
+
+| 항목 | 규칙 |
+|------|------|
+| gutter | MCP padding L/R |
+| shell 콘텐츠 폭 | MCP 프레임 width (풀폭·좁음 모두 가능) |
+| inner 블록 | MCP nested frame width |
+
+→ **숫자(1840 등)를 규칙에 박지 않음.** MCP → vw/clamp.
+
+## Typography · alignment (필수)
+
+Figma TEXT·head 블록 구현 시 **수치만 읽고 정렬을 생략하지 않는다.**
+
+| Figma | CSS |
+|-------|-----|
+| `textAlignHorizontal: LEFT` | `text-align: left` |
+| `textAlignHorizontal: CENTER` | `text-align: center` (+ flex head면 `align-items: center`) |
+| `textAlignHorizontal: RIGHT` | `text-align: right` |
+| Auto Layout `counterAxisAlignItems: CENTER` | `align-items: center` |
+| Auto Layout `primaryAxisAlignItems: CENTER` | `justify-content: center` |
+
+**주의:** TEXT 박스가 **풀폭(1840 등)** 이면 bounding box만 보면 좌측처럼 보일 수 있음 → **`textAlignHorizontal` MCP 값 필수 확인**. 같은 섹션 안에서 head(중앙) vs card body(좌측) **블록별로 다를 수 있음**.
+
+**MCP 분석 보고에 포함:** head/title·body copy 각각 `text-align` · head wrapper `align-items`
+
+## Gap · spacing (필수)
+
+Auto Layout **`itemSpacing`만 CSS gap으로 옮기지 않는다.** 구현·QA 전 **bbox 교차 검증** 필수.
+
+```
+인접 gap = child[n+1].x − (child[n].x + child[n].width)
+또는  Σ child.width + (n−1)×gap = parent.width  (±1px 반올림)
+```
+
+| bbox 결과 | CSS |
+|-----------|-----|
+| gap **0** (밀착) | `gap: 0` |
+| gap **1** | `gap: 1px` (story·news 카드 등) |
+| gap **N** | `clamp` / vw 변환 |
+
+**주의:** `itemSpacing: 10`이어도 자식 고정 폭이 부모를 채우면 **실 gap 0**일 수 있음 (works gallery).
+
+**MCP 분석 보고에 포함:** 나열 gap · **bbox 실측 gap** · 불일치 시 bbox 우선
+
+## Section shell · full-bleed (필수 — CTA·stats 등)
+
+섹션마다 **좌우 여백 방식이 다를 수 있음.** MCP 분석·구현·QA **전에 타입 분류** — CTA만의 예외 **금지**.
+
+### MCP에서 분류 (bbox)
+
+| 비교 | 의미 |
+|------|------|
+| 섹션 프레임 width **W** (보통 1920) | 기준 |
+| **배경·이미지·색 band** 자식 width | bg 폭 |
+| **본문·카드·타이틀** 블록 width | content 폭 |
+| 섹션 `paddingLeft/Right` | gutter |
+
+```
+gutter ≈ (W − content_width) ÷ 2   (±2px)
+bg_full = bg_width ≈ W
+content_inset = content_width ≈ W − 2×gutter
+```
+
+### Shell 타입 → CSS
+
+| 타입 | Figma 패턴 | CSS |
+|------|------------|-----|
+| **guttered** (기본) | bg·content 모두 gutter 안 (~1840) | `.section { padding-inline: var(--layout-pad-x); }` · 자식 `width:100%` |
+| **full-bleed** | bg **W 풀폭**, 글자만 gutter (CTA) | 섹션 `padding-inline:0` · **band**에 bg + `.is-bleed-x` · band **안**에만 `padding-inline: gutter` |
+| **breakout** | 섹션 gutter O, **색 band만** W 풀폭 (stats) | 섹션 gutter 유지 · band만 `.is-bleed-x` + band 내부 gutter |
+
+**공통 bleed 유틸** (템플릿 `style.css` — band·panel에 재사용):
+
+```css
+.is-bleed-x {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+```
+
+**금지:** full-bleed·breakout 섹션에 **습관적으로** `section { padding-inline: var(--layout-pad-x) }` (CTA·stats 실패 원인)
+
+**MCP 분석 보고에 포함 (필수 1줄):** `Shell: guttered | full-bleed | breakout` · bg frame명·width · content width · **`Section BG: #hex · node-id · (fills | 부모 상속)`** · 근거 bbox
+
+> Section BG 절차·인접 섹션 대조표 → **`30-figma-to-code.mdc` 「MCP JSON 분석」**
+
+### Breakout · full-bleed — 가로 overflow 방지
+
+- `.is-bleed-x` **좌·우 margin 둘 다** 필수 (한쪽만 **금지**)
+- bleed **안** 자식은 `width: 100%` — **`100vw` 중복 금지**
+- breakout이면 **섹션 `background`** 와 bleed band bg **동일색** 유지 (끊김 방지)
+- 템플릿 `html`/`body`에 `overflow-x: clip` (또는 동등) — **페이지 QA 필수** (`50-qa-checklist.mdc`)
+
+## Shell · gutter · inner (필수 — guttered 섹션)
+
+**역할 분리** — 한 요소에 gutter padding + content max-width **동시 금지** (`box-sizing: border-box` 이중 inset).
+
+| 역할 | CSS | HTML (권장) |
+|------|-----|-------------|
+| **섹션 gutter** | `{section} { padding-inline: gutter; }` | `<section>` |
+| **콘텐츠 inner** | `max-width: content_px; margin-inline: auto; width: 100%` | `.section-shell` |
+| **헤더·히어로 gutter** | `.section-shell--gutter` = max-width + 좌우 pad | header/hero inner |
+
+**섹션 head (label + title + desc)** — 템플릿 `:root` 토큰 + 공통 클래스 (`40-template-code-style.mdc`):
+
+- `--section-label-gap` · `--section-title-gap` · `--section-head-gap`
+- `.section-head` · `.section-head--spaced` (head → 본문 간격)
+- breakout band **padding-top**과 `--section-head-gap` **이중 금지**
+
+### Shell · gutter · inner — @768 (필수)
+
+> 상세 패턴: `35-responsive.mdc` 「모바일 @768 — gutter · 칼럼 · shell」
+
+| Shell 타입 | @768 구조 |
+|------------|-----------|
+| **guttered (기본)** | `{section} { padding-inline: 0; padding-block: … }` · **gutter는 `.section-shell` / `.section-shell--gutter`만** |
+| **full-bleed** | `section > {panel/band}` — panel **pad 0 · bg 풀폭** · `{panel}__inner.section-shell` — **content만** `padding-inline: gutter` |
+| **breakout** | 섹션 gutter 0 또는 shell gutter · band만 `.is-bleed-x` + band **내부** gutter |
+
+```css
+/* guttered @768 — 예시 (px는 decision-log) */
+@media (max-width: 768px) {
+  :root { --side-padding: /* MCP or 1차 PASS */; }
+
+  .signature,
+  .strength { padding-inline: 0; }
+
+  .section-shell,
+  .section-shell--gutter {
+    max-width: 100%;
+    padding-inline: var(--side-padding);
+  }
+}
+```
+
+```html
+<!-- full-bleed @768 — 예시 (reservation·CTA형) -->
+<section class="reservation">
+  <div class="reservation__panel"><!-- bleed, pad 0 -->
+    <div class="reservation__inner section-shell section-shell--gutter">
+      …content…
+    </div>
+  </div>
+</section>
+```
+
+**MCP 분석 보고 (모바일 프레임 있을 때 필수 1줄):**  
+`Mobile @768: gutter {px} · columns {1} · header {h}px · QA 390`
+
+**금지 @768:** section `padding-inline: gutter` + inner `.section-shell--gutter` **동시** · PC 다열 grid **override 누락**
+
+## Fill · overlay · gradient (필수 — 카드·패널·히어로)
+
+Figma **fills[]**는 `IMAGE`만 export한다고 가정 **금지**. MCP에서 **전수 확인**.
+
+| Figma fill | 구현 |
+|------------|------|
+| `IMAGE` only | `background-image` / `<img>` + **`object-fit: cover`** (또는 card fill 규칙) |
+| `GRADIENT_LINEAR` / `GRADIENT_RADIAL` | CSS `linear-gradient` / `radial-gradient` — **`::after`·`::before`·background-layer** |
+| fill **`opacity` < 1** | gradient/solid에 **동일 opacity** (레이어 opacity ≠ stop alpha만으로 대체 **금지**) |
+| IMAGE + GRADIENT **겹침** | 이미지 + **별도 overlay** (PNG flatten에만 의존 **금지**) |
+
+**MCP 분석 보고에 포함 (필수 1줄):** `Overlays: none | gradient(stops · opacity · y%) | flat rgba`
+
+**QA:** export PNG만으로 overlay 유무 판단 **금지** — DevTools에서 gradient/overlay 존재 확인.
+
+## Logo · icon · export PNG (필수)
+
+| 항목 | 규칙 |
+|------|------|
+| **납품 전** | 로고·아이콘 PNG — **content bbox crop** (투명 여백만 있는 대형 캔버스 **금지**) |
+| **`<img>` 로고** | **한 축만 고정** (보통 `width` + `height: auto`) |
+| **금지** | `object-fit: contain` + **고정 `height`** 조합 (여백 캔버스 → 실제 그래픽 축소) |
+| HTML `width`/`height` | **표시 비율**(Figma bbox) — 원본 파일 px **금지** |
+| **crop 전 interim** | artwork 시작선 = gutter 시작선 — `margin-left: calc(-{bboxLeft} / {srcWidth} * 100%)` on `<img>` (bboxLeft·srcWidth = export 실측) |
+
+**QA:** computed img 높이 ≈ Figma 로고 bbox height (±2px) · **390px** header artwork 좌측 = 본문 텍스트 좌측 (`50-qa-checklist.mdc`).
+
+## Image · card fill (필수 — Story·News 등 카드)
+
+Figma **Fill(채우기)** 과 동일. 원본 해상도·비율과 **달라도** 카드 **틀(Figma W×H)** 기준.
+
+| 항목 | 규칙 |
+|------|------|
+| 틀 | Figma 프레임 `aspect-ratio` + `overflow: hidden` |
+| 이미지 | `width:100%` · `height:100%` · **`object-fit: cover`** · `object-position: center` (기본) |
+| 동작 | **카드 크기에 맞게 축소** 후 틀 꽉 채움 · 넘치면 **가운데 기준** 잘림 · **stretch 금지** |
+| HTML `width`/`height` | **틀 비율**(613×720 등) — 원본 px **금지** (브라우저가 원본 크기로 그리는 버그 방지) |
+
+**금지:** `width/height: auto` + `min-width/min-height: 100%` only (대형 원본 → 확대·일부만 보임) · `object-fit: contain` (여백) — **승인 시만**
+
+**보여줄 위치 변경:** `object-position` (예: `center top`) — Figma·사용자 지정 시
+
+## Images · `assets/images/`
+
+| 구분 | 소스 |
+|------|------|
+| **hero · 카드 `<img>`** | `assets/images/` (테마 안) |
+| **섹션 장식 배경** | `assets/images/` · `:root --img-*` 등 |
+
+- 루트 `_dev-images/` · `47-placeholder-images` 워크플로 **사용 안 함** (규칙 archive)
+
+### 금지
+
+- 루트 `_dev-images/` 재생성으로 워크플로 혼선
+- Figma MCP 없이 임의 스톡으로 최종 납품 이미지 대체 (사용자 승인 시만)
+- shell·gutter에 Figma 설계 px **max cap** (`clamp(..., 1840px)` 등) → ultrawide 좌우 여백 과다
+- gutter pad + shell `max-width` **이중 축소**
+- **inner**에 gutter `padding-inline` + `max-width` **동시** (`border-box` 시작선 밀림)
+- PNG export만 보고 **gradient/flat overlay** 생략
+- **Section BG:** fill 없음을 인접 섹션과 동일색으로 추론 · `backgroundColor`만으로 BG 확정 · `--color-bg` 단일 토큰으로 섹션 BG 통합
+- font-size / padding / gap **@1920 px 고정** (하드코딩 승인 제외)
+
+### QA
+
+→ **`50-qa-checklist.mdc` 「Fluid scale QA」** · 뷰포트 **1920 · 2560+** 필수
+
+적용 기준:
+- Figma MCP·Dev Mode 수치로 CSS/HTML 레이아웃·타이포 작성 시.
+
+금지:
+- Figma 없이 간격·폰트 추측
+- 섹션 간 margin으로 Figma padding 대체
+- 전역 `_tokens`·공통 스케일 파일 생성
+- **shell**에 Figma shell 폭 px **max cap** (내부 narrow 블록·승인 하드코딩 제외)
+- font-size / padding / gap **@1920 px 고정** (하드코딩 승인 제외)
+
+완료 기준:
+- MCP padding/gap/font-size가 vw/clamp로 반영, **1920·2560+ Fluid scale QA PASS**, PC·1024·768 반영 (`35-responsive.mdc`).

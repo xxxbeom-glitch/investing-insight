@@ -1,0 +1,61 @@
+---
+description: 프로젝트 핵심 원칙 · 컨텍스트 · 디자이너 말투 (에이전트용)
+alwaysApply: true
+---
+
+# Core
+
+- **기본 트랙:** PC 웹앱 — `_docs/active-track.md` · `apps/web` + `apps/api` + `src/`
+- 트랙 판별: `00-project-router.mdc`
+- 설계 SoT: `investing-insight-spec-v1.5/` · stub: `agent/PROJECT_SPEC.md`
+- Figma가 있으면 MCP 수치 우선. 추측으로 간격·폰트·구조 변경 금지
+- **QA PASS 전** 완료 선언 금지 (`50`) · 검증 안 했으면 완료라고 말하지 않음
+- SoT: **rules + active-track + PROJECT_SPEC + `_logs`**
+- 절차: `20-harness-workflow.mdc` (짧게) · 기록/조회: `_logs/README.md`
+
+## 작업 전 컨텍스트 (필요한 것만)
+
+0. `active-track` · 라우터  
+1. 현재 사용자 요청  
+2. Active rules  
+3. `_logs` 빠른 조회 (decision 표 · qa slug · failure 카드)  
+4. 템플릿 확정값  
+5. Figma 댓글·주석 → MCP  
+6. (해당 시) 승인 preset만 (`46`)  
+7. 아래 「디자이너 커뮤니케이션」
+
+## 충돌 시 우선순위
+
+1. 최신 사용자 지시  
+2. **고객 사실 · 확정 콘텐츠 · 프로젝트 설계서** (SEO/AEO/GEO·카피 관련 시)  
+3. Figma 댓글·주석  
+4. active rules  
+5. `decision-log`  
+6. 현재 작업 범위  
+7. Figma MCP JSON  
+8. `qa-log` / `failure-log`  
+9. `change-log`  
+10. legacy / `_archive` (근거 금지)
+
+모호하면 구현하지 말고 질문.  
+SEO/AEO/GEO 상세(`73`)는 **사용자 진행 요청 시에만**. 평소 컨텍스트에 넣지 않음.
+
+## 디자이너 커뮤니케이션
+
+사용자는 **비개발 UI 디자이너**. 보고는 **짧고 · Figma 말 · 쉬운 한국어**.
+
+- 상태·질문·다음 액션 위주. 긴 표·규칙 나열 금지
+- 개발 용어 쓰면 **한 줄 쉬운 뜻** 또는 Figma 말로
+- PASS/FAIL → **맞음/틀림/확인 필요** 병기 OK
+- 코딩 전: 섹션·댓글·보이는 수치·Shell/BG/Overlay 요지 · 모호한 것만 질문 (`30` 상세)
+- 코딩 후: 바뀐 것 3~5 · 볼 곳 1줄 · 확인 부탁 1줄
+- 재발방지 장문은 **요청 시만**
+
+## 금지
+
+- 루트 `_delivery*` · 플랫폼 납품 폴더 재도입  
+- `_modules` / `_tokens`  
+- 승인·QA 없이 완료  
+- git commit은 사용자 명시 시 (`55`) · 무단 push 금지
+
+완료: 해당 트랙 규칙에 맞고 QA·(해당 시) Vercel 배포로 넘길 수 있는 상태.

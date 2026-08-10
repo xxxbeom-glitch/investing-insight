@@ -1,0 +1,52 @@
+---
+description: 저장소·폴더 구조 규칙 (investing-insight · 설계서 정렬)
+alwaysApply: true
+---
+
+# Project Structure
+
+설계서 `01_ARCHITECTURE.md` §3과 역할을 맞춘다. 프레임워크 제약으로 세부 경로가 달라도 **역할 경계는 유지**.
+
+```
+investing-insight/
+├── .cursor/rules/
+├── agent/                      # TASK · SPEC · handoff · error ledger
+├── apps/
+│   ├── web/                    # Next.js PC Web
+│   └── api/                    # FastAPI
+├── packages/schemas/           # 공유 계약 (필요 시)
+├── src/                        # ingestion…audit 파이프라인
+├── migrations/
+├── tests/
+├── storage/raw/                # immutable raw (gitignore)
+├── audit/mvp/
+├── docs/                       # 구현 메모 (설계 SoT 아님)
+├── scripts/
+├── investing-insight-spec-v1.5/  # 설계 SoT
+├── _docs/                      # active-track + design 포인터
+├── _logs/                      # harness logs
+├── fonts/
+├── SECURITY.md
+└── README.md
+```
+
+## Active workspace
+
+| 역할 | 경로 |
+|------|------|
+| UI | `apps/web/` |
+| API | `apps/api/` |
+| 도메인 파이프라인 | `src/*` |
+| 설계 | `investing-insight-spec-v1.5/` |
+| 감사 산출물 | `audit/` |
+| harness 현황 | `_docs/active-track.md` |
+
+## 금지
+
+- 설계서 Non-Goals(실시간 호가·자동주문·K8s 등) 무단 도입
+- `storage/raw` · secrets 커밋
+- 타 프로젝트 `site/`/`wordpress/`/`_delivery*` 트리 재도입
+
+## 완료 기준
+
+- 파일이 역할 폴더에 있고, Layer 계획·active-track과 모순되지 않음.

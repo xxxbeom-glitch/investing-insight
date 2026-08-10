@@ -1,0 +1,171 @@
+﻿---
+description: 인터랙션·애니메이션 구현 패턴 (활성 site/ · WP 동결)
+alwaysApply: false
+globs:
+  - site/**/*.js
+  - site/**/*.html
+  - wordpress/**/assets/js/**
+  - wordpress/**/*.php
+---
+
+# Interaction Patterns
+
+> **어떤 motion을 쓸지:** `.cursor/rules/46-interaction-presets.mdc` (preset ID · 사용자 승인)  
+> **이 파일 = 구현 방식만** (hover/터치·타이밍)  
+> **활성 경로:** `site/` · WP는 동결(재개 시만)
+
+- **`site/` (개인 정적):** 바닐라 JS 또는 jQuery **둘 다 가능** · 진입점 `assets/js/main.js` (또는 합의된 경로)
+- **`wordpress/` (재개 시):** JS는 **jQuery 3.x** only · 바닐라 DOM 조작 추가 금지 · 진입점 `js/main.js` — `$(function(){ ... })` 패턴
+- **새로고침 scroll top:** `history.scrollRestoration = "manual"` + `pageshow` → `scrollTo(0,0)` (`40-template-code-style.mdc` JS 기본)
+- GNB 모바일: `.menu-toggle` + `.header__nav.is-open`
+- FAQ: `slideToggle` 단일 duration, 단일 열림, `is-open`은 애니메이션 콜백과 동기
+- AOS: `data-aos-anchor`로 트리거 고정, `prefers-reduced-motion` 존중
+- CTA hover: CSS only (`.btn__label` / `.btn__track` 패턴) — **fine pointer만** (`35-responsive.mdc`)
+- hover-only UI는 768px 이하·터치 환경에서 **대체 UI** 또는 비활성화
+- CSS `transition`과 jQuery `slideToggle` 타이밍 충돌 금지
+- **슬라이더 방향 버튼** (`prev` / `next`): **첫 슬라이드**에서 `prev` **`disabled`**, **마지막**에서 `next` **`disabled`** — JS에서 인덱스마다 `prop("disabled")` 동기화 · HTML 초기값(첫 화면 `prev` disabled) · CSS `:disabled` 시각 비활성(opacity 등) 필수
+- **46에 없는 preset·GNB 패턴 이름·승인 없는 motion 구현 금지**
+
+## GNB 2depth 패턴 (공통)
+
+> 정의·승인: `46-interaction-presets.mdc` 「GNB 패턴」·`decision-log`  
+> 템플릿 **header당 1개만** — `gnb-full-expand` · `gnb-item-panel` **동시 금지**
+
+**공통 HTML·동작**
+- 1depth **현재 페이지** `.is-active` (또는 프로젝트 관례 클래스) — **HTML 고정** · JS current 토글 **금지** (`45` 금지 항목).
+- 2depth **자식 1개** → 패널 마크업 **없이** 1depth `a` 직링크.
+- 2depth **2개 이상** → 승인된 패턴에 따라 패널 표시.
+- PC: `@media (hover: hover) and (pointer: fine)` + breakpoint (`decision-log` · 보통 `min-width: 1025px`).
+- `@1024` 이하: hover 패널 **비활성** · 햄버거·중첩 리스트 등 `35-responsive.mdc` · 별도 승인.
+- 열림 상태 클래스 예: `.is-open` · `.is-active` · `aria-expanded` — 템플릿 내 **일관**하게 1세트만.
+
+**공통 JS (`main.js`)**
+- jQuery · `initHeaderMega()`(`gnb-full-expand`) 또는 `initHeaderDropdown()`(`gnb-item-panel`) — **승인된 패턴 ID 1개**만.
+- 바깥 클릭·mouseleave 닫기 · 지연 ms — **`decision-log` 수치** (패턴 정의에 없음).
+- `prefers-reduced-motion: reduce` — 열림 **즉시** 또는 transition 최소화.
+
+---
+
+### `gnb-full-expand` 구현
+
+> **참고 구현:** [원안과](https://www.oneretinaclinic.com/) — 패턴 정의용. barun은 `gnb-item-panel`.
+
+**HTML (구조 요약)**
+- `header` 직하위 **공용 패널 1개** — `#gnb-mega-panel` · `.site-header__mega`.
+- 1depth `ul`과 패널 **분리** — 패널은 `header` 하단 full-bleed (`top:100%; left:0; right:0`).
+- 패널 안: 1depth **인덱스마다** `.site-header__mega-col` 1개 — 2depth `ul` · 2depth 없는 항목은 **빈 열**(슬롯만).
+- 2depth **2개 이상** 1depth만 `mouseenter` 트리거 (`.site-header__item--has-mega`).
+- `@1024` 모바일: `.site-header__submenu--mobile` — PC에서 `display:none`.
+
+**CSS (필수)**
+- **닫힘:** `.site-header__mega { display: none }` + `hidden` · `inert` — **기본부터 펼쳐 보이면 FAIL**.
+- **금지:** `.site-header__mega[hidden] { display: grid }` 등 **`hidden` 무력화**.
+- **열림:** `.site-header.is-mega-open .site-header__mega { display: grid; grid-template-rows: 1fr }` · `hidden`/`inert` 제거.
+- 패널 BG·하단 border — `decision-log` / Figma.
+- **금지:** `.site-header__mega-col.is-active` **배경·라운드 박스** — 활성은 **1depth** `.is-active` + `font-weight` 만.
+- mega 열 안 `.site-header__sublink` — **`padding-left: 0`** (1depth 라벨과 시작점 정렬) · 긴 카피는 `white-space: normal` · `word-break: keep-all`.
+- 딤 — 헤더 **아래만** (`top` = header bottom, JS `syncDimTop`) · opacity는 `decision-log`.
+
+**JS (필수)**
+- `initHeaderMega()` — PC `(min-width: 1025px) and (hover: hover) and (pointer: fine)` 만.
+- **열림 순서:** `is-mega-open` + `hidden`/`inert` 제거 → **`requestAnimationFrame` 후** `syncMegaAlignment()` (닫힌 상태에서 좌표 잡지 않음).
+- **열 정렬 (`syncMegaAlignment`):** 각 1depth **라벨** (`.site-header__trigger` / `.site-header__link`) `getBoundingClientRect().left` 기준 · 열 `left` = 라벨 left − mega-list left.
+- **열 너비:** 다음 1depth **라벨 left** − 현재 라벨 left (마지막 항목은 `li` 너비) — **슬롯 전체**에 2depth 수용 · 텍스트 겹침 방지.
+- 1depth 이동 시 패널 **유지** · `activeIndex`만 변경 — **닫았다 열기 금지**.
+- 닫기: `header` `mouseleave` (relatedTarget이 header 밖) · 딤 click · document click · `Escape` · 지연 ms = `decision-log`.
+- `resize` / `scroll` 시 열림 중이면 `syncMegaAlignment()` 재호출.
+
+**QA FAIL 예**
+- 페이지 로드 시 2depth가 **이미 보임** (`[hidden]` + `display:grid` 충돌 등).
+- 1depth마다 **별도 패널 DOM**이 각각 show/hide.
+- 메뉴 이동 시 패널이 **깜빡이며 닫혔다 열림**.
+- 2depth 열이 1depth **텍스트 시작점보다 오른쪽**으로 밀림 (sublink padding · `li` 기준 정렬 오류).
+- hover한 2depth 열 뒤 **회색·컬러 배경 박스**가 깔림.
+- 2depth 열이 패널 밖·헤더와 분리된 **플로팅 카드**.
+
+---
+
+### `gnb-item-panel` 구현
+
+> **참고 구현:** `wordpress/365-barun-dental/` — `header.php` · `style.css` · `assets/js/main.js` `initHeaderDropdown()`
+
+**HTML (구조 요약)**
+- 2depth 있는 1depth `li`마다 **자식 패널** (예: `.site-header__dropdown`) 또는 **단일 패널 + JS 위치 이동** — Figma bbox 기준.
+- 한 번에 **하나의 패널만** `.is-open` (또는 visible).
+
+**동작 (필수)**
+- 1depth `mouseenter` → **해당 패널만** 열기 · 이전 패널 닫기.
+- 패널 `top` / `left` — 트리거 `getBoundingClientRect()` 또는 Figma offset (`decision-log`).
+- 딤(`.site-header__dim` 등) — 유무·범위·opacity는 **`decision-log`** · 패턴 정의 아님.
+- 닫기: mouseleave 지연 · document click — **`decision-log`**.
+
+**QA FAIL 예**
+- 헤더 아래 **전체 폭 단일 패널**에 모든 2depth 열이 동시에 노출 (`gnb-full-expand` 혼동).
+- 2depth 1개 메뉴에 **빈 패널**만 있고 링크 없음.
+- 패널이 1depth 텍스트를 **가려** 클릭 불가 (Figma overlap 의도 없을 때).
+
+---
+
+## `scroll-reveal` 구현 (프로젝트 기본값)
+
+> 등장 단위 정의: `46-interaction-presets.mdc` 「scroll-reveal」「등장 단위」
+
+**HTML**
+- `html`에 `js` 클래스 (`main.js` `$(function(){ $("html").addClass("js"); … })`).
+- 클래스명: `scroll-reveal` · revealed: `is-revealed`.
+- **카드:** 루트 1개만 — 자식 img · caption · title · `p`에 `scroll-reveal` **금지**.
+- **헤드·비카드 본문:** label · `__title-line` · lead `p` · 리스트 번호·제목·본문 **각각**.
+
+**CSS**
+- `.js .scroll-reveal:not(.is-revealed)` — `opacity: 0` · `translateY` 소폭.
+- 카드 루트에 transition — **자식은 부모 opacity 상속** (카드 통째 등장).
+- `@media (prefers-reduced-motion: reduce)` — 즉시 `opacity: 1` · `transform: none`.
+
+**JS (`main.js`)**
+- `IntersectionObserver` — **모든** `.scroll-reveal` 개별 observe (카드 band 묶음 **금지**).
+- 진입 시 문서순 **큐** + 약 **85ms** 간격 `is-revealed` (동시에 여러 개 보여도 순차).
+- `prefers-reduced-motion: reduce` — 전부 즉시 `is-revealed`.
+- Observer 없음 fallback — 문서순 일괄 sequential.
+
+**QA FAIL 예**
+- 카드 BG·패널은 보이는데 안 글자만 순차 등장.
+- 카드 루트·자식 **둘 다** `scroll-reveal`.
+- philosophy 등 비카드 행을 카드처럼 1덩어리만.
+
+## `infinite-card-marquee` · 무한 카드 마퀴 (참고 카탈로그)
+
+> 스펙·금지: `46-interaction-presets.mdc` · **참고 구현** `templates/template-homepage/#reviews`
+
+**HTML**
+- `{section}__marquee` > `{section}__row--left` · `{section}__row--right` > `{section}__track` > `{section}__group` **×2** (동일 카드 N장 · 2번째 `aria-hidden="true"`).
+
+**CSS**
+- 마퀴 래퍼: `100vw` 풀블리드 · `calc(50% - 50vw)` margin · edge mask **없음**.
+- vars: `--reviews-gap` · `--reviews-card-w: calc((100vw - 3 * gap) / 4)` (PC 4장/줄).
+- track: `display:flex` · **`gap: var(--reviews-gap)`** (그룹 사이 = 카드 사이와 동일).
+- `@keyframes reviews-marquee-left` · `to: translate3d(calc(-50% - gap/2),0,0)` · **20s** linear infinite · `--right` = `reverse`.
+- `@media (hover: hover) and (pointer: fine)` — row hover → `animation-play-state: paused`.
+- `@768` — `--reviews-card-w: calc((100vw - gap) / 1.12)`.
+- `prefers-reduced-motion: reduce` — animation off · `[aria-hidden="true"]` group 숨김 · track wrap.
+
+**JS**
+- 없음.
+
+**scroll-reveal**
+- 섹션 **제목만** · 마퀴 카드·track 자식에 `scroll-reveal` **금지**.
+
+**QA FAIL 예**
+- `drag-scroll`과 같은 트랙에 동시 적용.
+- duplicate group 1벌만 → 루프 끊김.
+- 마퀴 카드에 scroll-reveal → 등장·흐름 중복 motion.
+
+적용 기준:
+- **승인된 preset** 구현·수정 시 · 햄버거·아코디언·슬라이더 등.
+
+금지:
+- GNB active를 JS로 토글
+- AOS·FAQ 패널에 불필요한 `transition` 중복
+- **46 카탈로그·사용자 승인 없는** 인터랙션·라이브러리 추가
+
+완료 기준:
+- 해당 preset·**GNB 패턴**이 PC·모바일(35 정책)에서 동작 · 콘솔 에러·깜빡임 없음 · qa-log·decision-log에 ID 기록.

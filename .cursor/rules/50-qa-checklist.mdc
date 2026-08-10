@@ -1,0 +1,33 @@
+---
+description: PC QA 통과 기준
+alwaysApply: false
+globs:
+  - apps/web/**/*
+  - _logs/qa-log.md
+---
+
+# QA Checklist (PC only)
+
+뷰포트: **1920** · **1440** · (선택) **2560**  
+**모바일 QA 없음** · UI 상세: `investing-insight-spec-v1.5/06_PC_WEB_UI.md`
+
+## 단위 QA
+
+- [ ] 해당 범위만 대조 (설계서 · decision · 요청)
+- [ ] 1280px 이상에서 사용 가능 · 가로 스크롤 없음
+- [ ] 콘솔 치명 오류 없음
+- [ ] 키보드: 주요 컨트롤 Tab 도달
+- [ ] 비밀키·토큰이 클라이언트 번들/로그/커밋에 없음
+
+## 페이지·플로우 QA
+
+- [ ] 사이드바 내비 · Run Context
+- [ ] PASS/WARN/FAIL 상태 표현이 혼동되지 않음
+- [ ] Chrome·Edge(또는 Safari) 기본 확인
+
+## Layer QA (백엔드·파이프라인)
+
+- UI 체크와 별도: 해당 Layer Blocking Acceptance (`07` · `05`)
+- 증거는 `audit/` · 테스트 결과 · `_logs`
+
+PASS 후에만 다음 단위 · qa-log 1건 (UI) 또는 audit 산출물 (Layer)

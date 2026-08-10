@@ -1,0 +1,112 @@
+﻿---
+description: HTML/CSS 네이밍·마크업 규칙 (활성 site/ · WP 동결)
+alwaysApply: false
+globs:
+  - site/**/*.html
+  - site/**/*.css
+  - site/**/*.js
+  - wordpress/**/*.php
+  - wordpress/**/*.css
+  - wordpress/**/*.html
+---
+
+# Template Code Style
+
+> **활성:** `site/` (개인 정적). WP PHP 규칙은 `wordpress/` 재개 시에만.
+
+## 섹션·레이아웃
+
+```html
+<header id="header" class="header">
+<section id="hero" class="section section--hero">
+<footer id="footer" class="footer">
+```
+
+- id = kebab-case · class = `section section--{name}` (BEM modifier)
+- 공통: `.container`, `.narrow-wrap`, `.grid`, `.card`, `.section-title`
+- **`.section-shell`:** `{ max-width: content_px; margin-inline: auto; width: 100%; }` — **gutter padding 없음**
+- **`.section-shell--gutter`:** header·hero 등 — `max-width: content + 2×gutter` + `padding-inline: gutter`
+- **`.section-head`:** label + title + desc — 간격은 `:root` 토큰만 (`--section-label-gap`, `--section-title-gap`, `--section-head-gap`)
+- **`.section-head--spaced`:** head → 본문 `--section-head-gap` (섹션마다 margin 개별 지정 **금지**)
+- **`.section-head--center`:** reservation형 중앙 head (modifier)
+- **`.container` (legacy alias):** pad 안 `width: 100%` — shell `max-width` cap 금지 (`30-figma-to-code.mdc` Fluid scale)
+- BEM: `{block}__{element}`, `{block}--{modifier}`, 상태 `.is-active` `.is-open`
+- **full-bleed band:** `.is-bleed-x` + band 내부만 gutter · 자식 `width:100%` (`30-figma-to-code.mdc` 「Section shell · full-bleed」)
+
+### @768 모바일 shell (필수)
+
+> 패턴·금지: `35-responsive.mdc` · `30-figma-to-code.mdc` 「Shell — @768」
+
+- `@768` **gutter는 `.section-shell` / `.section-shell--gutter`에만** — section `padding-inline`과 **이중 금지**
+- PC `grid-template-columns: 2+` → `@768` **`1fr` / column stack 명시**
+- header inner · hero inner · 본문 shell — **동일 `--side-padding`** (`decision-log` 확정값)
+- full-bleed: `section > panel(bleed) > inner.section-shell(gutter) > content`
+
+### Wrap 안 시맨틱 요소 (content block)
+
+- **`.section-shell` (또는 content wrap) 안**에 `figure` · `blockquote` · `ul`/`ol` · `dl` 사용 시 — **UA margin reset 필수**
+- **패턴 (템플릿 `style.css`):**
+
+```css
+/* content wrap 안 figure — 좌우 UA margin(≈40px) 제거 */
+.section-shell figure,
+.sub-section figure {
+  margin-inline: 0;
+  width: 100%;
+}
+```
+
+- `figure`만 `margin-bottom` 등 **블록 간격**은 Figma bbox gap 토큰으로 **별도 지정** (예: `.sub-about__figure { margin: 0 0 78px; }`)
+- wrap 안 형제(이미지·텍스트·grid)는 **부모 max-width만 맞추고 PASS 처리 금지** — `50-qa-checklist.mdc` 「Wrap 내 DOM · box-model QA」
+
+## CSS
+
+- 한 템플릿 = `css/style.css` 단일 파일 (`:root`에 색·폰트·레이아웃·**head gap** 변수)
+- **Section BG:** MCP에서 섹션마다 hex가 다르면 `--color-bg-{section}` 등 **분리** — `--color-bg` 단일값으로 여러 `<section>` BG 통합 **금지** (`30-figma-to-code.mdc` 「MCP JSON 분석」)
+- PC + `@media (max-width:1024px)` + `@media (max-width:768px)` **항상 함께** 수정 (`35-responsive.mdc`)
+- **`@768` `:root`** — `--side-padding` 등 gutter **PC override** · `--mo-fs-*` 등 타이포는 decision-log 확정 후만
+- 인라인 `style=""` 금지 · `!important` 남용 금지
+- **`html`, `body`:** `overflow-x: clip` (full-bleed·슬라이더 템플릿 **권장**)
+
+## HTML
+
+- 시맨틱 태그 (`section`, `nav`, `main`, `header`, `footer` 등) — **div만으로 페이지 뼈대 만들지 않음**
+- **Heading:** 페이지(또는 템플릿 본문) **H1 1개** · H2→H3 순 · **단계 건너뛰기 금지** (디자인용 큰 글씨를 잘못된 레벨로 쓰지 않음)
+- **링크 vs 버튼:** URL·페이지·앵커 이동 = `<a href>` · 제출·토글·모달·탭 등 **동작** = `<button type="button">` (또는 submit). 클릭용 `div`/`span` + JS만 **금지**
+- **Form:** `input`/`select`/`textarea`에 **`<label>` 연결** (`for`+`id` 또는 감싸기). placeholder만으로 label 대체 **금지**
+- GNB current: **HTML에** `is-active` / `aria-current="page"` — JS 동적 처리 금지
+- 이미지: `assets/` + `width`/`height` + `decoding="async"` · **의미 있는 이미지는 내용 담은 `alt`** · **장식·중복 이미지는 `alt=""`** (`40`에 이미 있는 alt 원칙 유지 · SEO `73`과 충돌 없음)
+- **로고 `<img>`:** Figma bbox 비율 · `width` 고정 + `height: auto` · `contain`+고정 height **금지** (`30-figma-to-code.mdc` 「Logo · icon」)
+- **키보드 (기본):** GNB·CTA·모달·햄버거·주요 폼 컨트롤은 **Tab으로 도달** · 모달/메뉴는 **Esc 또는 동일 버튼으로 닫기** (해당 UI 있을 때). WCAG 인증 목표 **아님**
+- **마크업 무결성:** 태그 미닫힘 · 잘못된 중첩(`p` 안 `div`/`section` 등) · 의미 없는 다중 wrapper 남발 **금지**
+- 개발용 사진: 테마 `assets/images/`에 직접 (루트 `_dev-images/` 삭제됨)
+- JS 훅: `data-*` 속성 사용
+
+## JS (`main.js` · `mobile.js` 기본)
+
+- 진입: `$(function(){ ... })`
+- **새로고침 시 scroll top (필수)** — `main.js` **및** 모바일 프리뷰용 `mobile.js`(`index-mobile.html`) **공통**:
+
+```js
+if ("scrollRestoration" in history) {
+  history.scrollRestoration = "manual";
+}
+window.addEventListener("pageshow", function () {
+  window.scrollTo(0, 0);
+});
+```
+
+- `index-mobile.html`은 `main.js`를 로드하지 않는 경우가 많으므로, 위 snippet을 **`mobile.js` 최상단**에도 반드시 둔다.
+
+- GNB active·scroll 위치 복원을 JS로 덮어쓰기 **금지** (위 snippet과 충돌 주의)
+
+적용 기준:
+- 템플릿 HTML/CSS 작성·수정 시.
+
+금지:
+- 기존 `section--*` 클래스명 임의 변경
+- 요청 없는 카피·브랜드명 삽입
+- 와이어 placeholder(`.ph`)와 실제 납품 템플릿 규칙 혼용
+
+완료 기준:
+- 네이밍 규칙 준수, PC·모바일 CSS 동시 반영, 인라인 스타일 없음, 위 HTML 기본 마크업 기준 준수.

@@ -1,0 +1,29 @@
+---
+description: PC 전용 뷰포트·레이아웃 (06_PC_WEB_UI)
+alwaysApply: false
+globs:
+  - apps/web/**/*
+---
+
+# Responsive (PC only)
+
+> `06_PC_WEB_UI.md` 기준. 모바일/태블릿 QA는 MVP 범위 밖.
+
+## 기준
+
+- **primary:** 1440px class desktop
+- **minimum:** 1280px
+- **QA 뷰포트:** **1920** · **1440** · (선택) **2560**
+- `@media` 768/1024 필수 대응 **없음**
+
+## 레이아웃
+
+- sidebar 240–280px + main content
+- cards보다 **tables · evidence panel** 우선
+- PASS/WARN/FAIL 상태색 의미가 명확해야 함
+
+## QA
+
+- 지원 너비에서 가로 스크롤 없음
+- Chrome · Edge(또는 Safari) 데스크톱 확인
+- 상세: `50-qa-checklist.mdc`

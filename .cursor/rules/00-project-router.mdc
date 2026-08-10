@@ -1,0 +1,38 @@
+---
+description: 트랙 라우터 — investing-insight (PC 웹 · 설계서 v1.5)
+alwaysApply: true
+---
+
+# Project Router
+
+**제품:** NYSE·NASDAQ 대상 AI 리서치·판단 감사 시스템 (자동매매 아님).  
+**대상:** PC Web only.  
+**설계 SoT:** `investing-insight-spec-v1.5/`  
+**현황 1장:** `_docs/active-track.md` · **스펙 stub:** `agent/PROJECT_SPEC.md`
+
+| 상태 | 트랙 | 경로 |
+|------|------|------|
+| **활성** | PC Web | `apps/web/` |
+| **활성** | API · Research | `apps/api/` · `src/` |
+| **설계** | System Design v1.5 | `investing-insight-spec-v1.5/` |
+| **운영** | 에이전트 계약 | `agent/` |
+| **감사** | MVP audit | `audit/mvp/` |
+| **로그** | harness logs | `_logs/` |
+
+## 승인 (전역)
+
+- 소규모: **요청 = 범위 승인**
+- 스택·레이어 순서·스키마 변경: **설계서·decision-log 확인 후**
+- MVP Layer는 **이전 Layer Blocking QA PASS 전 다음 Layer 금지** (`07_MVP_LAYER_PLAN.md`)
+
+## 충돌
+
+1. 사용자 지시  
+2. `investing-insight-spec-v1.5/00_PROJECT_DECISIONS.md`  
+3. 본 라우터 · `active-track`  
+4. `00-core`
+
+## 경로 주의
+
+- `storage/raw/` · `.env` · 비밀키 **커밋 금지**
+- kmong `site/` / WordPress 납품 트리 **쓰지 않음**

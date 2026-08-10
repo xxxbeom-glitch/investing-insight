@@ -1,0 +1,77 @@
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*~
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.p12
+*.pfx
+*.key
+!**/LICENSE*.txt
+*.keystore
+*.jks
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+credentials.json
+**/credentials.*
+local.properties
+google-services.json
+GoogleService-Info.plist
+service-account*.json
+*.mobileprovision
+**/secrets/
+**/secret/
+
+# Auth / local tooling
+.npmrc
+.yarnrc.yml
+.netlify/
+.vercel/
+.claude/settings.local.json
+
+# Editor
+*.swp
+*.swo
+.idea/
+*.iml
+
+# Accidental dumps
+*.zip
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Raw evidence & local DB dumps (keep folder via .gitkeep)
+storage/raw/**
+!storage/raw/.gitkeep
+*.sql.gz
+
+# IDE
+.vscode/
+!.vscode/extensions.json
