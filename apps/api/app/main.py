@@ -13,6 +13,8 @@ settings = get_settings()
 configure_logging(settings.log_level)
 log = get_logger("api")
 
+from app.reads import router as reads_router
+
 app = FastAPI(title="investing-insight-api", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
@@ -21,6 +23,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(reads_router)
 
 
 @app.get("/health")

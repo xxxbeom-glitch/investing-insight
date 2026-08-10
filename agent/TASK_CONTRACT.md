@@ -1,16 +1,15 @@
 ﻿# Active Task Contract
 
 ## Task
-- Task ID: L08
-- Layer: L08_qa_judgment
+- Task ID: L09
+- Layer: L09_pc_web
 
 ## Goal
-Research QA & Final Judgment Blocking AC ALL PASS
+PC Web Vertical Slice Blocking AC ALL PASS
 
 ## Result
-- PASS — ready for L09
+- PASS — ready for L10
 
 ## Verification
-- [x] unsupported numeric fixture FAIL
-- [x] SELECTED blocked on QA FAIL
-- [x] judgment immutability
+- [x] next build
+- [x] reads API + no secret leak
