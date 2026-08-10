@@ -1,19 +1,15 @@
-# Active Task Contract
+﻿# Active Task Contract
 
 ## Task
-
-- Task ID: L00
-- Layer: L00_foundation
+- Task ID: L05
+- Layer: L05_snapshot_engine
 
 ## Goal
-
-Foundation · Supabase · Config · Audit — Blocking AC ALL PASS
+Snapshot Engine Blocking AC ALL PASS
 
 ## Result
-
-- PASS — ready for L01
+- PASS — ready for L06
 
 ## Verification
-
-- [x] unit/integration tests
-- [x] AC-1…AC-8 evidence in audit
+- [x] integration snapshot tests
+- [x] manifest schema + no future leakage
