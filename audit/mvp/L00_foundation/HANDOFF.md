@@ -1,9 +1,9 @@
-# HANDOFF
+ï»¿# HANDOFF
 
 - layer_id: L00
-- status: BLOCKED
+- status: PASS
 - completed_at: 2026-08-10
-- commit_hash: 58003c5
+- commit_hash: pending
 - previous_layer_commit: n/a
 - spec_version: investing-insight-spec-v1.6
 
@@ -11,37 +11,37 @@
 
 | ID | Result | Evidence |
 |----|--------|----------|
-| AC-1 | PASS | pytest health |
-| AC-2 | PASS | Next health page + build |
-| AC-3 | FAIL | placeholder Supabase URL |
-| AC-4 | PARTIAL | migrate --check only |
+| AC-1 | PASS | /health 200 |
+| AC-2 | PASS | apps/web health page |
+| AC-3 | PASS | /health/db mode=table |
+| AC-4 | PASS | migrate apply + idempotent skip |
 | AC-5 | PASS | secret_scan |
 | AC-6 | PASS | check_client_secrets |
-| AC-7 | PASS | llm profile tests |
+| AC-7 | PASS | llm profile + /health/config |
 | AC-8 | PASS | generate_audit_layer test |
 
 ## Issue Counts
 
 - P0: 0
-- P1: 2
+- P1: 0
 - P2: 0
 - P3: 0
+
+## Config / Schema Versions
+
+- llm_profiles: llm-profile-v0.1
+- migration: 0001_app_bootstrap.sql
 
 ## Commands to Reproduce
 
 ```text
 apps/api/.venv/Scripts/python.exe -m pytest tests -q
+apps/api/.venv/Scripts/python.exe scripts/migrate.py
 apps/api/.venv/Scripts/uvicorn app.main:app --app-dir apps/api --host 127.0.0.1 --port 8000
-cd apps/web && set API_BASE_URL=http://127.0.0.1:8000 && npm run dev
 ```
 
 ## Next Layer Eligibility
 
-- eligible: **no**
-- reason: P1 open (Supabase URL/DB URL). L01 ±ÝÁö until L00 PASS.
-
-## Notes for Next Layer / User
-
-1. `.env.local`ÀÇ `SUPABASE_URL` / keys¸¦ **½ÇÁ¦** Supabase ÇÁ·ÎÁ§Æ® °ªÀ¸·Î ±³Ã¼
-2. `SUPABASE_DB_URL` (Postgres URI) Ãß°¡ ÈÄ `python scripts/migrate.py`
-3. `/health/db` 200 È®ÀÎ ¡æ L00 QA Àç½ÇÇà ¡æ PASS/FREEZE ¡æ L01
+- eligible: **yes**
+- reason: P0=0 P1=0 Blocking ALL PASS
+- next: L01 â€” Universe & Identity

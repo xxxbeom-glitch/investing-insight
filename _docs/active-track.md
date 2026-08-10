@@ -1,7 +1,7 @@
 ﻿# Active Track
 
-> **갱신:** 2026-08-10 · `_logs/decision-log.md`  
-> **진행 중:** **L00 BLOCKED** — 실 Supabase URL/`SUPABASE_DB_URL` 필요  
+> **갱신:** 2026-08-10  
+> **진행 중:** L00 PASS → **L01 Universe & Identity** 착수 예정  
 > **설계 SoT:** `investing-insight-spec-v1.6/`  
 > **Layer 증거:** `audit/mvp/L00_foundation/`
 
@@ -9,11 +9,10 @@
 
 | 항목 | 값 |
 |------|-----|
-| **현재 Layer** | L00 — Foundation, Supabase, Config & Audit |
-| **Web / API** | 구축 중 |
-| **DB** | Supabase PostgreSQL |
+| **현재 Layer** | L00 PASS (FREEZE) |
+| **다음** | L01 |
+| **DB** | Supabase (pooler) · app_bootstrap OK |
 | **Secret** | `.env.local` |
-| **루프** | PLAN → IMPLEMENT → TEST → QA → FREEZE |
 
 ## 하지 않는 것 (MVP)
 
