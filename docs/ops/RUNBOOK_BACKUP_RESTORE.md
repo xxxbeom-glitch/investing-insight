@@ -1,24 +1,37 @@
-# Runbook — Supabase Backup / Restore
+# Runbook — Supabase Backup / Restore (Free plan aware)
 
 ## Scope
 Main SoR is **Supabase PostgreSQL**. Local Postgres is not SoR.
 
-## Before Milestone 1 automation
-1. In Supabase project: confirm **Backups / PITR** enabled for the production project used by `SUPABASE_DB_URL`.
-2. Record project ref (hostname only) and backup retention in M1 evidence — **never** paste DB passwords.
-3. Perform one restore drill to a disposable branch/DB (or document provider-supported restore steps).
+## Free plan (current lab)
+Supabase **Free** does not include Automatic Backup / PITR.
+**Do not** mark PITR as CONFIRMED.
 
-## Backup (operator)
-- Prefer Supabase managed backups/PITR over ad-hoc `pg_dump` for production.
-- If emergency dump is required: run from a secured operator machine using `SUPABASE_DB_URL`; store dump outside git; encrypt at rest.
+Backup readiness (M01 AC-5) is satisfied only by:
+1. Logical dump (`scripts/backup_free_plan.py dump` or `readiness`)
+2. File verification (`verify`)
+3. Restore drill into disposable schema + row-count match + schema drop
+4. Audit evidence under `audit/post-mvp/M01_automation_deployment/evidence/backup_readiness.*`
 
-## Restore (operator)
-1. Pause schedulers / writers (M1+).
-2. Restore via Supabase dashboard or support-documented PITR to target timestamp.
-3. Update connection string only if endpoint changes; rotate password if exposure suspected.
-4. Run: `scripts/migrate.py` (idempotent), `scripts/production_readiness_check.py`, API `/health/db`.
-5. Spot-check: latest `research_runs`, `snapshots` counts.
+```text
+$env:PYTHONPATH="apps\api"
+.\apps\api\.venv\Scripts\python.exe scripts\backup_free_plan.py readiness
+.\apps\api\.venv\Scripts\python.exe scripts\backup_supabase_check.py
+```
+
+Dumps are written to `storage/backups/` (gitignored). Never commit dump files or DB URLs.
+
+## Paid plan (future)
+If Automatic Backup/PITR becomes available: document hostname + retention separately.
+That does **not** auto-enable production schedulers without an explicit ops decision.
+
+## Restore (disaster)
+1. Keep production schedulers disabled until recovery complete.
+2. Restore from latest verified dump (or provider PITR if available).
+3. Run `scripts/migrate.py`, `scripts/production_readiness_check.py`, `/health/db`.
+4. Spot-check: `research_runs`, `snapshots`, `securities` counts.
 
 ## Forbidden
+- Fake `Status: CONFIRMED` for unavailable PITR
 - Committing dumps or connection strings
-- Restoring over production without change window note in ops log
+- Restoring over production without a change note

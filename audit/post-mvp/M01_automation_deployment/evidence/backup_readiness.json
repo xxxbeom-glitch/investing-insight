@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-08-10T22:48:44.104215+00:00",
+  "plan": "supabase_free",
+  "pitr_available": false,
+  "method": "logical_dump_restore_drill",
+  "db_hostname": "aws-0-ap-northeast-1.pooler.supabase.com",
+  "scheduler_enable_allowed": false,
+  "ok": true,
+  "dump": {
+    "path": "storage/backups/public_20260810T224844Z.sql",
+    "bytes": 35267576,
+    "sha256": "5319e5d487958ca2c34ea34d02a2b13fdcc67bc6240a7ced5c4f72bf20c79398",
+    "table_count": 20,
+    "generated_at": "2026-08-10T22:48:44.497139+00:00",
+    "method": "psycopg_copy_logical_dump",
+    "row_count_total": 112375
+  },
+  "verify": {
+    "ok": true,
+    "bytes": 35267576,
+    "sha256": "5319e5d487958ca2c34ea34d02a2b13fdcc67bc6240a7ced5c4f72bf20c79398",
+    "checks": {
+      "exists": true,
+      "min_bytes": true,
+      "has_marker": true,
+      "has_copy": true,
+      "no_uri_secret": true,
+      "sha256_match": true
+    },
+    "path": "storage/backups/public_20260810T224844Z.sql"
+  },
+  "restore_drill": {
+    "ok": true,
+    "drill_schema": "m01_restore_drill_20260810224849",
+    "tables_restored": 20,
+    "mismatches": {},
+    "sample_restored": {
+      "ai_research": 20,
+      "app_bootstrap": 1,
+      "companies": 6532,
+      "daily_prices": 8,
+      "data_quality_checks": 30,
+      "data_quarantine": 0,
+      "financial_facts": 661,
+      "judgments": 11,
+      "llm_executions": 63,
+      "ops_jobs": 4
+    },
+    "dropped": true,
+    "structure_method": "CREATE TABLE AS TABLE public.* WITH NO DATA",
+    "data_method": "COPY FROM dump file"
+  }
+}

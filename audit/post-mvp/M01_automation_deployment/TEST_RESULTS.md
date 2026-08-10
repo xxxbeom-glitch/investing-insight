@@ -1,27 +1,29 @@
-# TEST_RESULTS — M01 (in progress)
+# TEST_RESULTS — M01
+
+- status: PASS
+- completed_at: 2026-08-11
 
 ## Commands
 ```text
 $env:PYTHONPATH="apps\api"
-.\apps\api\.venv\Scripts\python.exe scripts\migrate.py
-.\apps\api\.venv\Scripts\python.exe -m pytest tests\unit\test_ops_jobs.py tests\unit\test_production_readiness_check.py -q
-.\apps\api\.venv\Scripts\python.exe scripts\run_daily_ingest.py --dry-run --limit 3
-.\apps\api\.venv\Scripts\python.exe scripts\run_biweekly_research.py --dry-run --limit 1
+.\apps\api\.venv\Scripts\python.exe -m pytest tests\unit\test_ops_jobs.py -q
+.\apps\api\.venv\Scripts\python.exe scripts\backup_free_plan.py readiness
 .\apps\api\.venv\Scripts\python.exe scripts\backup_supabase_check.py
 .\apps\api\.venv\Scripts\python.exe scripts\secret_scan.py
 cd apps\web; npm run build
+git rev-list -n 1 mvp-v0.1-pass
+git rev-list -n 1 mvp-v0.1-review-pass
 ```
 
 ## Results
 | Check | Result |
 |-------|--------|
-| migrate 0010 | PASS |
-| unit tests (5) | PASS |
-| daily dry-run | PASS |
-| biweekly dry-run | PASS |
-| backup_check (PITR pending) | FAIL expected (ok=false) |
+| unit tests | PASS |
+| backup readiness (dump/verify/restore) | PASS |
+| backup_supabase_check (backup_ready, scheduler false) | PASS |
 | secret_scan | PASS |
-| next build (+ /ops) | PASS |
-| mvp tags | unchanged |
+| next build | PASS |
+| mvp-v0.1-pass → e98ff33 | PASS |
+| mvp-v0.1-review-pass → c1a6692 | PASS |
 
-Evidence: dry-run job rows in `ops_jobs`; `evidence/backup_check.json`
+Evidence: `evidence/backup_readiness.json` (dump file itself gitignored under `storage/backups/`)

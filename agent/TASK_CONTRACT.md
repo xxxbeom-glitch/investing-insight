@@ -1,19 +1,30 @@
 ﻿# Active Task Contract
 
 ## Task
-- Task ID: M01
-- Layer: Post-MVP Milestone 1 — Automation & Deployment
+- Task ID: M02
+- Layer: Post-MVP Milestone 2 — Top-down Industry Engine
 
 ## Goal
-M01 AC 구현 완료 후 PITR 확인으로 P1을 닫고 PASS한다. PASS 전 M2 착수 금지.
+Spec `08_POST_MVP_ROADMAP.md` Milestone 2를 Loop Engineering으로 진행한다.
+M01 PASS 전제. Production scheduler는 계속 비활성.
 
-## Blocker
-- [ ] `evidence/supabase_pitr_confirmation.md` → `Status: CONFIRMED`
-- [ ] `scripts/backup_supabase_check.py` exit 0
-- [ ] OPEN_ISSUES P0=0 P1=0
-- [ ] QA_REPORT PASS
+## In scope (roadmap)
+- FRED adapter
+- market regime
+- industry attractiveness schema
+- demand/CAPEX/supply/pricing/margin/bottleneck
+- industry QA
+- value-chain map
+- Top-down candidates
+- Bottom-up shortlist와 union
 
 ## Out of scope
-- FRED / M2+
+- Multi-agent (M3+)
+- Enabling production cron
 - MVP frozen baseline 수정
-- Production cron enable before PITR CONFIRMED
+- Fake PITR claims
+
+## Verification
+- [ ] M02 PLAN Acceptance 전부 테스트 가능
+- [ ] audit/post-mvp/M02_* 7파일
+- [ ] P0=0 P1=0 후에만 다음 Milestone

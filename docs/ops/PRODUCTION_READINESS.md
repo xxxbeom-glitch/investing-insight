@@ -8,7 +8,7 @@ Date: 2026-08-11
 
 | Topic | Status | Notes |
 |-------|--------|-------|
-| Supabase backup/restore | GAP→M1 | SoR is Supabase PG; PITR/backup must be enabled in project before automation. Runbook documented. |
+| Supabase backup/restore | READY(Free dump) | Free: no PITR. AC-5 = logical dump→verify→restore-drill. See RUNBOOK_BACKUP_RESTORE.md |
 | Secret rotation | READY(doc) | `.env.local` + server-only keys; rotation steps documented. No secret in git/UI. |
 | Provider quotas/cost | READY(doc) | Massive rate limit, SEC ≤10 r/s, OpenAI Responses cost tracked via llm_executions. |
 | Scheduler failure handling | GAP→M1 | MVP is manual ingest; no cloud scheduler yet. Design constraints captured for M1. |
@@ -21,11 +21,12 @@ Date: 2026-08-11
 
 ## Topic detail
 
-### 1. Supabase backup/restore — GAP→M1
+### 1. Supabase backup/restore — READY(Free dump)
 - System of record: Supabase PostgreSQL (`SUPABASE_DB_URL` pooler).
-- Action before enabling schedulers: enable PITR / confirm daily backups in Supabase dashboard; document restore drill.
+- Free plan: Automatic Backup/PITR unavailable — do not fake CONFIRMED.
+- Readiness: `scripts/backup_free_plan.py readiness` + evidence under M01 audit.
 - See `RUNBOOK_BACKUP_RESTORE.md`.
-
+- Production schedulers remain disabled until an explicit later ops decision (not unlocked by dump PASS alone).
 ### 2. Secret rotation — READY(doc)
 - Secrets: `OPENAI_API_KEY`, `MASSIVE_API_KEY`, `SUPABASE_SECRET_KEY`, `SUPABASE_DB_URL`, `SEC_USER_AGENT`.
 - Never commit; never `NEXT_PUBLIC_*` for secret keys.

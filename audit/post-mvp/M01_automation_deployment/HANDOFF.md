@@ -1,17 +1,16 @@
-# HANDOFF — M01 (blocked on PITR)
+# HANDOFF — M01 → Milestone 2
 
-- status: IN_PROGRESS (P1 open)
-- do_not_start: Milestone 2 until M01 PASS
+- status: PASS
+- branch: post-mvp/phase-1
+- backup: Free-plan dump/restore readiness PASS (PITR unavailable, not faked)
+- schedulers: DISABLED
 
-## Waiting on
-Operator confirmation in:
-`audit/post-mvp/M01_automation_deployment/evidence/supabase_pitr_confirmation.md`
+## Next
+**Milestone 2 — Top-down Industry Engine** (`08_POST_MVP_ROADMAP.md`)
 
-Set first status line to `Status: CONFIRMED` after verifying Supabase backups/PITR (hostname/retention only).
+Start with PLAN only; do not enable production cron as part of M2.
 
-## After confirmation
-1. `python scripts/backup_supabase_check.py` → exit 0
-2. Close M01-P1-01
-3. Complete QA PASS + commit
-4. Optionally set `OPS_PITR_CONFIRMED=true` in hosted env
-5. Enable cron from `deploy/cron.examples.txt`
+## Do not
+- Fake PITR CONFIRMED on Free
+- Commit `storage/backups/*.sql`
+- Mutate MVP frozen baseline / tags

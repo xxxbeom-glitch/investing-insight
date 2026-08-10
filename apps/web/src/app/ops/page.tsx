@@ -3,7 +3,9 @@ import { apiGet } from "@/lib/api";
 
 type OpsHealth = {
   status?: string;
+  pitr_available?: boolean;
   pitr_confirmed?: boolean;
+  backup_ready?: boolean;
   scheduler_enable_allowed?: boolean;
   failed_jobs_24h?: number;
   recent_jobs?: Array<{
@@ -27,24 +29,30 @@ export default async function OpsPage() {
   return (
     <main>
       <h1>Ops Health</h1>
-      <p className="lead">Scheduler jobs · PITR gate · provider flags (no secrets)</p>
+      <p className="lead">Scheduler jobs · Free-plan backup readiness · provider flags (no secrets)</p>
       <div className="stats">
         <div className="stat">
           <div className="k">API</div>
           <div className={ops.ok ? "v ok" : "v bad"}>{ops.ok ? "PASS" : "FAIL"}</div>
         </div>
         <div className="stat">
-          <div className="k">PITR</div>
-          <div className={d?.pitr_confirmed ? "v ok" : "v bad"}>
-            {d?.pitr_confirmed ? "CONFIRMED" : "PENDING"}
+          <div className="k">Backup</div>
+          <div className={d?.backup_ready ? "v ok" : "v bad"}>
+            {d?.backup_ready ? "READY" : "PENDING"}
           </div>
         </div>
         <div className="stat">
+          <div className="k">PITR</div>
+          <div className="v bad">{d?.pitr_available ? "ON" : "N/A (Free)"}</div>
+        </div>
+        <div className="stat">
           <div className="k">Schedulers</div>
-          <div className={d?.scheduler_enable_allowed ? "v ok" : "v bad"}>
+          <div className="v bad">
             {d?.scheduler_enable_allowed ? "ALLOWED" : "BLOCKED"}
           </div>
         </div>
+      </div>
+      <div className="stats">
         <div className="stat">
           <div className="k">Failed 24h</div>
           <div className={`v ${(d?.failed_jobs_24h ?? 0) > 0 ? "bad" : "ok"}`}>

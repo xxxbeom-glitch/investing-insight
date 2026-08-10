@@ -71,6 +71,8 @@ htmlcov/
 # Raw evidence & local DB dumps (keep folder via .gitkeep)
 storage/raw/**
 !storage/raw/.gitkeep
+storage/backups/**
+!storage/backups/.gitkeep
 *.sql.gz
 
 # IDE

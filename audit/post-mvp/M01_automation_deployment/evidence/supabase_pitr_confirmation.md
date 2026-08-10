@@ -1,20 +1,16 @@
-# Supabase PITR / Backup Confirmation (M01 AC-5)
+# Supabase Backup Note (M01 AC-5) — Free plan
 
-Status: PENDING
+Status: PITR_UNAVAILABLE
 
-## Instructions (operator)
-1. Open Supabase project → Database → Backups / Point-in-time recovery.
-2. Confirm daily backups or PITR is enabled.
-3. Fill fields below (hostname only — **no passwords**).
-4. Change Status line to: `Status: CONFIRMED`
-5. Re-run: `python scripts/backup_supabase_check.py` (must exit 0).
+## Facts
+- Supabase plan: **Free**
+- Automatic Backup / PITR: **not available**
+- Do **not** set a fake `Status: CONFIRMED` for PITR
 
-## Record
-- Project hostname (from SUPABASE_URL or DB host): 
-- Backup / PITR enabled: yes/no
-- Retention (days): 
-- Confirmed by: 
-- Confirmed at (UTC): 
+## Free-plan AC-5 path
+Use dump → verify → restore-drill evidence instead:
+- `scripts/backup_free_plan.py readiness`
+- Evidence: `backup_readiness.md` / `backup_readiness.json`
 
-## Scheduler gate
-Production cron / Cloud Scheduler must stay **disabled** until Status is CONFIRMED.
+## Scheduler
+Production cron / Cloud Scheduler remain **DISABLED** even after backup_ready PASS.

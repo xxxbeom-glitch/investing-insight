@@ -85,7 +85,7 @@ def test_ops_job_lifecycle_persists_fields():
     assert rows[0]["job_id"] == job_id
 
 
-def test_pitr_evidence_template_exists_without_confirmed_by_default():
+def test_pitr_evidence_is_unavailable_not_fake_confirmed():
     path = (
         Path(__file__).resolve().parents[2]
         / "audit"
@@ -95,11 +95,39 @@ def test_pitr_evidence_template_exists_without_confirmed_by_default():
         / "supabase_pitr_confirmation.md"
     )
     text = path.read_text(encoding="utf-8")
-    assert any(line.strip() == "Status: PENDING" for line in text.splitlines())
+    assert "PITR_UNAVAILABLE" in text
     assert not any(line.strip() == "Status: CONFIRMED" for line in text.splitlines())
 
 
-def test_backup_check_json_shape_importable():
+def test_backup_free_plan_verify_helper():
+    import importlib.util
+    import tempfile
+
+    root = Path(__file__).resolve().parents[2]
+    spec = importlib.util.spec_from_file_location(
+        "backup_free_plan",
+        root / "scripts" / "backup_free_plan.py",
+    )
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.hostname_only("postgresql://u:p@db.example.supabase.co:5432/postgres") == "db.example.supabase.co"
+    sample = (
+        "-- investing-insight free-plan logical dump\n"
+        + ("-- pad\n" * 40)
+        + "COPY demo FROM stdin;\n"
+        + "1\n"
+        + "\\.\n"
+    )
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "t.sql"
+        p.write_text(sample, encoding="utf-8")
+        report = mod.verify_dump(p)
+        assert report["ok"] is True
+        assert report["checks"]["has_copy"] is True
+
+
+def test_backup_check_reads_readiness_not_pitr():
     import importlib.util
 
     root = Path(__file__).resolve().parents[2]
@@ -110,8 +138,4 @@ def test_backup_check_json_shape_importable():
     assert spec and spec.loader
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    assert mod.hostname_only("postgresql://u:p@db.example.supabase.co:5432/postgres") == "db.example.supabase.co"
     assert mod.hostname_only("") is None
-    assert mod.pitr_status_confirmed("Status: PENDING\n") is False
-    assert mod.pitr_status_confirmed("Status: CONFIRMED\n") is True
-    assert mod.pitr_status_confirmed("Change to Status: CONFIRMED later\n") is False

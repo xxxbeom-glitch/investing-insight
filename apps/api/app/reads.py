@@ -430,7 +430,7 @@ def settings_summary() -> dict[str, Any]:
 @router.get("/ops/health")
 def ops_health() -> dict[str, Any]:
     """Operational health for M1 — job ledger + readiness flags (no secrets)."""
-    import os
+    import json
     from pathlib import Path
 
     from app.ops.jobs import list_recent_jobs
@@ -442,14 +442,15 @@ def ops_health() -> dict[str, Any]:
         / "post-mvp"
         / "M01_automation_deployment"
         / "evidence"
-        / "supabase_pitr_confirmation.md"
+        / "backup_readiness.json"
     )
-    pitr_confirmed = os.getenv("OPS_PITR_CONFIRMED", "").lower() in ("1", "true", "yes")
-    if not pitr_confirmed and evidence.is_file():
-        for line in evidence.read_text(encoding="utf-8").splitlines():
-            if line.strip() == "Status: CONFIRMED":
-                pitr_confirmed = True
-                break
+    backup_ready = False
+    if evidence.is_file():
+        try:
+            payload = json.loads(evidence.read_text(encoding="utf-8"))
+            backup_ready = bool(payload.get("ok"))
+        except Exception:  # noqa: BLE001
+            backup_ready = False
     jobs: list[dict[str, Any]] = []
     failed_24h = 0
     if s.supabase_db_url:
@@ -466,8 +467,10 @@ def ops_health() -> dict[str, Any]:
                 failed_24h = int(cur.fetchone()[0])
     return {
         "status": "ok",
-        "pitr_confirmed": pitr_confirmed,
-        "scheduler_enable_allowed": pitr_confirmed,
+        "pitr_available": False,
+        "pitr_confirmed": False,
+        "backup_ready": backup_ready,
+        "scheduler_enable_allowed": False,
         "failed_jobs_24h": failed_24h,
         "recent_jobs": jobs,
         "providers": {

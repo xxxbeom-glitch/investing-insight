@@ -1,13 +1,13 @@
-# Scheduler examples (M01) — DISABLED until PITR CONFIRMED
+# Scheduler examples (M01) — DISABLED
 
-# After audit/.../evidence/supabase_pitr_confirmation.md contains CONFIRMED:
-# enable these on the operator host or Cloud Scheduler calling the same CLIs.
+# Production / Cloud Scheduler must stay disabled on this Free-plan lab.
+# Backup readiness (dump/restore) does NOT unlock schedulers.
 
-# Daily market + SEC (sample limit; raise carefully)
+# Daily market + SEC (sample limit; raise carefully) — DO NOT ENABLE YET
 # 15 6 * * 1-5 cd /path/to/investing-insight && apps/api/.venv/Scripts/python.exe scripts/run_daily_ingest.py --limit 50 >> _logs/daily_ingest.log 2>&1
 
-# Biweekly research (1st and 15th, 07:00)
+# Biweekly research (1st and 15th, 07:00) — DO NOT ENABLE YET
 # 0 7 1,15 * * cd /path/to/investing-insight && apps/api/.venv/Scripts/python.exe scripts/run_biweekly_research.py --limit 20 >> _logs/biweekly_research.log 2>&1
 
-# Backup readiness probe (daily)
-# 0 5 * * * cd /path/to/investing-insight && apps/api/.venv/Scripts/python.exe scripts/backup_supabase_check.py >> _logs/backup_check.log 2>&1
+# Free-plan backup readiness probe (optional manual/ops)
+# 0 5 * * * cd /path/to/investing-insight && apps/api/.venv/Scripts/python.exe scripts/backup_free_plan.py readiness >> _logs/backup_check.log 2>&1
