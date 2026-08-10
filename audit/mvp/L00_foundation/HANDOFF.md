@@ -1,9 +1,9 @@
-﻿# HANDOFF
+# HANDOFF
 
 - layer_id: L00
 - status: PASS
 - completed_at: 2026-08-10
-- commit_hash: pending
+- commit_hash: 7db06de
 - previous_layer_commit: n/a
 - spec_version: investing-insight-spec-v1.6
 
@@ -44,4 +44,4 @@ apps/api/.venv/Scripts/uvicorn app.main:app --app-dir apps/api --host 127.0.0.1 
 
 - eligible: **yes**
 - reason: P0=0 P1=0 Blocking ALL PASS
-- next: L01 — Universe & Identity
+- next: L01 ? Universe & Identity
