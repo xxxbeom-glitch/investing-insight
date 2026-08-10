@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-08-10T22:00:06.191556+00:00",
+  "db_hostname_set": true,
+  "db_hostname": "aws-0-ap-northeast-1.pooler.supabase.com",
+  "pitr_evidence_path": "audit/post-mvp/M01_automation_deployment/evidence/supabase_pitr_confirmation.md",
+  "pitr_confirmed": false,
+  "scheduler_enable_allowed": false,
+  "ok": false
+}

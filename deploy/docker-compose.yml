@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env.local
+    environment:
+      API_HOST: "0.0.0.0"
+      API_PORT: "8000"
+    # Do not mount secrets into git; env_file is local-only.

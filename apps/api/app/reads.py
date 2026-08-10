@@ -425,3 +425,55 @@ def settings_summary() -> dict[str, Any]:
             # never return raw secrets
         },
     }
+
+
+@router.get("/ops/health")
+def ops_health() -> dict[str, Any]:
+    """Operational health for M1 — job ledger + readiness flags (no secrets)."""
+    import os
+    from pathlib import Path
+
+    from app.ops.jobs import list_recent_jobs
+
+    s = get_settings()
+    evidence = (
+        Path(__file__).resolve().parents[3]
+        / "audit"
+        / "post-mvp"
+        / "M01_automation_deployment"
+        / "evidence"
+        / "supabase_pitr_confirmation.md"
+    )
+    pitr_confirmed = os.getenv("OPS_PITR_CONFIRMED", "").lower() in ("1", "true", "yes")
+    if not pitr_confirmed and evidence.is_file():
+        for line in evidence.read_text(encoding="utf-8").splitlines():
+            if line.strip() == "Status: CONFIRMED":
+                pitr_confirmed = True
+                break
+    jobs: list[dict[str, Any]] = []
+    failed_24h = 0
+    if s.supabase_db_url:
+        with _conn() as conn:
+            jobs = list_recent_jobs(conn, limit=20)
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    select count(*) from ops_jobs
+                    where status in ('failed', 'dead_letter')
+                      and started_at > now() - interval '24 hours'
+                    """
+                )
+                failed_24h = int(cur.fetchone()[0])
+    return {
+        "status": "ok",
+        "pitr_confirmed": pitr_confirmed,
+        "scheduler_enable_allowed": pitr_confirmed,
+        "failed_jobs_24h": failed_24h,
+        "recent_jobs": jobs,
+        "providers": {
+            "supabase_db_set": bool(s.supabase_db_url),
+            "openai_key_set": bool(s.openai_api_key),
+            "massive_key_set": bool(s.massive_api_key),
+            "sec_ua_set": bool(s.sec_user_agent),
+        },
+    }

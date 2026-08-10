@@ -5,23 +5,15 @@
 - Layer: Post-MVP Milestone 1 — Automation & Deployment
 
 ## Goal
-Spec `08_POST_MVP_ROADMAP.md` Milestone 1을 Loop Engineering으로 진행한다.
-Gate 0 PASS 전제. Supabase backup/PITR 증거를 M1 PLAN에 기록한 뒤 scheduler 활성화.
+M01 AC 구현 완료 후 PITR 확인으로 P1을 닫고 PASS한다. PASS 전 M2 착수 금지.
 
-## In scope (순서)
-1. hosted PC Web deployment
-2. daily market/SEC ingest scheduler
-3. biweekly research scheduler
-4. backup/restore automation
-5. operational health dashboard
+## Blocker
+- [ ] `evidence/supabase_pitr_confirmation.md` → `Status: CONFIRMED`
+- [ ] `scripts/backup_supabase_check.py` exit 0
+- [ ] OPEN_ISSUES P0=0 P1=0
+- [ ] QA_REPORT PASS
 
 ## Out of scope
-- FRED / top-down (M2)
-- Multi-agent (M3+)
+- FRED / M2+
 - MVP frozen baseline 수정
-- Long-Term Optional (timing/broker)
-
-## Verification
-- [ ] M1 PLAN Acceptance 전부 테스트 가능
-- [ ] audit/post-mvp/M01_* 7파일
-- [ ] P0=0 P1=0 후에만 다음 Milestone
+- Production cron enable before PITR CONFIRMED

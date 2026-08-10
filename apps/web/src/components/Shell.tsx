@@ -5,6 +5,7 @@ const NAV = [
   { href: "/runs", label: "Research Runs" },
   { href: "/candidates", label: "Candidates" },
   { href: "/audit", label: "Audit & QA" },
+  { href: "/ops", label: "Ops Health" },
   { href: "/settings", label: "Settings" },
 ];
 

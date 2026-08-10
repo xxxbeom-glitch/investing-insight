@@ -5,4 +5,4 @@
 - review-pass tag: `mvp-v0.1-review-pass` @ `c1a6692`
 - branch: `post-mvp/phase-1`
 
-**Current:** Post-MVP Gate 0 — Production Readiness **PASS** → next **Milestone 1 — Automation & Deployment**
+**Current:** Post-MVP Gate 0 **PASS** (`24092ec`) → Milestone 1 **IN_PROGRESS** (P1: Supabase PITR confirmation)

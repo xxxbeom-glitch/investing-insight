@@ -6,7 +6,7 @@
 - baseline_tags:
   - mvp-v0.1-pass @ e98ff33
   - mvp-v0.1-review-pass @ c1a6692
-- commit_hash: (fill after G00 PASS commit)
+- commit_hash: 24092ec
 
 ## Next
 **Milestone 1 — Automation & Deployment** (`08_POST_MVP_ROADMAP.md`)

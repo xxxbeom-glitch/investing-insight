@@ -1,0 +1,13 @@
+# Scheduler examples (M01) — DISABLED until PITR CONFIRMED
+
+# After audit/.../evidence/supabase_pitr_confirmation.md contains CONFIRMED:
+# enable these on the operator host or Cloud Scheduler calling the same CLIs.
+
+# Daily market + SEC (sample limit; raise carefully)
+# 15 6 * * 1-5 cd /path/to/investing-insight && apps/api/.venv/Scripts/python.exe scripts/run_daily_ingest.py --limit 50 >> _logs/daily_ingest.log 2>&1
+
+# Biweekly research (1st and 15th, 07:00)
+# 0 7 1,15 * * cd /path/to/investing-insight && apps/api/.venv/Scripts/python.exe scripts/run_biweekly_research.py --limit 20 >> _logs/biweekly_research.log 2>&1
+
+# Backup readiness probe (daily)
+# 0 5 * * * cd /path/to/investing-insight && apps/api/.venv/Scripts/python.exe scripts/backup_supabase_check.py >> _logs/backup_check.log 2>&1
