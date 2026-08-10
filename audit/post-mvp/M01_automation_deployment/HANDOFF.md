@@ -2,6 +2,7 @@
 
 - status: PASS
 - branch: post-mvp/phase-1
+- commit_hash: 61107c3
 - backup: Free-plan dump/restore readiness PASS (PITR unavailable, not faked)
 - schedulers: DISABLED
 
