@@ -15,8 +15,18 @@
 | Secret | `.env.local` | key만 env |
 | 설계 SoT | `investing-insight-spec-v1.6/` | |
 | 코드 경로 | `apps/*` · `src/` · `config/` | |
-| Cursor 하네스 | Layer audit + 불변식 | |
+| Cursor 하네스 | Layer audit + 불변식 · **자동 commit/push** | |
 | 현재 Layer | L00 전 | |
+
+---
+
+## 2026-08-10 — 자동 commit/push
+
+| # | 결정 |
+|---|------|
+| 1 | 작업 단위 종료 시 허락 없이 commit |
+| 2 | commit 성공 후 즉시 `git push` (upstream 없으면 `-u`) |
+| 3 | force push · 훅 우회 · 파괴적 git은 명시 요청 있을 때만 |
 
 ---
 

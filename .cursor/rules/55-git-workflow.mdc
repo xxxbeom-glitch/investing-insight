@@ -1,43 +1,69 @@
 ---
-description: Layer PASS·FREEZE 기준 git commit 규칙
+description: 자동 commit/push · Layer PASS·FREEZE git 규칙
 alwaysApply: true
 ---
 
 # Git Workflow
 
-SoT: `05_QA_LOOP_AUDIT.md` §8–9 · `09_CURSOR_MASTER_PROMPT.md` §5
+SoT: `05_QA_LOOP_AUDIT.md` §8–9 · `09_CURSOR_MASTER_PROMPT.md` §5  
+이 프로젝트는 **작업 단위 종료 시 자동 commit + 자동 push**를 기본으로 한다.  
+사용자가 “커밋/푸시 하지 마”라고 명시한 경우에만 생략한다.
 
-## Layer 작업
+## 자동 commit
 
-- **Layer PASS commit**은 Blocking QA PASS + audit 최신화 + tests 재실행 후에만
-- PASS 전에도 **중간 checkpoint commit**은 가능 (메시지에 WIP/부분 명시) — PASS로 간주 금지
-- PASS 후 순서: audit 갱신 → tests 재실행 → commit → **hash를 HANDOFF.md에 기록** → 다음 Layer
-- commit 전 `git status` · 범위 밖 파일이면 중단하고 보고
-- **push는 사용자 명시 요청 없이 금지**
-- 메시지: `[LXX] 짧은 한글 이유` 또는 `[rules]` / `[setup]` 등 scope
+다음이 끝나면 **사용자에게 커밋 허락을 묻지 말고** commit한다.
+
+- 기능·버그픽스·규칙/문서·Layer 작업 등 **한 덩어리**가 끝났을 때
+- 멀티파일·위험한 작업 **시작 전** checkpoint (메시지에 `checkpoint` 또는 `WIP` 명시)
+- **Layer PASS/FREEZE** 시: audit 최신화 + tests 재실행 직후 (PASS commit)
+
+절차:
+1. `git status` / `git diff` / 최근 메시지 스타일 확인
+2. 비밀·범위 밖 파일 있으면 **커밋 중단·보고**
+3. 관련 파일만 stage
+4. 메시지: `[scope] 짧은 한글 이유` (1–2문장, why 중심)
+5. hooks 실패 시 `--no-verify`로 건너뛰지 말고 고친 뒤 **새 commit**
 
 예시:
 - `[L00] foundation health·migration·audit 골격 PASS`
 - `[L00] WIP: FastAPI health endpoint`
-- `[rules] Layer audit 하네스 정렬`
+- `[rules] 자동 commit/push 규칙 추가`
+- `[checkpoint] L01 구현 전 상태 고정`
 
-## MVP 완료
+## 자동 push
+
+commit이 성공하면 **바로** 현재 브랜치를 remote에 push한다.
+
+1. `git status -sb`로 ahead/behind·upstream 확인
+2. upstream 없으면 `git push -u origin HEAD`
+3. 있으면 `git push`
+4. push 실패(인증·충돌·behind) 시 **force 하지 말고** 사용자에게 보고
+
+Layer PASS 후 권장 순서:
+`audit 갱신 → tests 재실행 → commit → push → hash를 HANDOFF.md에 기록 → (필요 시 HANDOFF만 후속 commit+push) → 다음 Layer`
+
+## MVP tag
 
 - tag: `mvp-v0.1-pass`
-- `MVP_HANDOFF.md` 작성 후 **중단**
+- tag 생성 후 `git push origin <tag>` 및 브랜치 push
+- `MVP_HANDOFF.md` 작성 후 Post-MVP 자동 착수 금지
 
 ## 비밀
 
-- `.env`, 키, 자격증명, `storage/raw` 실데이터 **커밋 금지** (`SECURITY.md`)
-- status에 보이면 커밋하지 말고 보고
+- `.env` / `.env.local` / 키 / `storage/raw` 실데이터 **커밋·푸시 금지** (`SECURITY.md`)
+- status에 보이면 중단하고 보고
 
-## 금지
+## 여전히 금지 (자동 아님)
 
+- `push --force` / `push --force-with-lease` (사용자 명시 요청 없으면)
+- `main`/`master`에 force push
+- `reset --hard`, `rebase -i` 등 파괴적 조작 (명시 요청 없으면)
+- `--no-verify` / `--no-gpg-sign`로 훅 우회 (명시 요청 없으면)
 - 설명만으로 PASS commit
-- 비밀파일 포함
-- 사용자 요청 없는 push / force push
-- PASS Layer audit 문서를 사후 변조 (regression은 CHANGELOG + 재QA)
+- PASS Layer audit 문서 사후 변조 (regression은 CHANGELOG + 재QA)
+- 빈 커밋·비밀 포함 커밋
 
 ## 완료 기준
 
-- (PASS 시) evidence + audit + clean status(범위 내) + HANDOFF에 commit hash
+- 작업 단위 종료 → commit 성공 → push 성공(또는 실패 원인 보고)
+- PASS 시: evidence + audit + HANDOFF에 commit hash

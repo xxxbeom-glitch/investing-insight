@@ -1,5 +1,9 @@
 ﻿# Change Log
 
+## 2026-08-10 (git)
+
+- 자동 commit + 자동 push 규칙을 `55-git-workflow`에 추가 (force push는 계속 금지)
+
 ## 2026-08-10 (spec v1.6)
 
 - 설계 SoT `investing-insight-spec-v1.5` → `v1.6`

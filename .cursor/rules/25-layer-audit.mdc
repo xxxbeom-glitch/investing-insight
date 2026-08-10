@@ -56,8 +56,8 @@ ALL PASS = P0=0 · P1=0 · Blocking Acceptance 전부 PASS · evidence 존재
 Layer PASS 후:
 1. tests 재실행
 2. audit 최신화
-3. git commit (`55-git-workflow.mdc`)
-4. commit hash → HANDOFF
+3. git commit + push (`55-git-workflow.mdc` 자동)
+4. commit hash → HANDOFF (필요 시 HANDOFF만 후속 commit+push)
 5. 다음 Layer
 
 PASS된 Layer를 고쳐야 하면: **과거 audit 문서를 고치지 않음** · CHANGELOG에 regression 이유 · 영향 Layer QA 재실행

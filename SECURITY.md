@@ -24,4 +24,5 @@
 
 - 비밀값이 보이면 재사용·커밋하지 말고 사용자에게 알린다
 - 키 하드코딩 금지
-- push / force push / `--no-verify`는 명시 요청 없이 금지
+- 일반 `commit` + `push`는 프로젝트 규칙(`55-git-workflow`)상 **자동**
+- `force push` / `--no-verify` / 파괴적 git은 명시 요청 없이 금지

@@ -23,6 +23,6 @@ Layer를 시작·종료할 때 이 순서만 따른다. 상세 규칙: `.cursor/
 - [ ] P0=0 · P1=0 · Blocking ALL PASS · evidence 있음
 - [ ] tests 재실행
 - [ ] audit 7파일 최신
-- [ ] git commit → hash를 `HANDOFF.md`에 기록
+- [ ] git commit → push → hash를 `HANDOFF.md`에 기록 (후속 commit+push 가능)
 - [ ] `active-track` · `TASK_CONTRACT` 정리
-- [ ] 다음 Layer (또는 L10이면 MVP_HANDOFF + tag · **중단**)
+- [ ] 다음 Layer (또는 L10이면 MVP_HANDOFF + tag push · **중단**)

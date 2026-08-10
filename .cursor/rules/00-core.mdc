@@ -44,6 +44,7 @@ alwaysApply: true
 - 설계 확정 결정 임의 변경  
 - P0/P1 open인데 다음 Layer  
 - secret 커밋·audit 기록  
-- 무단 push  
+- force push / 훅 우회 / 파괴적 git (명시 요청 없으면)  
 
-완료: 해당 Layer Acceptance evidence + audit 문서가 준비된 상태 (또는 사용자 요청 범위의 문서/규칙만 완료).
+완료: 해당 Layer Acceptance evidence + audit 문서가 준비된 상태 (또는 사용자 요청 범위의 문서/규칙만 완료).  
+작업 단위가 끝나면 `55-git-workflow.mdc`대로 **자동 commit → 자동 push**.
