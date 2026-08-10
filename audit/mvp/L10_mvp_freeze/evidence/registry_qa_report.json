@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-08-10T14:12:35.734905+00:00",
+  "finding": "ER-P1-01",
+  "universe_name": "us_nyse_nasdaq_equity_v1",
+  "counts": {
+    "securities_total": 8804,
+    "nyse": 2924,
+    "nasdaq": 5578,
+    "included": 5225,
+    "excluded": 3579,
+    "included_common": 4858,
+    "included_adr": 367,
+    "companies_missing_cik": 697,
+    "duplicate_exchange_ticker_pairs": 0,
+    "excluded_security_leakage": 0
+  },
+  "exclusions_by_reason": {
+    "type_ETF": 1330,
+    "type_WARRANT": 435,
+    "type_PFD": 413,
+    "type_FUND": 303,
+    "type_UNIT": 299,
+    "name_suggests_spac": 206,
+    "type_SP": 155,
+    "exchange_ARCX": 126,
+    "type_RIGHT": 118,
+    "exchange_BATS": 110,
+    "market_otc": 47,
+    "exchange_XASE": 19,
+    "name_contains_reit": 15,
+    "name_contains_bdc": 2,
+    "inactive": 1
+  },
+  "pass": true
+}

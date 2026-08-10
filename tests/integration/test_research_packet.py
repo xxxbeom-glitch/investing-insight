@@ -20,6 +20,10 @@ class FakeOkClient:
         out = {
             "summary": "Test summary",
             "business_model": "Software",
+            "growth_drivers": ["product"],
+            "moat_assessment": "moderate",
+            "financial_interpretation": "stable",
+            "valuation_interpretation": "fair",
             "bull_case": ["growth"],
             "bear_case": ["competition"],
             "key_risks": ["execution"],
@@ -49,7 +53,14 @@ class FakeFallbackClient:
 
 
 def _prep_run(conn):
-    snap = create_snapshot(conn, cutoff_at=datetime.now(timezone.utc), code_commit_hash="l07")
+    from tests.conftest import priced_security_ids
+
+    ids = priced_security_ids(conn)
+    if not ids:
+        pytest.skip("no priced securities")
+    snap = create_snapshot(
+        conn, cutoff_at=datetime.now(timezone.utc), code_commit_hash="l07", security_ids=ids
+    )
     run_quant_for_snapshot(
         conn, snapshot_id=snap["snapshot_id"], run_id=snap["run_id"], rules=load_quant_rules()
     )

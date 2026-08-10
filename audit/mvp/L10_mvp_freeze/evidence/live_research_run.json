@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-08-10T14:19:26.621974+00:00",
+  "finding": "ER-P1-02",
+  "status": "PASS",
+  "run_id": "89064263-8b6c-4a58-aeb4-0704ab539d9a",
+  "snapshot_id": "8a252ad1-94e6-57ad-8807-2cd37d8090dd",
+  "security_id": "2c3f9b93-d40c-5266-b54b-3fb355525f64",
+  "research": {
+    "execution_id": "90cda8eb-a285-4d61-b453-96bd01fb1ead",
+    "research_id": "9e57f9df-c278-4c2a-b066-b4ffb1d482a7",
+    "requested_model": "gpt-5.6-terra",
+    "resolved_model": "gpt-5.6-terra",
+    "reasoning_effort": "medium",
+    "llm_profile_version": "llm-profile-v0.1",
+    "prompt_version": "company-research-prompt-v0.1",
+    "input_hash": "c43885e7ec44e6cc2270898da1f527c2a46b29ee185b513127dab1c901bfe5dc",
+    "output_hash": "b7a4493b0505894b4019576f1b0af2fc4e631349b86b980205c989d76527c038"
+  },
+  "qa": {
+    "qa_id": "e762b8b5-c27a-47f9-8ec7-c62126b465aa",
+    "status": "FAIL",
+    "requested_model": "gpt-5.6-terra",
+    "resolved_model": "gpt-5.6-terra",
+    "reasoning_effort": "high"
+  },
+  "judgment": {
+    "judgment_id": "c27abda1-e195-48af-b3a5-a9dfb92e4da7",
+    "execution_id": "c1f4851c-a75e-4b87-8048-b31a8b5c1806",
+    "status": "REJECT",
+    "immutable_hash": "a7faca191a6b08694e18d1ea4e38b4e087a4a6e9e23ee7fd64d54feb5bb7bb2c",
+    "requested_model": "gpt-5.6-terra",
+    "resolved_model": "gpt-5.6-terra",
+    "reasoning_effort": "high",
+    "output": {
+      "status": "REJECT",
+      "thesis": "AAPL is not eligible for selection because the packet's Research QA status is FAIL; the available quant and financial signals cannot be relied upon for a final investment judgment.",
+      "why_now": "Despite a reported total quant score of 88.77 and rank_market of 1, the QA failure is disqualifying. The packet also contains no filings or peer context, and the price series includes an apparent discontinuity that further limits confidence in the inputs.",
+      "key_evidence_refs": [
+        "price:2c3f9b93-d40c-5266-b54b-3fb355525f64:2024-01-01",
+        "price:2c3f9b93-d40c-5266-b54b-3fb355525f64:2026-07-10",
+        "fact:88a02896-cfb9-5954-aec2-ef3def151f51",
+        "fact:918a0aa6-03ff-59a9-94c7-ca9a322fa770"
+      ],
+      "bear_case": [],
+      "risks": [
+        "Research QA status is FAIL, so underlying data integrity and calculation reliability are unresolved.",
+        "No filing documents or peer context are included in the packet.",
+        "The displayed price history is internally questionable, including a 2024-01-01 close of 11.0 versus approximately 294-316 in July 2026."
+      ],
+      "invalidation_conditions": [
+        "A QA-passed replacement packet reconciles the price history and confirms the financial and quant inputs.",
+        "Primary filing evidence and sufficient peer context are supplied and support the thesis."
+      ],
+      "validation_horizon": "Reassess only after a QA-passed refreshed packet is available.",
+      "evidence_quality": "D",
+      "data_completeness": 0.35,
+      "uncertainty": "HIGH"
+    }
+  },
+  "judgment_live_error": null
+}

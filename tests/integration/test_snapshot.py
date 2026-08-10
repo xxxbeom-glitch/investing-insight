@@ -5,6 +5,7 @@ import pytest
 
 from app.settings import get_settings
 from app.snapshot.engine import create_snapshot, validate_snapshot_manifest
+from tests.conftest import priced_security_ids
 
 
 def test_validate_snapshot_manifest_schema_keys():
@@ -32,8 +33,11 @@ def test_snapshot_deterministic_and_no_future():
     assert (Path("packages/schemas/snapshot_manifest.schema.json")).exists()
     cutoff = datetime.now(timezone.utc)
     with psycopg.connect(s.supabase_db_url) as conn:
-        a = create_snapshot(conn, cutoff_at=cutoff, code_commit_hash="test")
-        b = create_snapshot(conn, cutoff_at=cutoff, code_commit_hash="test")
+        ids = priced_security_ids(conn)
+        if not ids:
+            pytest.skip("no priced securities")
+        a = create_snapshot(conn, cutoff_at=cutoff, code_commit_hash="test", security_ids=ids)
+        b = create_snapshot(conn, cutoff_at=cutoff, code_commit_hash="test", security_ids=ids)
         assert a["content_hash"] == b["content_hash"]
         assert a["snapshot_id"] == b["snapshot_id"]
         assert b.get("reused") is True

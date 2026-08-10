@@ -49,6 +49,7 @@ def create_snapshot(
     cutoff_at: datetime,
     code_commit_hash: str | None = None,
     llm_profile_version: str = "llm-profile-v0.1",
+    security_ids: list[str] | None = None,
 ) -> dict[str, Any]:
     if cutoff_at.tzinfo is None:
         cutoff_at = cutoff_at.replace(tzinfo=timezone.utc)
@@ -71,17 +72,31 @@ def create_snapshot(
             ),
         )
         # latest membership as of cutoff (eligible_at = evaluated_at <= cutoff)
-        cur.execute(
-            """
-            select distinct on (s.security_id)
-              s.security_id::text, s.ticker, s.exchange, um.included, um.exclusion_reason, um.evaluated_at
-            from securities s
-            join universe_memberships um on um.security_id = s.security_id
-            where um.evaluated_at <= %s
-            order by s.security_id, um.evaluated_at desc
-            """,
-            (cutoff_at,),
-        )
+        if security_ids:
+            cur.execute(
+                """
+                select distinct on (s.security_id)
+                  s.security_id::text, s.ticker, s.exchange, um.included, um.exclusion_reason, um.evaluated_at
+                from securities s
+                join universe_memberships um on um.security_id = s.security_id
+                where um.evaluated_at <= %s
+                  and s.security_id = any(%s::uuid[])
+                order by s.security_id, um.evaluated_at desc, um.included asc
+                """,
+                (cutoff_at, security_ids),
+            )
+        else:
+            cur.execute(
+                """
+                select distinct on (s.security_id)
+                  s.security_id::text, s.ticker, s.exchange, um.included, um.exclusion_reason, um.evaluated_at
+                from securities s
+                join universe_memberships um on um.security_id = s.security_id
+                where um.evaluated_at <= %s
+                order by s.security_id, um.evaluated_at desc, um.included asc
+                """,
+                (cutoff_at,),
+            )
         memberships = cur.fetchall()
         items: list[dict[str, Any]] = []
         for sid, ticker, exchange, included, excl, evaluated_at in memberships:
@@ -97,14 +112,24 @@ def create_snapshot(
             items.append({"item_type": "universe_membership", "item_ref": sid, "payload": payload})
 
         cutoff_date = cutoff_at.date()
-        cur.execute(
-            """
-            select security_id::text, trading_date::text, open, high, low, close, volume
-            from daily_prices
-            where trading_date <= %s
-            """,
-            (cutoff_date,),
-        )
+        if security_ids:
+            cur.execute(
+                """
+                select security_id::text, trading_date::text, open, high, low, close, volume
+                from daily_prices
+                where trading_date <= %s and security_id = any(%s::uuid[])
+                """,
+                (cutoff_date, security_ids),
+            )
+        else:
+            cur.execute(
+                """
+                select security_id::text, trading_date::text, open, high, low, close, volume
+                from daily_prices
+                where trading_date <= %s
+                """,
+                (cutoff_date,),
+            )
         for sid, td, o, h, l, c, v in cur.fetchall():
             items.append(
                 {
@@ -123,16 +148,32 @@ def create_snapshot(
             )
 
         # facts known by cutoff (published/filed); period_end alone is not eligibility
-        cur.execute(
-            """
-            select fact_id::text, company_id::text, metric_key, value::text, period_end::text,
-                   published_at::text, filed_at::text, source_id::text, source_version
-            from financial_facts
-            where coalesce(published_at, filed_at) is not null
-              and coalesce(published_at, filed_at) <= %s
-            """,
-            (cutoff_date,),
-        )
+        if security_ids:
+            cur.execute(
+                """
+                select fact_id::text, company_id::text, metric_key, value::text, period_end::text,
+                       published_at::text, filed_at::text, source_id::text, source_version
+                from financial_facts f
+                where coalesce(published_at, filed_at) is not null
+                  and coalesce(published_at, filed_at) <= %s
+                  and exists (
+                    select 1 from securities s
+                    where s.company_id=f.company_id and s.security_id = any(%s::uuid[])
+                  )
+                """,
+                (cutoff_date, security_ids),
+            )
+        else:
+            cur.execute(
+                """
+                select fact_id::text, company_id::text, metric_key, value::text, period_end::text,
+                       published_at::text, filed_at::text, source_id::text, source_version
+                from financial_facts
+                where coalesce(published_at, filed_at) is not null
+                  and coalesce(published_at, filed_at) <= %s
+                """,
+                (cutoff_date,),
+            )
         source_ids: set[str] = set()
         for fact_id, company_id, metric, value, pe, pub, filed, source_id, source_version in cur.fetchall():
             if source_id:

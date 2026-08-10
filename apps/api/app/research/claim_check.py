@@ -38,23 +38,32 @@ def find_unsupported_numeric_claims(
     allowed = _evidence_numbers(packet)
     failed: list[dict[str, Any]] = []
 
+    def _row(**kwargs: Any) -> dict[str, str]:
+        return {
+            "reason": str(kwargs.get("reason") or ""),
+            "claim": str(kwargs.get("claim") or ""),
+            "evidence_id": str(kwargs.get("evidence_id") or ""),
+            "number": str(kwargs.get("number") or ""),
+            "field": str(kwargs.get("field") or ""),
+        }
+
     for item in research.get("claim_evidence_map") or []:
         if not isinstance(item, dict):
-            failed.append({"reason": "claim_evidence_map_item_not_object", "item": item})
+            failed.append(_row(reason="claim_evidence_map_item_not_object", claim=str(item)))
             continue
         claim = str(item.get("claim") or "")
         eid = item.get("evidence_id")
         evidence_ids = {e.get("evidence_id") for e in (packet.get("evidence") or []) if isinstance(e, dict)}
         if eid and eid not in evidence_ids:
-            failed.append({"claim": claim, "evidence_id": eid, "reason": "evidence_id_not_in_packet"})
+            failed.append(_row(claim=claim, evidence_id=str(eid), reason="evidence_id_not_in_packet"))
         for m in _NUM_RE.findall(claim):
             if _norm(m) not in allowed:
                 failed.append(
-                    {
-                        "claim": claim,
-                        "number": m,
-                        "reason": "numeric_not_in_packet_evidence",
-                    }
+                    _row(
+                        claim=claim,
+                        number=m,
+                        reason="numeric_not_in_packet_evidence",
+                    )
                 )
 
     # scan free-text fields for invented absolute numbers with no map entry
@@ -79,11 +88,11 @@ def find_unsupported_numeric_claims(
                 if n in {"0", "1", "2", "3"}:
                     continue
                 failed.append(
-                    {
-                        "field": "narrative",
-                        "number": m,
-                        "reason": "unsupported_numeric_in_narrative",
-                    }
+                    _row(
+                        field="narrative",
+                        number=m,
+                        reason="unsupported_numeric_in_narrative",
+                    )
                 )
     return failed
 
@@ -97,7 +106,15 @@ def deterministic_qa(
     if research.get("unsupported_or_missing"):
         warnings.append("research_declared_unsupported_or_missing")
     if not research.get("bear_case"):
-        failed.append({"reason": "missing_bear_case"})
+        failed.append(
+            {
+                "reason": "missing_bear_case",
+                "claim": "",
+                "evidence_id": "",
+                "number": "",
+                "field": "bear_case",
+            }
+        )
     status = "FAIL" if failed else ("PASS_WITH_WARNING" if warnings else "PASS")
     return {
         "status": status,

@@ -19,6 +19,10 @@ def test_company_analysis_schemas_load():
     sample_out = {
         "summary": "s",
         "business_model": "b",
+        "growth_drivers": ["g"],
+        "moat_assessment": "m",
+        "financial_interpretation": "f",
+        "valuation_interpretation": "v",
         "bull_case": ["a"],
         "bear_case": ["b"],
         "key_risks": ["r"],

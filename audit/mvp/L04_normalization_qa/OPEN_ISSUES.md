@@ -1,2 +1,14 @@
 ﻿# OPEN_ISSUES
-none P0/P1
+
+- layer_id: L04
+
+| ID | Severity | Description | Root Cause | Status | Follow-up |
+|----|----------|-------------|------------|--------|-----------|
+| — | — | none | — | — | — |
+
+## Counts
+
+- P0 open: 0
+- P1 open: 0
+- P2 open: 0
+- P3 open: 0

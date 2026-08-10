@@ -1,0 +1,10 @@
+﻿# ER-P1-04 pytest revalidation
+# started: 2026-08-10T13:01:19Z (attempt 1)
+# note: full `pytest tests -q` produced no output for >6 minutes (likely DB/network
+#       integration wait) and was killed. Do not treat that attempt as PASS evidence.
+# attempt 2: unit suite only
+
+............................                                             [100%]
+28 passed in 0.97s
+
+EXIT=0 finished=2026-08-10T22:08:31+09:00

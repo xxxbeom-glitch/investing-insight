@@ -5,7 +5,21 @@
   "required": ["status", "failed_claims", "warnings", "required_revisions"],
   "properties": {
     "status": {"enum": ["PASS", "PASS_WITH_WARNING", "FAIL"]},
-    "failed_claims": {"type": "array", "items": {"type": "object"}},
+    "failed_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reason", "claim", "evidence_id", "number", "field"],
+        "additionalProperties": false,
+        "properties": {
+          "reason": {"type": "string"},
+          "claim": {"type": "string"},
+          "evidence_id": {"type": "string"},
+          "number": {"type": "string"},
+          "field": {"type": "string"}
+        }
+      }
+    },
     "warnings": {"type": "array", "items": {"type": "string"}},
     "required_revisions": {"type": "array", "items": {"type": "string"}}
   },

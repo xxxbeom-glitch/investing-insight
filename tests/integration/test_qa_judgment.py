@@ -14,7 +14,14 @@ from app.snapshot.engine import create_snapshot
 
 
 def _prep(conn):
-    snap = create_snapshot(conn, cutoff_at=datetime.now(timezone.utc), code_commit_hash="l08")
+    from tests.conftest import priced_security_ids
+
+    ids = priced_security_ids(conn)
+    if not ids:
+        pytest.skip("no priced securities")
+    snap = create_snapshot(
+        conn, cutoff_at=datetime.now(timezone.utc), code_commit_hash="l08", security_ids=ids
+    )
     run_quant_for_snapshot(
         conn, snapshot_id=snap["snapshot_id"], run_id=snap["run_id"], rules=load_quant_rules()
     )

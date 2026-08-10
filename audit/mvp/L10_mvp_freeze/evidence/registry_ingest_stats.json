@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-08-10T14:10:58.314652+00:00",
+  "finding": "ER-P1-01",
+  "ingest_stats": {
+    "seen": 8500,
+    "included": 5226,
+    "excluded": 3274,
+    "companies": 8500,
+    "securities": 8500,
+    "nyse": 2924,
+    "nasdaq": 5576,
+    "included_common": 4859,
+    "included_adr": 367,
+    "exclusions_by_reason": {
+      "type_UNIT": 299,
+      "type_PFD": 412,
+      "type_SP": 155,
+      "type_WARRANT": 434,
+      "type_ETF": 1330,
+      "type_FUND": 303,
+      "name_suggests_spac": 206,
+      "name_contains_reit": 15,
+      "type_RIGHT": 118,
+      "name_contains_bdc": 2
+    },
+    "missing_cik": 549,
+    "pages": 9
+  },
+  "note": "raw files skipped; sources.raw_hash retained (db-only storage_path)"
+}

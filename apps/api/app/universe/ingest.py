@@ -14,18 +14,39 @@ from app.universe.classify import RULE_VERSION, UNIVERSE_NAME
 from app.universe.identity import build_identity
 
 
-def persist_tickers(conn: psycopg.Connection, rows: Iterable[dict[str, Any]], *, provider: str = "massive") -> dict[str, int]:
-    stats = {"seen": 0, "included": 0, "excluded": 0, "companies": 0, "securities": 0}
-    now = datetime.now(timezone.utc)
+def persist_tickers(
+    conn: psycopg.Connection,
+    rows: Iterable[dict[str, Any]],
+    *,
+    provider: str = "massive",
+    write_raw_files: bool = True,
+) -> dict[str, Any]:
+    stats: dict[str, Any] = {
+        "seen": 0,
+        "included": 0,
+        "excluded": 0,
+        "companies": 0,
+        "securities": 0,
+        "nyse": 0,
+        "nasdaq": 0,
+        "included_common": 0,
+        "included_adr": 0,
+        "exclusions_by_reason": {},
+        "missing_cik": 0,
+    }
     with conn.cursor() as cur:
         for row in rows:
+            now = datetime.now(timezone.utc)
             stats["seen"] += 1
             identity = build_identity(row)
             raw_hash = stable_raw_hash(row)
             source_id = uuid.uuid5(uuid.NAMESPACE_URL, f"{provider}:{raw_hash}")
             storage_path = f"storage/raw/{provider}/tickers/{raw_hash}.json"
-            Path(storage_path).parent.mkdir(parents=True, exist_ok=True)
-            Path(storage_path).write_text(json.dumps(row, ensure_ascii=False, indent=2), encoding="utf-8")
+            if write_raw_files:
+                Path(storage_path).parent.mkdir(parents=True, exist_ok=True)
+                Path(storage_path).write_text(json.dumps(row, ensure_ascii=False, indent=2), encoding="utf-8")
+            else:
+                storage_path = f"db-only://{provider}/tickers/{raw_hash}"
 
             cur.execute(
                 """
@@ -102,10 +123,23 @@ def persist_tickers(conn: psycopg.Connection, rows: Iterable[dict[str, Any]], *,
             stats["securities"] += 1
 
             cls = identity.classification
+            if identity.exchange == "XNYS":
+                stats["nyse"] += 1
+            elif identity.exchange == "XNAS":
+                stats["nasdaq"] += 1
             if cls.included:
                 stats["included"] += 1
+                if identity.is_adr:
+                    stats["included_adr"] += 1
+                else:
+                    stats["included_common"] += 1
             else:
                 stats["excluded"] += 1
+                reason = cls.exclusion_reason or "unknown"
+                reasons = stats["exclusions_by_reason"]
+                reasons[reason] = int(reasons.get(reason, 0)) + 1
+            if not identity.sec_cik:
+                stats["missing_cik"] += 1
 
             cur.execute(
                 """
@@ -129,16 +163,74 @@ def persist_tickers(conn: psycopg.Connection, rows: Iterable[dict[str, Any]], *,
     return stats
 
 
-def ingest_from_massive(db_url: str, api_key: str, *, tickers: list[str] | None = None, max_pages: int | None = 1) -> dict[str, int]:
+def ingest_from_massive(
+    db_url: str,
+    api_key: str,
+    *,
+    tickers: list[str] | None = None,
+    max_pages: int | None = 1,
+    write_raw_files: bool = True,
+    page_commit_size: int = 1000,
+    exchanges: list[str] | None = None,
+) -> dict[str, Any]:
+    """Stream Massive pages into DB to avoid loading the full registry in memory."""
     client = MassiveClient(api_key)
-    rows: list[dict[str, Any]] = []
+    merged: dict[str, Any] = {
+        "seen": 0,
+        "included": 0,
+        "excluded": 0,
+        "companies": 0,
+        "securities": 0,
+        "nyse": 0,
+        "nasdaq": 0,
+        "included_common": 0,
+        "included_adr": 0,
+        "exclusions_by_reason": {},
+        "missing_cik": 0,
+        "pages": 0,
+    }
+
+    def _merge(part: dict[str, Any]) -> None:
+        for k, v in part.items():
+            if k == "exclusions_by_reason":
+                for reason, n in v.items():
+                    merged["exclusions_by_reason"][reason] = int(
+                        merged["exclusions_by_reason"].get(reason, 0)
+                    ) + int(n)
+            elif isinstance(v, int):
+                merged[k] = int(merged.get(k, 0)) + v
+
     if tickers:
+        rows: list[dict[str, Any]] = []
         for t in tickers:
             detail = client.get_security_details(t)
             if detail is None:
                 raise RuntimeError(f"massive ticker not found: {t}")
             rows.append(detail)
-    else:
-        rows = list(client.list_securities(max_pages=max_pages))
+        with psycopg.connect(db_url) as conn:
+            return persist_tickers(conn, rows, write_raw_files=write_raw_files)
+
+    exchange_list = exchanges or [None]
     with psycopg.connect(db_url) as conn:
-        return persist_tickers(conn, rows)
+        for exchange in exchange_list:
+            batch: list[dict[str, Any]] = []
+            for row in client.list_securities(max_pages=max_pages, exchange=exchange):
+                batch.append(row)
+                if len(batch) >= page_commit_size:
+                    merged["pages"] = int(merged.get("pages", 0)) + 1
+                    part = persist_tickers(conn, batch, write_raw_files=write_raw_files)
+                    _merge(part)
+                    print(
+                        f"exchange={exchange} page={merged['pages']} seen={merged['seen']} included={merged['included']}",
+                        flush=True,
+                    )
+                    batch = []
+            if batch:
+                merged["pages"] = int(merged.get("pages", 0)) + 1
+                part = persist_tickers(conn, batch, write_raw_files=write_raw_files)
+                _merge(part)
+                print(
+                    f"exchange={exchange} page={merged['pages']} seen={merged['seen']} included={merged['included']}",
+                    flush=True,
+                )
+    return merged

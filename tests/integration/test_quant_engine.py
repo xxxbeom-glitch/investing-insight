@@ -6,6 +6,7 @@ from app.settings import get_settings
 from app.snapshot.engine import create_snapshot
 from app.quant.config import load_quant_rules
 from app.quant.engine import run_quant_for_snapshot
+from tests.conftest import priced_security_ids
 
 
 def test_quant_deterministic_no_llm():
@@ -18,7 +19,10 @@ def test_quant_deterministic_no_llm():
     rules = load_quant_rules()
     cutoff = datetime.now(timezone.utc)
     with psycopg.connect(s.supabase_db_url) as conn:
-        snap = create_snapshot(conn, cutoff_at=cutoff, code_commit_hash="quant-test")
+        ids = priced_security_ids(conn)
+        if not ids:
+            pytest.skip("no priced securities")
+        snap = create_snapshot(conn, cutoff_at=cutoff, code_commit_hash="quant-test", security_ids=ids)
         a = run_quant_for_snapshot(conn, snapshot_id=snap["snapshot_id"], run_id=snap["run_id"], rules=rules)
         b = run_quant_for_snapshot(conn, snapshot_id=snap["snapshot_id"], run_id=snap["run_id"], rules=rules)
         assert a["scored"] == b["scored"]
@@ -41,7 +45,6 @@ def test_quant_deterministic_no_llm():
                 (snap["run_id"],),
             )
             scores = [float(r[0]) for r in cur.fetchall()]
-        # re-run and compare scores identically
         with psycopg.connect(s.supabase_db_url) as conn2:
             run_quant_for_snapshot(conn2, snapshot_id=snap["snapshot_id"], run_id=snap["run_id"], rules=rules)
             with conn2.cursor() as cur:
