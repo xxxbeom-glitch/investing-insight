@@ -1,15 +1,16 @@
 ﻿# Active Task Contract
 
 ## Task
-- Task ID: L07
-- Layer: L07_research_packet
+- Task ID: L08
+- Layer: L08_qa_judgment
 
 ## Goal
-Research Packet & Company Research Blocking AC ALL PASS
+Research QA & Final Judgment Blocking AC ALL PASS
 
 ## Result
-- PASS — ready for L08
+- PASS — ready for L09
 
 ## Verification
-- [x] packet schema + evidence IDs
-- [x] fake client research + no silent fallback
+- [x] unsupported numeric fixture FAIL
+- [x] SELECTED blocked on QA FAIL
+- [x] judgment immutability
