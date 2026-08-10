@@ -1,0 +1,21 @@
+version: fred-series-v0.1
+provider: fred
+base_url: https://api.stlouisfed.org
+# Fail-closed: missing FRED_API_KEY must not silent-skip
+series:
+  - id: UNRATE
+    role: labor
+    description: Unemployment rate
+  - id: CPIAUCSL
+    role: inflation
+    description: CPI all urban consumers
+  - id: T10Y2Y
+    role: yield_curve
+    description: 10Y-2Y treasury spread
+  - id: FEDFUNDS
+    role: policy_rate
+    description: Federal funds rate
+  - id: INDPRO
+    role: industrial_production
+    description: Industrial production index
+default_observation_start: "2018-01-01"

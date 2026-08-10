@@ -1,0 +1,30 @@
+version: value-chain-v0.1
+# Seed value-chain maps for Top-down candidates (MVP-style lab seed; not full coverage)
+chains:
+  - industry_id: semis
+    nodes:
+      - node_id: design
+        label: Chip Design
+        tickers: [NVDA, AVGO, AMD]
+      - node_id: foundry
+        label: Foundry / Manufacturing
+        tickers: [TSM, INTC]
+      - node_id: equipment
+        label: Equipment
+        tickers: [ASML, AMAT, LRCX]
+  - industry_id: software
+    nodes:
+      - node_id: platforms
+        label: Platforms
+        tickers: [MSFT, GOOGL, AMZN]
+      - node_id: apps
+        label: Application Software
+        tickers: [CRM, ADBE, NOW]
+  - industry_id: energy_equip
+    nodes:
+      - node_id: oilfield
+        label: Oilfield Services
+        tickers: [SLB, HAL, BKR]
+      - node_id: midstream
+        label: Midstream
+        tickers: [EPD, ET]

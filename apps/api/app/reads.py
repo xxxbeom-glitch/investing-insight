@@ -422,6 +422,7 @@ def settings_summary() -> dict[str, Any]:
             "openai_key_set": bool(s.openai_api_key),
             "massive_key_set": bool(s.massive_api_key),
             "sec_ua_set": bool(s.sec_user_agent),
+            "fred_key_set": bool(s.fred_api_key),
             # never return raw secrets
         },
     }
@@ -478,5 +479,58 @@ def ops_health() -> dict[str, Any]:
             "openai_key_set": bool(s.openai_api_key),
             "massive_key_set": bool(s.massive_api_key),
             "sec_ua_set": bool(s.sec_user_agent),
+            "fred_key_set": bool(s.fred_api_key),
         },
+    }
+
+
+@router.get("/topdown/summary")
+def topdown_summary() -> dict[str, Any]:
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select regime_id::text, as_of::text, regime, rule_version
+                from market_regimes
+                order by created_at desc
+                limit 1
+                """
+            )
+            regime = cur.fetchone()
+            cur.execute(
+                """
+                select industry_id, overall_score, as_of::text
+                from industry_assessments
+                order by created_at desc
+                limit 10
+                """
+            )
+            assessments = [
+                {"industry_id": r[0], "overall_score": float(r[1]), "as_of": r[2]} for r in cur.fetchall()
+            ]
+            cur.execute(
+                """
+                select union_id::text, as_of::text, jsonb_array_length(members)
+                from shortlist_unions
+                order by created_at desc
+                limit 1
+                """
+            )
+            union = cur.fetchone()
+    return {
+        "latest_regime": (
+            {
+                "regime_id": regime[0],
+                "as_of": regime[1],
+                "regime": regime[2],
+                "rule_version": regime[3],
+            }
+            if regime
+            else None
+        ),
+        "recent_assessments": assessments,
+        "latest_union": (
+            {"union_id": union[0], "as_of": union[1], "member_count": union[2]} if union else None
+        ),
+        "scheduler_enable_allowed": False,
     }

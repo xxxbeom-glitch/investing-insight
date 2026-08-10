@@ -1,0 +1,59 @@
+version: industry-rules-v0.1
+regime_rules_version: market-regime-v0.1
+# Deterministic thresholds — code-owned, not LLM
+regime:
+  # Uses latest available observation per role
+  expansion:
+    unrate_max: 5.5
+    yield_curve_min: 0.0
+  late_cycle:
+    unrate_max: 5.5
+    yield_curve_max: 0.0
+  contraction:
+    unrate_min: 5.5
+industries:
+  - industry_id: semis
+    name: Semiconductors
+    # Dimension base weights sum to 1.0
+    weights:
+      demand: 0.25
+      capex: 0.15
+      supply: 0.15
+      pricing: 0.15
+      margin: 0.15
+      bottleneck: 0.15
+    # Heuristic inputs from FRED roles (0-100 later scaled in code)
+    fred_tilt:
+      industrial_production: demand
+      inflation: pricing
+      yield_curve: demand
+  - industry_id: software
+    name: Software / Platforms
+    weights:
+      demand: 0.30
+      capex: 0.10
+      supply: 0.10
+      pricing: 0.15
+      margin: 0.25
+      bottleneck: 0.10
+    fred_tilt:
+      industrial_production: demand
+      labor: demand
+      policy_rate: pricing
+  - industry_id: energy_equip
+    name: Energy Equipment
+    weights:
+      demand: 0.20
+      capex: 0.25
+      supply: 0.15
+      pricing: 0.20
+      margin: 0.10
+      bottleneck: 0.10
+    fred_tilt:
+      industrial_production: demand
+      inflation: pricing
+      policy_rate: capex
+qa:
+  min_overall: 40
+  require_all_dimensions: true
+  block_on_fail: true
