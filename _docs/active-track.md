@@ -1,2 +1,2 @@
 ﻿# Active Track
-L00–L06 **PASS** → next **L07 Research Packet**
+L00–L07 **PASS** → next **L08 Research QA & Final Judgment**

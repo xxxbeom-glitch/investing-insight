@@ -1,2 +1,6 @@
-﻿# Placeholder — fill when research limits are implemented.
+﻿# Research packet / LLM budget limits
 version: research-limits-v0.1
+max_packet_chars: 80000
+max_evidence_items: 200
+max_price_points: 60
+company_research_prompt_version: company-research-prompt-v0.1

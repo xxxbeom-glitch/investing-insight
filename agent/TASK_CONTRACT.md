@@ -1,15 +1,15 @@
 ﻿# Active Task Contract
 
 ## Task
-- Task ID: L06
-- Layer: L06_quant_engine
+- Task ID: L07
+- Layer: L07_research_packet
 
 ## Goal
-Quant Engine Blocking AC ALL PASS
+Research Packet & Company Research Blocking AC ALL PASS
 
 ## Result
-- PASS — ready for L07
+- PASS — ready for L08
 
 ## Verification
-- [x] unit formula tests
-- [x] deterministic integration scores
+- [x] packet schema + evidence IDs
+- [x] fake client research + no silent fallback
