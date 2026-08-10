@@ -5,7 +5,7 @@ PASS — MVP v0.1 freeze. Post-MVP 구현 금지. 외부 검토로 이관.
 
 ## Git
 - Tag: mvp-v0.1-pass
-- Commit: (filled at tag time)
+- Commit: 67c9c2d13ef42ac646e8aa6e76fba50e07576416
 
 ## Versions
 - System Spec: investing-insight-spec-v1.6
