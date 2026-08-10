@@ -1,11 +1,11 @@
----
+﻿---
 description: 작업 시작·Layer 루프 요약 (상세는 25-layer-audit)
 alwaysApply: true
 ---
 
 # Harness Workflow
 
-> SoT: `investing-insight-spec-v1.5/` · 현황: `_docs/active-track.md`  
+> SoT: `investing-insight-spec-v1.6/` · 현황: `_docs/active-track.md`  
 > 상세 게이트: `25-layer-audit.mdc` · 불변식: `15-product-invariants.mdc`
 
 ## 시작 전
@@ -26,11 +26,13 @@ alwaysApply: true
 
 | 경로 | 역할 |
 |------|------|
-| `investing-insight-spec-v1.5/` | 설계 SoT |
+| `investing-insight-spec-v1.6/` | 설계 SoT |
+| `config/` | 비-secret versioned 설정 |
 | `audit/mvp/` | Layer 증거·PASS 기록 (**우선**) |
 | `_docs/active-track.md` | 현황 1장 |
 | `_logs/` | harness 메모 (decision 등) |
 | `docs/` | 구현 메모 (SoT 아님) |
+| `.env.local` | secrets only (커밋 금지) |
 
 ## 금지
 

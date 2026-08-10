@@ -1,42 +1,26 @@
 # Active Task Contract
 
-이 문서는 현재 작업 한 건만 유지한다. 새 작업을 시작할 때 이전 내용을 교체한다.
-
 ## Task
 
-- Task ID: RULES-001
+- Task ID: SPEC-160
 - Screen ID: n/a
-- Figma reference: n/a
 
 ## Goal
 
-설계서 Loop/Audit에 맞게 Cursor 지침을 정리한다. L00 코드는 포함하지 않는다.
-
-## Required
-
-- 불필요 규칙 삭제
-- product invariants · layer audit · git freeze 정렬
-- audit 템플릿 · LAYER_CHECKLIST
+설계서 v1.6을 SoT로 반영하고 하네스·config·env 예시를 맞춘다. L00 코드는 포함하지 않는다.
 
 ## Allowed Scope
 
-- `.cursor/rules/`, `agent/`, `audit/mvp/_templates/`, `_docs/`, `_logs/`, README(필요 시)
+- rules · agent · _docs · _logs · config · packages/schemas · SECURITY · .env.example · README · spec 폴더 교체
 
 ## Forbidden
 
-- L00 앱 생성·dependency 설치
-- 설계서 본문 임의 변경
-- `.env` 커밋
-
-## Verification
-
-- [x] 규칙 파일이 설계서 게이트와 모순 없음 (문서 대조)
-- [ ] L00 실행 (해당 없음)
+- L00 앱 생성 · `.env` / `.env.local` 커밋 · 설계 결정 임의 변경
 
 ## Done When
 
-- 하네스 정리 커밋 완료
+- v1.6 참조·불변식·골격 동기화 커밋 완료
 
 ## Result
 
-- DONE (커밋 후 갱신)
+- DONE (커밋 후)

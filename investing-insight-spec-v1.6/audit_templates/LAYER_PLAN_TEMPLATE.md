@@ -5,6 +5,7 @@
 - Started At:
 - Owner: Cursor
 - Previous Layer Commit:
+- Config Versions:
 
 ## Goal
 
@@ -19,6 +20,7 @@
 - [ ] Unit
 - [ ] Integration
 - [ ] Negative / Edge
+- [ ] Secret/Config when applicable
 
 ## Expected Files Changed
 

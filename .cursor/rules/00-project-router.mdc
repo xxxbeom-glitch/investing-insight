@@ -1,5 +1,5 @@
----
-description: 트랙 라우터 — investing-insight (PC 웹 · 설계서 v1.5)
+﻿---
+description: 트랙 라우터 — investing-insight (PC 웹 · 설계서 v1.6)
 alwaysApply: true
 ---
 
@@ -7,14 +7,14 @@ alwaysApply: true
 
 **제품:** NYSE·NASDAQ 대상 AI 리서치·판단 감사 시스템 (자동매매 아님).  
 **대상:** PC Web only.  
-**설계 SoT:** `investing-insight-spec-v1.5/`  
+**설계 SoT:** `investing-insight-spec-v1.6/`  
 **현황 1장:** `_docs/active-track.md` · **스펙 stub:** `agent/PROJECT_SPEC.md`
 
 | 상태 | 트랙 | 경로 |
 |------|------|------|
 | **활성** | PC Web | `apps/web/` |
 | **활성** | API · Research | `apps/api/` · `src/` |
-| **설계** | System Design v1.5 | `investing-insight-spec-v1.5/` |
+| **설계** | System Design v1.6 | `investing-insight-spec-v1.6/` |
 | **운영** | 에이전트 계약 | `agent/` |
 | **감사** | Layer PASS 증거 | `audit/mvp/` (`25-layer-audit`) |
 | **로그** | harness 메모 | `_logs/` (audit 대체 아님) |
@@ -28,11 +28,13 @@ alwaysApply: true
 ## 충돌
 
 1. 사용자 지시  
-2. `investing-insight-spec-v1.5/00_PROJECT_DECISIONS.md`  
+2. `investing-insight-spec-v1.6/00_PROJECT_DECISIONS.md`  
 3. 본 라우터 · `active-track`  
 4. `00-core`
 
 ## 경로 주의
 
-- `storage/raw/` · `.env` · 비밀키 **커밋 금지**
+- `storage/raw/` · `.env` / `.env.local` · 비밀키 **커밋 금지**
+- Supabase secret · OpenAI/Massive key는 서버 전용
+- Firebase / MVP 중 공개 배포 트리 도입 금지
 - kmong `site/` / WordPress 납품 트리 **쓰지 않음**

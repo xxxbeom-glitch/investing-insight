@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "snapshot_manifest.v0.1",
+  "type": "object",
+  "required": ["snapshot_id", "run_id", "cutoff_at", "content_hash", "source_versions", "config_versions"],
+  "properties": {
+    "snapshot_id": {"type": "string"},
+    "run_id": {"type": "string"},
+    "cutoff_at": {"type": "string", "format": "date-time"},
+    "content_hash": {"type": "string"},
+    "source_versions": {"type": "array"},
+    "config_versions": {"type": "object"}
+  },
+  "additionalProperties": false
+}

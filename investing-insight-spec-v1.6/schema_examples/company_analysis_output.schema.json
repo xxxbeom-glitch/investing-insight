@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company_analysis_output.v0.1",
+  "type": "object",
+  "required": ["summary", "business_model", "bull_case", "bear_case", "key_risks", "invalidation_conditions", "uncertainties", "claim_evidence_map", "unsupported_or_missing"],
+  "properties": {
+    "summary": {"type": "string"},
+    "business_model": {"type": "string"},
+    "growth_drivers": {"type": "array", "items": {"type": "string"}},
+    "moat_assessment": {"type": "string"},
+    "financial_interpretation": {"type": "string"},
+    "valuation_interpretation": {"type": "string"},
+    "bull_case": {"type": "array", "items": {"type": "string"}},
+    "bear_case": {"type": "array", "items": {"type": "string"}},
+    "key_risks": {"type": "array", "items": {"type": "string"}},
+    "invalidation_conditions": {"type": "array", "items": {"type": "string"}},
+    "uncertainties": {"type": "array", "items": {"type": "string"}},
+    "claim_evidence_map": {"type": "array", "items": {"type": "object"}},
+    "unsupported_or_missing": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

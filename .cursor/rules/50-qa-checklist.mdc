@@ -1,4 +1,4 @@
----
+﻿---
 description: PC QA 통과 기준
 alwaysApply: false
 globs:
@@ -9,7 +9,7 @@ globs:
 # QA Checklist (PC only)
 
 뷰포트: **1920** · **1440** · (선택) **2560**  
-**모바일 QA 없음** · UI 상세: `investing-insight-spec-v1.5/06_PC_WEB_UI.md`
+**모바일 QA 없음** · UI 상세: `investing-insight-spec-v1.6/06_PC_WEB_UI.md`
 
 ## 단위 QA
 

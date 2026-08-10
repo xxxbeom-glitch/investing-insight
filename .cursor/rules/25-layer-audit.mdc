@@ -1,11 +1,11 @@
----
+﻿---
 description: Layer Loop Engineering · audit 계약 · PASS/FREEZE 게이트
 alwaysApply: true
 ---
 
 # Layer Audit & Loop
 
-SoT: `investing-insight-spec-v1.5/05_QA_LOOP_AUDIT.md` · `07_MVP_LAYER_PLAN.md` · `09_CURSOR_MASTER_PROMPT.md`
+SoT: `investing-insight-spec-v1.6/05_QA_LOOP_AUDIT.md` · `07_MVP_LAYER_PLAN.md` · `09_CURSOR_MASTER_PROMPT.md`
 
 ## 루프 (모든 Layer 동일)
 
@@ -70,6 +70,7 @@ PASS된 Layer를 고쳐야 하면: **과거 audit 문서를 고치지 않음** �
 ## 금지
 
 - Blocking FAIL인데 다음 Layer
-- 설명만으로 PASS 선언
-- secret을 audit에 기록
 - audit 없이 Layer 완료 주장
+- secret을 audit에 기록
+- unavailable model/config에 silent fallback (Fail Closed)
+- P0/P1 open인데 다음 Layer

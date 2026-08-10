@@ -1,36 +1,54 @@
----
-description: 제품 불변식 — 설계서 00/09 확정 결정을 임의 변경 금지
+﻿---
+description: 제품 불변식 — 설계서 v1.6 확정 결정 임의 변경 금지
 alwaysApply: true
 ---
 
 # Product Invariants
 
-SoT: `investing-insight-spec-v1.5/00_PROJECT_DECISIONS.md` · `09_CURSOR_MASTER_PROMPT.md` §7  
-확정 결정을 **추론·확대·축소하지 않는다.**
+SoT: `investing-insight-spec-v1.6/00_PROJECT_DECISIONS.md` · `09_CURSOR_MASTER_PROMPT.md`
 
 ## 범위
 
-- 미국 only: NYSE + NASDAQ
-- 포함: 일반 상장회사 보통주 + ADR
-- 제외: ETF/ETN/REIT/SPAC/우선주/BDC/CEF/워런트/권리증권/투자회사형 등
+- 미국 only: NYSE + NASDAQ · 보통주 + ADR
+- 제외: ETF/ETN/REIT/SPAC/우선주/BDC/CEF/워런트/권리/투자회사형 등
 - PC Web only · 모바일 QA 비범위
-- **자동매매·주문·타이밍·포지션 사이징 아님**
+- **자동매매·주문·타이밍·포지션 아님**
+
+## MVP 운영
+
+- Web/API: **로컬 개발** 실행
+- Main DB: **Supabase PostgreSQL** (로컬 Postgres를 메인 SoR로 두지 않음)
+- **Firebase 사용 금지**
+- ingest/research: MVP에서 **수동 실행** 가능해야 함
+- cloud scheduler · 공개 웹 배포: MVP ALL PASS + 외부 검토 + Production Readiness **이후만**
+
+## Provider (MVP)
+
+- Market: Massive · Filings: SEC EDGAR/data.sec.gov · LLM: OpenAI Responses API
+- Post-MVP macro: FRED · 지금 ECOS/KIS/매매 API/필수 뉴스 API 없음
+
+## Secret · Config
+
+- Secret: `.env.local` (또는 secret store) · Git/audit/UI 노출 금지
+- `.env.example`에는 **변수명만**
+- 모델명/`reasoning.effort`는 secret 아님 → **`config/llm_profiles.*`** (버전 관리)
+- 코드에 모델명 hard-code 금지 · unavailable 시 **silent fallback 금지** (Fail Closed)
+- Supabase **secret key는 브라우저/`NEXT_PUBLIC_*` 금지** · publishable만 필요 시 클라이언트
+- OpenAI/Massive key는 서버 전용 · SEC는 `SEC_USER_AGENT` + **≤10 req/s** limiter
 
 ## 데이터 · 판단
 
-- **FACT**와 **AI ASSESSMENT** 분리 저장
-- 정량 점수·날짜·중복·스키마·future leakage 차단은 **코드** (LLM 대체 금지)
-- LLM은 리서치·비교·반대논리·불확실성
-- Snapshot `cutoff` 이후 정보 **사용 금지**
-- 과거 Snapshot / Judgment **수정 금지** (새 버전만)
-- SELECTED에는 risk + bear case + invalidation 필수
-- 중요 AI fact claim에는 evidence ref 필수
+- FACT / AI ASSESSMENT 분리 · PostgreSQL이 system of record
+- 기업별 영구 JSON 파일 수천 개 **만들지 않음** · Schema/Contract 버전 관리
+- Research Packet은 분석 시 동적 생성 · schema 실패 payload는 다음 단계 금지
+- Quant·날짜·중복·future leakage는 **코드** · LLM은 해석·근거·반대논리
+- Snapshot/Judgment **수정 금지** (새 버전만) · cutoff 이후 정보 사용 금지
+- SELECTED: risk + bear case + invalidation · fact claim에 evidence ref
 - 최종 선정 수 **강제 금지**
 
 ## MVP 진행
 
-- L00→L10 순서 · 이전 Layer P0/P1 open이면 다음 금지
-- MVP L10 ALL PASS 후 **중단** (Post-MVP 자동 착수 금지)
-- secret/API key를 코드·audit·로그에 기록 금지
+- L00→L10 · P0/P1 open이면 다음 금지
+- L10 ALL PASS 후 **중단** (Post-MVP 자동 착수 금지)
 
 모호하면 `00_PROJECT_DECISIONS`를 다시 읽고 질문.

@@ -1,4 +1,4 @@
----
+﻿---
 description: 프로젝트 핵심 원칙 · 컨텍스트 · 보고 말투
 alwaysApply: true
 ---
@@ -7,7 +7,7 @@ alwaysApply: true
 
 - **제품:** investing-insight — AI research + decision audit (비매매)
 - **경로:** `apps/web` · `apps/api` · `src/` · 현황 `_docs/active-track.md`
-- **설계 SoT:** `investing-insight-spec-v1.5/` (읽기 순서: 해당 README)
+- **설계 SoT:** `investing-insight-spec-v1.6/` (읽기 순서: 해당 README)
 - **불변식:** `15-product-invariants.mdc` · **루프:** `25-layer-audit.mdc` · **절차 요약:** `20-harness-workflow.mdc`
 - **PASS 전** 완료 선언 금지 · 검증 안 했으면 「정상 동작」이라고 말하지 않음
 - harness 로그: `_logs/` (decision / change / qa / failure) — Layer 증거는 **`audit/mvp/`가 우선**

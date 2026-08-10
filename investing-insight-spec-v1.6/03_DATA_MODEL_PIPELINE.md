@@ -2,16 +2,13 @@
 
 ## 1. Core Principle
 
-데이터는 `raw → normalized → validated → historical → snapshot` 순서로 이동한다.
+`raw → normalized → validated → historical → snapshot → research packet` 순서다.
 
-검증 전 데이터가 분석 테이블에 바로 들어가면 안 된다.
+검증 전 데이터가 분석에 사용되면 안 된다.
 
 ## 2. Identity Model
 
 ### companies
-경제적 실체인 회사를 표현한다.
-
-필수 개념 필드:
 - company_id
 - legal_name
 - country_of_incorporation
@@ -20,8 +17,6 @@
 - created_at
 
 ### securities
-거래되는 증권을 표현한다.
-
 - security_id
 - company_id
 - ticker
@@ -30,9 +25,9 @@
 - is_adr
 - active_from
 - active_to
-- provider_symbol identifiers
+- provider identifiers
 
-한 company가 여러 security를 가질 수 있다는 구조를 허용한다.
+Ticker는 identity가 아니다.
 
 ## 3. Universe Membership
 
@@ -45,26 +40,22 @@
 - valid_from
 - valid_to
 - evaluated_at
+- rule_version
 
-Universe 결과를 overwrite하지 않고 역사화한다.
+Overwrite 금지, 역사화.
 
 ## 4. Market Data
 
 ### daily_prices
 - security_id
 - trading_date
-- open
-- high
-- low
-- close
+- open/high/low/close
 - adjusted_close nullable
 - volume
 - currency
 - source_id
+- source_version
 - collected_at
-
-Unique constraint:
-`security_id + trading_date + source_version`
 
 ## 5. Financial Facts
 
@@ -84,7 +75,7 @@ Unique constraint:
 - source_id
 - source_version
 
-핵심은 `period_end`와 `published_at`을 분리하는 것이다.
+`period_end`와 `published_at`을 분리한다.
 
 ## 6. Filings
 
@@ -93,12 +84,10 @@ Unique constraint:
 - accession_number
 - form_type
 - filed_at
-- accepted_at when available
+- accepted_at
 - period_of_report
 - source_uri
 - raw_hash
-
-MVP는 전체 filing text를 DB에 강제로 저장하지 않아도 된다. metadata + immutable raw evidence reference를 저장한다.
 
 ## 7. Sources & Raw Evidence
 
@@ -113,9 +102,9 @@ MVP는 전체 filing text를 DB에 강제로 저장하지 않아도 된다. meta
 - raw_hash
 - storage_path
 
-모든 핵심 fact는 source_id로 역추적 가능해야 한다.
+핵심 fact는 source_id로 역추적 가능해야 한다.
 
-## 8. Snapshots
+## 8. Research Runs & Snapshots
 
 ### research_runs
 - run_id
@@ -123,10 +112,10 @@ MVP는 전체 filing text를 DB에 강제로 저장하지 않아도 된다. meta
 - cutoff_at
 - created_at
 - quant_rule_version
-- prompt_version
-- llm_provider
-- llm_model
+- prompt_bundle_version
+- llm_profile_version
 - code_commit_hash
+- universe_rule_version
 
 ### snapshots
 - snapshot_id
@@ -138,15 +127,15 @@ MVP는 전체 filing text를 DB에 강제로 저장하지 않아도 된다. meta
 - created_at
 
 ### snapshot_items
-분석에 실제 사용된 record를 고정한다.
 - snapshot_id
 - entity_type
 - entity_id
 - source_record_id
 - eligible_at
 - source_hash
+- source_version
 
-MVP 구현상 모든 row를 복제할 필요는 없다. 재현 가능한 immutable reference + version/hash 방식도 허용한다. 단, 이후 source record가 변경되어도 과거 Snapshot 재현이 가능해야 한다.
+과거 source가 restate되어도 old snapshot이 변하지 않아야 한다.
 
 ## 9. Quant Tables
 
@@ -166,29 +155,58 @@ MVP 구현상 모든 row를 복제할 필요는 없다. 재현 가능한 immutab
 - rule_version
 - input_hash
 
-## 10. Research Tables
+## 10. Research Packet
 
 ### research_packets
 - packet_id
 - run_id
 - security_id
+- snapshot_id
+- packet_schema_version
 - packet_version
 - input_hash
 - payload_json
+- created_at
+
+`payload_json`은 분석 시 동적으로 생성된 패킷이다. 기업별 영구 JSON 파일을 system of record로 사용하지 않는다.
+
+## 11. LLM Execution Records
+
+### llm_executions
+- execution_id
+- run_id
+- security_id nullable
+- agent_role
+- prompt_version
+- llm_profile_version
+- requested_model
+- resolved_model
+- reasoning_effort
+- response_id nullable
+- input_hash
+- output_hash
+- schema_version
+- status
+- token_usage nullable
+- estimated_cost nullable
+- started_at
+- completed_at
+- error_code nullable
+
+모델/profile 변경을 추적하기 위한 핵심 테이블이다.
 
 ### ai_research
 - research_id
+- execution_id
 - run_id
 - security_id
-- agent_role
-- prompt_version
-- model
 - output_json
 - output_hash
 - created_at
 
 ### research_qa
 - qa_id
+- execution_id
 - research_id
 - status
 - failed_claims
@@ -209,53 +227,65 @@ MVP 구현상 모든 row를 복제할 필요는 없다. 재현 가능한 immutab
 - evidence_quality
 - data_completeness
 - uncertainty
+- final_execution_id
 - immutable_hash
 - created_at
 
-judgment는 UPDATE하지 않는다. 새 research run에서 새 judgment를 추가한다.
+Judgment UPDATE 금지.
 
-## 11. FACT vs ASSESSMENT
+## 12. FACT vs ASSESSMENT
 
-### FACT
-provider, SEC, 계산 엔진 등으로 검증된 값.
+- FACT: provider/SEC/code-calculation으로 검증된 값
+- ASSESSMENT: LLM 해석/분류
 
-### ASSESSMENT
-LLM의 해석 또는 분류.
+DB와 UI에서 분리한다.
 
-UI와 DB 모두 두 유형을 구분한다.
+## 13. JSON Schema Contracts
 
-## 12. Normalization Rules
+최소 contracts:
+- `company_analysis_input.schema.json`
+- `company_analysis_output.schema.json`
+- `research_qa_output.schema.json`
+- `final_judgment_output.schema.json`
+- `snapshot_manifest.schema.json`
 
-- 날짜: UTC 저장 + display timezone 별도 처리
-- 미국 시장 cutoff: New York market context를 명시적으로 기록
-- currency: ISO currency code
-- numeric scale: raw value 기준 저장, UI에서 K/M/B 표현
-- ticker는 company identity로 사용하지 않는다.
-- metric naming은 내부 canonical key 사용
-- missing과 zero를 구분
-- restatement는 기존 row overwrite 금지, 새 source_version 추가
+Schema version을 packet/execution에 저장한다.
 
-## 13. Corporate Actions
+## 14. Normalization Rules
 
-MVP에서는 최소한 stock split이 과거 가격 비교를 깨뜨리지 않도록 raw/adjusted 구분을 지원한다.
+- DB timestamps: UTC
+- 시장 문맥: America/New_York 별도 기록/표시
+- currency: ISO code
+- raw numeric value 저장, UI만 K/M/B formatting
+- missing != zero
+- metric_key canonicalization
+- restatement overwrite 금지
+- provider symbol != internal identity
 
-Post-MVP에서 merger, spin-off, symbol change, delisting 처리 범위를 확장한다.
+## 15. Corporate Actions
 
-## 14. Data Ingestion Flow
+MVP 최소:
+- stock split raw/adjusted 구분
+- historical return 계산 시 adjusted basis 명시
+
+Post-MVP:
+- merger/spin-off/ticker change/delisting 강화
+
+## 16. Data Ingestion Flow
 
 ```text
 Fetch
 ↓
-write raw payload + hash
+write immutable raw + hash
 ↓
 parse
 ↓
 normalize
 ↓
-mechanical QA
+mechanical/data QA
 ↓
 PASS → historical DB
 FAIL → quarantine + audit issue
 ```
 
-실패 데이터를 조용히 버리지 않는다.
+실패를 조용히 버리지 않는다.

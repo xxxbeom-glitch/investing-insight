@@ -1,11 +1,11 @@
-# HANDOFF
+﻿# HANDOFF
 
 - layer_id:
 - status: PASS / FAIL / BLOCKED
 - completed_at:
 - commit_hash:
 - previous_layer_commit:
-- spec_version: investing-insight-spec-v1.5
+- spec_version: investing-insight-spec-v1.6
 
 ## Acceptance Criteria Result
 

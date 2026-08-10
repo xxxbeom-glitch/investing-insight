@@ -1,14 +1,16 @@
-# Change Log
+﻿# Change Log
+
+## 2026-08-10 (spec v1.6)
+
+- 설계 SoT `investing-insight-spec-v1.5` → `v1.6`
+- 불변식·구조·SECURITY·`.env.example`를 Supabase/Fail Closed/config 분리에 맞춤
+- `config/` · `packages/schemas/` 예시 추가
 
 ## 2026-08-10 (하네스)
 
-- 템플릿 웹용 Cursor 규칙 제거 (`30`/`40`/`45`/`46`/`73`)
-- `15-product-invariants` · `25-layer-audit` 추가 · git/core/harness 정렬
-- `audit/mvp/_templates` · `agent/LAYER_CHECKLIST.md` 추가
+- 템플릿 웹용 Cursor 규칙 제거 · Layer audit/불변식 추가
+- `audit/mvp/_templates` · `agent/LAYER_CHECKLIST.md`
 
-## 2026-08-10
+## 2026-08-10 (부트스트랩)
 
-- markdown 라이브러리 web pack·fonts·SECURITY·`_logs` 도입
-- Cursor 규칙을 PC 웹·설계서 v1.5 경로로 커스터마이즈
-- `01_ARCHITECTURE` 기준 빈 디렉터리 골격·README·agent ops·`.env.example` 추가
-- 런타임 앱/의존성은 아직 없음
+- markdown web pack·fonts·골격 디렉터리 · agent ops

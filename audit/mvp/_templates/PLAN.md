@@ -1,7 +1,7 @@
-# PLAN
+﻿# PLAN
 
 - layer_id:
-- spec_version: investing-insight-spec-v1.5
+- spec_version: investing-insight-spec-v1.6
 - started_at:
 - status: PLAN
 - previous_layer_commit:

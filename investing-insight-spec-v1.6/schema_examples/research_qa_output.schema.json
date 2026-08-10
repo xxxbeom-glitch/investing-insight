@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research_qa_output.v0.1",
+  "type": "object",
+  "required": ["status", "failed_claims", "warnings", "required_revisions"],
+  "properties": {
+    "status": {"enum": ["PASS", "PASS_WITH_WARNING", "FAIL"]},
+    "failed_claims": {"type": "array", "items": {"type": "object"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "required_revisions": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

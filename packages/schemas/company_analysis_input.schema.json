@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company_analysis_input.v0.1",
+  "type": "object",
+  "required": ["schema_version", "run_id", "snapshot_id", "security_id", "identity", "quant", "evidence"],
+  "properties": {
+    "schema_version": {"const": "company-analysis-input-v0.1"},
+    "run_id": {"type": "string"},
+    "snapshot_id": {"type": "string"},
+    "security_id": {"type": "string"},
+    "identity": {"type": "object"},
+    "price_metrics": {"type": "object"},
+    "financial_trends": {"type": "object"},
+    "quant": {"type": "object"},
+    "filings": {"type": "array"},
+    "peer_context": {"type": "object"},
+    "missing_or_limited": {"type": "array"},
+    "evidence": {"type": "array"}
+  },
+  "additionalProperties": false
+}

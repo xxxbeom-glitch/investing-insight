@@ -1,0 +1,15 @@
+version: llm-profile-v0.1
+provider: openai
+api: responses
+
+company_research:
+  model: gpt-5.6-terra
+  reasoning_effort: medium
+
+research_qa:
+  model: gpt-5.6-terra
+  reasoning_effort: high
+
+final_judgment:
+  model: gpt-5.6-terra
+  reasoning_effort: high

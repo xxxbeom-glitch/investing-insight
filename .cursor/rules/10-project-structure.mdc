@@ -1,4 +1,4 @@
----
+﻿---
 description: 저장소·폴더 구조 규칙 (investing-insight · 설계서 정렬)
 alwaysApply: true
 ---
@@ -14,7 +14,8 @@ investing-insight/
 ├── apps/
 │   ├── web/                    # Next.js PC Web
 │   └── api/                    # FastAPI
-├── packages/schemas/           # 공유 계약 (필요 시)
+├── packages/schemas/           # JSON Schema 예시·계약 (spec schema_examples 동기화)
+├── config/                     # 비-secret versioned config (llm/quant/…)
 ├── src/                        # ingestion…audit 파이프라인
 ├── migrations/
 ├── tests/
@@ -23,10 +24,11 @@ investing-insight/
 │   └── _templates/             # PLAN 등 빈 템플릿
 ├── docs/                       # 구현 메모만 (설계 SoT 아님)
 ├── scripts/
-├── investing-insight-spec-v1.5/  # 설계 SoT
+├── investing-insight-spec-v1.6/  # 설계 SoT
 ├── _docs/                      # active-track (현황 1장)
 ├── _logs/                      # harness logs (audit 대체 아님)
 ├── fonts/
+├── .env.example
 ├── SECURITY.md
 └── README.md
 ```
@@ -38,17 +40,21 @@ investing-insight/
 | UI | `apps/web/` |
 | API | `apps/api/` |
 | 도메인 파이프라인 | `src/*` |
-| 설계 SoT | `investing-insight-spec-v1.5/` |
+| 비-secret 설정 | `config/` |
+| Schema 계약 | `packages/schemas/` |
+| 설계 SoT | `investing-insight-spec-v1.6/` |
 | Layer 증거 | `audit/mvp/LXX_*/` |
 | 현황 1장 | `_docs/active-track.md` |
 | 구현 잡메모 | `docs/` (SoT 아님) |
+| Secret | `.env.local` (커밋 금지) |
 
 ## 금지
 
-- 설계서 Non-Goals(실시간 호가·자동주문·K8s 등) 무단 도입
-- `storage/raw` · secrets 커밋
+- 설계서 Non-Goals(실시간 호가·자동주문·K8s·Firebase·MVP 중 공개 배포 등) 무단 도입
+- `storage/raw` · secrets · `.env.local` 커밋
+- Supabase secret key를 클라이언트/`NEXT_PUBLIC_*`에 넣기
 - 타 프로젝트 `site/`/`wordpress/`/`_delivery*` 트리 재도입
-
+- 기업별 영구 JSON 파일 대량 생성으로 SoR 대체
 ## 완료 기준
 
 - 파일이 역할 폴더에 있고, Layer 계획·active-track과 모순되지 않음.

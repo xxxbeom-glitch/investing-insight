@@ -4,6 +4,8 @@
 - QA Run:
 - Commit:
 - Executed At:
+- Spec Version:
+- Config Versions:
 
 ## Acceptance Matrix
 
@@ -15,6 +17,18 @@
 
 ## Negative / Edge Tests
 
+## Secret / Config Checks
+
+## LLM Execution Checks (when applicable)
+- Role:
+- LLM Profile Version:
+- Requested Model:
+- Resolved Model:
+- reasoning.effort:
+- Prompt Version:
+- Schema Version:
+- Input/Output Hashes:
+
 ## Manual / AI Review Findings
 
 ## Issues
@@ -25,7 +39,6 @@
 ## Regression Tests Added
 
 ## Final QA Status
-
 - P0 Open:
 - P1 Open:
 - P2 Open:

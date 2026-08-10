@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "final_judgment_output.v0.1",
+  "type": "object",
+  "required": ["status", "thesis", "why_now", "key_evidence_refs", "bear_case", "risks", "invalidation_conditions", "validation_horizon", "evidence_quality", "data_completeness", "uncertainty"],
+  "properties": {
+    "status": {"enum": ["SELECTED", "WATCH", "REJECT"]},
+    "thesis": {"type": "string"},
+    "why_now": {"type": "string"},
+    "key_evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "bear_case": {"type": "array", "items": {"type": "string"}},
+    "risks": {"type": "array", "items": {"type": "string"}},
+    "invalidation_conditions": {"type": "array", "items": {"type": "string"}},
+    "validation_horizon": {"type": "string"},
+    "evidence_quality": {"enum": ["A", "B", "C", "D"]},
+    "data_completeness": {"type": "number", "minimum": 0, "maximum": 100},
+    "uncertainty": {"enum": ["LOW", "MEDIUM", "HIGH"]}
+  },
+  "additionalProperties": false
+}

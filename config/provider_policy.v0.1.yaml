@@ -1,0 +1,4 @@
+﻿# Placeholder — provider policy (SEC rate limit, fail-closed, etc.)
+version: provider-policy-v0.1
+sec:
+  max_requests_per_second: 10

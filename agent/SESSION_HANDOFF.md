@@ -2,26 +2,15 @@
 
 ## Current Task
 
-- Task ID: RULES-001
+- Task ID: SPEC-160
 - Status: COMPLETED (커밋 예정)
 
 ## Completed
 
-- 템플릿 웹 규칙 제거 · `15`/`25` 추가 · git/core/harness 정렬
-- `audit/mvp/_templates` · `agent/LAYER_CHECKLIST.md`
-
-## Last Successful Verification
-
-- 문서·규칙만 (빌드 미실행)
-
-## Open Blockers
-
-- 없음 (L00은 별도 착수)
-
-## Files In Progress
-
-- 없음
+- SoT → `investing-insight-spec-v1.6`
+- 불변식/구조/SECURITY/env/config/schemas 동기화
 
 ## Next Action
 
-1. 사용자 확인 후 **L00 PLAN** (`agent/LAYER_CHECKLIST.md`)
+1. 실키는 `.env.local`에 두고 `.env`와 변수명을 v1.6에 맞출 것 (사용자)
+2. **L00 PLAN** 시작
