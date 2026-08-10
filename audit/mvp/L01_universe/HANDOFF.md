@@ -1,9 +1,9 @@
-ï»¿# HANDOFF
+# HANDOFF
 
 - layer_id: L01
 - status: PASS
 - completed_at: 2026-08-10
-- commit_hash: pending
+- commit_hash: 37d4fc1
 - previous_layer_commit: cdf3071
 - spec_version: investing-insight-spec-v1.6
 - rule_version: universe-rules-v0.1
@@ -16,9 +16,9 @@
 
 ## Issue Counts
 
-- P0: 0 Â· P1: 0 Â· P2: 0 Â· P3: 0
+- P0: 0 ¡¤ P1: 0 ¡¤ P2: 0 ¡¤ P3: 0
 
 ## Next Layer Eligibility
 
 - eligible: yes
-- next: L02 â€” Market Data
+- next: L02 ? Market Data
