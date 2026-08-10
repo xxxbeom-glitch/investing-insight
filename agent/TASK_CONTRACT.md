@@ -40,4 +40,4 @@ markdown 라이브러리 지침 + 설계서 v1.5에 맞춘 저장소 골격·규
 
 ## Result
 
-- IN PROGRESS
+- DONE — 초기 커밋 `06604cd`

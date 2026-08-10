@@ -3,7 +3,7 @@
 ## Current Task
 
 - Task ID: BOOTSTRAP-001
-- Status: IN_PROGRESS → 커밋 후 COMPLETED 예정
+- Status: COMPLETED (`06604cd`)
 
 ## Completed
 
