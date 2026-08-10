@@ -2,25 +2,30 @@
 
 ## Task
 
-- Task ID: SPEC-160
-- Screen ID: n/a
+- Task ID: L00
+- Layer: L00_foundation
 
 ## Goal
 
-설계서 v1.6을 SoT로 반영하고 하네스·config·env 예시를 맞춘다. L00 코드는 포함하지 않는다.
+Foundation · Supabase · Config · Audit framework. Blocking AC ALL PASS.
 
 ## Allowed Scope
 
-- rules · agent · _docs · _logs · config · packages/schemas · SECURITY · .env.example · README · spec 폴더 교체
+- `apps/web`, `apps/api`, `migrations`, `scripts`, `tests`, `config`, `packages/schemas`, audit L00, docs/active-track/README
 
 ## Forbidden
 
-- L00 앱 생성 · `.env` / `.env.local` 커밋 · 설계 결정 임의 변경
+- L01+ 도메인 구현 · Post-MVP · secret 커밋 · Firebase · 공개 배포
+
+## Verification
+
+- [ ] unit/integration tests
+- [ ] AC-1…AC-8 evidence in audit
 
 ## Done When
 
-- v1.6 참조·불변식·골격 동기화 커밋 완료
+- L00 HANDOFF status=PASS · P0=0 · P1=0 · commit+push
 
 ## Result
 
-- DONE (커밋 후)
+- IN_PROGRESS
