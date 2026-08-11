@@ -1,0 +1,23 @@
+{
+  "run_id": "31835b24-8823-4306-be7a-c48b43a4b66d",
+  "candidates": [
+    {
+      "security_id": "2c3f9b93-d40c-5266-b54b-3fb355525f64",
+      "ticker": "AAPL",
+      "exchange": "XNAS",
+      "rank": 1,
+      "total_score": 88.7681439462433,
+      "components": {
+        "growth": 100.0,
+        "quality": 100.0,
+        "cashflow": 100.0,
+        "health": 28.0536233320983,
+        "valuation": 97.0673363095238,
+        "momentum": 100.0
+      },
+      "rule_version": "quant-rules-v0.1",
+      "final_status": "REJECT",
+      "research_qa": "FAIL"
+    }
+  ]
+}

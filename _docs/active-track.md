@@ -4,7 +4,7 @@
 
 **Post-MVP `post-mvp/phase-1`:** M01–M06 코드 PASS. P1-01 grounding 자체 QA exit 0. GO/tag 없음.
 
-**지금:** 로컬 데모 리서치 1회 (화면용). cron DISABLED.
+**지금:** 로컬 데모 리서치 1회 완료 (`31835b24` · AAPL REJECT). cron DISABLED. GO/tag 없음.
 
 **Cron:** DISABLED · **Long-Term Optional:** NOT STARTED
 

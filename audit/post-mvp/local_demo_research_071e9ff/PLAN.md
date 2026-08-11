@@ -3,7 +3,7 @@
 - track: post-mvp/phase-1
 - spec_version: investing-insight-spec-v1.6
 - started_at: 2026-08-11T14:23:00+00:00
-- status: PLAN
+- status: PASS (local demo only; not product GO)
 - previous_commit: 071e9ff
 - scheduler_enable_allowed: false
 - go_declared: false
