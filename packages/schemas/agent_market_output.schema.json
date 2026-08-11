@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent_market_output.v0.1",
+  "type": "object",
+  "required": ["regime_view", "key_macro_points", "risks", "evidence_refs", "unsupported_or_missing"],
+  "additionalProperties": false,
+  "properties": {
+    "regime_view": {"type": "string"},
+    "key_macro_points": {"type": "array", "items": {"type": "string"}},
+    "risks": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "unsupported_or_missing": {"type": "array", "items": {"type": "string"}}
+  }
+}

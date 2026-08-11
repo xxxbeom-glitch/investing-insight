@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent_company_output.v0.1",
+  "type": "object",
+  "required": ["ticker", "thesis", "positives", "negatives", "evidence_refs", "unsupported_or_missing"],
+  "additionalProperties": false,
+  "properties": {
+    "ticker": {"type": "string"},
+    "thesis": {"type": "string"},
+    "positives": {"type": "array", "items": {"type": "string"}},
+    "negatives": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "unsupported_or_missing": {"type": "array", "items": {"type": "string"}}
+  }
+}

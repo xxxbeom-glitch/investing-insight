@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent_event_output.v0.1",
+  "type": "object",
+  "required": ["events", "near_term_catalysts", "evidence_refs", "unsupported_or_missing"],
+  "additionalProperties": false,
+  "properties": {
+    "events": {"type": "array", "items": {"type": "string"}},
+    "near_term_catalysts": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "unsupported_or_missing": {"type": "array", "items": {"type": "string"}}
+  }
+}

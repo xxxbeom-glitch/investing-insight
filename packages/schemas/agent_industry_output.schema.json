@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent_industry_output.v0.1",
+  "type": "object",
+  "required": ["industry_id", "attractiveness_view", "dimension_notes", "risks", "evidence_refs", "unsupported_or_missing"],
+  "additionalProperties": false,
+  "properties": {
+    "industry_id": {"type": "string"},
+    "attractiveness_view": {"type": "string"},
+    "dimension_notes": {"type": "object", "additionalProperties": {"type": "string"}},
+    "risks": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "unsupported_or_missing": {"type": "array", "items": {"type": "string"}}
+  }
+}

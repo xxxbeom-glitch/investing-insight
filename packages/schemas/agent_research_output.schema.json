@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent_research_output.v0.1",
+  "type": "object",
+  "required": ["synthesis", "claims", "bear_case", "evidence_refs", "unsupported_or_missing"],
+  "additionalProperties": false,
+  "properties": {
+    "synthesis": {"type": "string"},
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim", "evidence_id"],
+        "additionalProperties": false,
+        "properties": {
+          "claim": {"type": "string"},
+          "evidence_id": {"type": "string"}
+        }
+      }
+    },
+    "bear_case": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "unsupported_or_missing": {"type": "array", "items": {"type": "string"}}
+  }
+}

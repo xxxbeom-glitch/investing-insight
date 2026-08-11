@@ -5,4 +5,4 @@
 - review-pass tag: `mvp-v0.1-review-pass` @ `c1a6692`
 - branch: `post-mvp/phase-1`
 
-**Current:** G00 PASS · M01 PASS · M02 Top-down/FRED **PASS** → next Milestone 3 (Multi-Agent). Production cron **DISABLED**.
+**Current:** G00·M01·M02·M03 **PASS** → next Milestone 4 (Performance Tracking). Production cron **DISABLED**.

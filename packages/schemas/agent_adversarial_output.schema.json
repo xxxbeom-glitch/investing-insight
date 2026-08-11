@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent_adversarial_output.v0.1",
+  "type": "object",
+  "required": ["status", "counter_thesis", "broken_assumptions", "gate_blockers"],
+  "additionalProperties": false,
+  "properties": {
+    "status": {"type": "string", "enum": ["PASS", "FAIL"]},
+    "counter_thesis": {"type": "string"},
+    "broken_assumptions": {"type": "array", "items": {"type": "string"}},
+    "gate_blockers": {"type": "array", "items": {"type": "string"}}
+  }
+}

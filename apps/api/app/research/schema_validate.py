@@ -29,6 +29,8 @@ def validate_against_schema(instance: dict[str, Any], schema: dict[str, Any]) ->
         val = instance[key]
         if "const" in prop and val != prop["const"]:
             raise ValueError(f"{key} must be const {prop['const']!r}")
+        if "enum" in prop and val not in prop["enum"]:
+            raise ValueError(f"{key} must be one of {prop['enum']}")
         t = prop.get("type")
         if t == "string" and not isinstance(val, str):
             raise ValueError(f"{key} must be string")

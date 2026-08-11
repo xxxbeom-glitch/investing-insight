@@ -1,0 +1,37 @@
+version: llm-profile-v0.2
+provider: openai
+api: responses
+# Multi-agent profile (Post-MVP M03). Separate from llm-profile-v0.1 to avoid mixing history.
+# Model experiments (luna/sol) are NOT enabled — require benchmark + approval.
+
+market_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: medium
+
+industry_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: medium
+
+company_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: medium
+
+event_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: low
+
+research_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: medium
+
+research_qa_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: high
+
+adversarial_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: high
+
+final_selector_agent:
+  model: gpt-5.6-terra
+  reasoning_effort: high
