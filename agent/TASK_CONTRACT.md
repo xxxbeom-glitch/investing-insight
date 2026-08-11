@@ -1,13 +1,10 @@
 ﻿# Active Task Contract
 
 ## Task
-- Task ID: M04
-- Layer: Post-MVP Milestone 4 — Performance Tracking
+- Task ID: POSTMVP-ROADMAP-COMPLETE
+- Status: IDLE
 
-## Goal
-Spec `08_POST_MVP_ROADMAP.md` Milestone 4. M03 PASS 전제. Production cron 비활성 유지.
-
-## Out of scope until PLAN
-- Enabling production schedulers
-- Broker / timing
-- MVP baseline mutation
+## Note
+Spec `08_POST_MVP_ROADMAP.md` Gate0 + Milestone 1–6 PASS.
+Long-Term Optional은 사용자 명시 요청 전 착수하지 않는다.
+Production cron은 비활성 유지.

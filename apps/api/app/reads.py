@@ -567,3 +567,16 @@ def performance_summary() -> dict[str, Any]:
                 for r in cur.fetchall()
             ]
     return {"counts": counts, "avg_abs_by_cohort": avgs, "scheduler_enable_allowed": False}
+
+
+@router.get("/errors/summary")
+def errors_summary(limit: int = Query(20, ge=1, le=100)) -> dict[str, Any]:
+    from app.errors.db import list_error_events, load_error_taxonomy
+
+    with _conn() as conn:
+        rows = list_error_events(conn, limit=limit)
+    return {
+        "taxonomy_version": load_error_taxonomy().get("version"),
+        "recent": rows,
+        "scheduler_enable_allowed": False,
+    }

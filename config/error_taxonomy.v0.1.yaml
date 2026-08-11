@@ -1,0 +1,9 @@
+version: error-taxonomy-v0.1
+types:
+  - growth_persistence_overestimate
+  - valuation_underweight
+  - cycle_misread
+  - moat_competitor_miss
+  - momentum_macro_event_miss
+  - data_error
+  - unforeseen_external_shock
