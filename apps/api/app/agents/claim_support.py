@@ -12,7 +12,14 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Any
 
-from app.research.claim_check import _NUM_RE, _norm
+from app.research.numeric_scale import (
+    _NUM_RE,
+    _norm,
+    iter_quantities,
+    phrase_matches_absolute,
+    quantity_matches_absolute,
+    to_decimal,
+)
 
 # Closed-class function words only. Not a fact denylist. Not a copula matcher.
 STOPWORDS = {
@@ -317,6 +324,11 @@ def _collect_candidates(folded: str, inv: dict[str, _Leaf]) -> list[_Span]:
             for start, end in _find_phrase_spans(folded, phrase):
                 add(start, end, "value", leaf.path, phrase)
         if leaf.numeric_norm is not None:
+            mag = to_decimal(leaf.value_raw)
+            if mag is not None:
+                for qty in iter_quantities(folded):
+                    if quantity_matches_absolute(mag, qty):
+                        add(qty.start, qty.end, "value", leaf.path, folded[qty.start : qty.end])
             for match in _NUM_RE.finditer(folded):
                 # `81.32A` is not 81.32. _NUM_RE only blocks a leading letter.
                 nxt = folded[match.end() : match.end() + 1]
@@ -357,6 +369,8 @@ def _leaf_value_mentioned(leaf: _Leaf, value_spans: list[_Span], inv: dict[str, 
         # Numeric: span must be this leaf's number, not a sibling that shares a path set.
         if leaf.numeric_norm is not None:
             if _norm(span.phrase) == leaf.numeric_norm:
+                return True
+            if phrase_matches_absolute(span.phrase, leaf.value_raw):
                 return True
             continue
         if leaf.date_phrase and span.phrase == leaf.date_phrase:

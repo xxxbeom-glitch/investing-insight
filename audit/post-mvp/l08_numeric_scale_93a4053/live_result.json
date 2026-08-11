@@ -1,0 +1,349 @@
+{
+  "run_id": "bac5e73f-6dbe-4b50-8e6b-2671fd663e36",
+  "job_id": "9f21b1fd-b4e5-4193-b2df-e8f77c89b405",
+  "candidates": [
+    {
+      "security_id": "2c3f9b93-d40c-5266-b54b-3fb355525f64",
+      "ticker": "AAPL",
+      "exchange": "XNAS",
+      "rank": 1,
+      "total_score": 88.7681439462433,
+      "components": {
+        "growth": 100.0,
+        "quality": 100.0,
+        "cashflow": 100.0,
+        "health": 28.0536233320983,
+        "valuation": 97.0673363095238,
+        "momentum": 100.0
+      },
+      "rule_version": "quant-rules-v0.1",
+      "final_status": "REJECT",
+      "research_qa": "FAIL"
+    }
+  ],
+  "ticker": "AAPL",
+  "qa_status": "FAIL",
+  "warnings": [
+    "research_declared_unsupported_or_missing"
+  ],
+  "judgment_status": "REJECT",
+  "thesis": "Do not advance AAPL on this packet: the research QA status is FAIL, so the otherwise high quant score cannot support a selection decision.",
+  "failed_claim_count": 20,
+  "failed_claims": [
+    {
+      "claim": "Reported assets were 383,266,000,000 at June 27, 2026.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported assets were 383,266,000,000 at June 27, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 107,520,000,000 at June 27, 2026.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 107,520,000,000 at June 27, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 101,464,000,000 at June 27, 2026.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 101,464,000,000 at June 27, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported assets were 331,495,000,000 at June 28, 2025.",
+      "field": "",
+      "number": "28",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported assets were 331,495,000,000 at June 28, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 65,830,000,000 at June 28, 2025.",
+      "field": "",
+      "number": "28",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 65,830,000,000 at June 28, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 84,544,000,000 at June 28, 2025.",
+      "field": "",
+      "number": "28",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 84,544,000,000 at June 28, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 73,733,000,000 at September 27, 2025.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 73,733,000,000 at September 27, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The closing price was 294.38 on July 1, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The closing price was 316.22 on July 9, 2026.",
+      "field": "",
+      "number": "9",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The closing price was 316.22 on July 9, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The latest supplied closing price was 315.32 on July 10, 2026.",
+      "field": "",
+      "number": "10",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The latest supplied closing price was 315.32 on July 10, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The packet includes a closing-price observation of 11.0 dated January 1, 2024.",
+      "field": "",
+      "number": " 2024",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    }
+  ],
+  "numeric_fails": [
+    {
+      "claim": "Reported assets were 383,266,000,000 at June 27, 2026.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported assets were 383,266,000,000 at June 27, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 107,520,000,000 at June 27, 2026.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 107,520,000,000 at June 27, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 101,464,000,000 at June 27, 2026.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 101,464,000,000 at June 27, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported assets were 331,495,000,000 at June 28, 2025.",
+      "field": "",
+      "number": "28",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported assets were 331,495,000,000 at June 28, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 65,830,000,000 at June 28, 2025.",
+      "field": "",
+      "number": "28",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 65,830,000,000 at June 28, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 84,544,000,000 at June 28, 2025.",
+      "field": "",
+      "number": "28",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported net income was 84,544,000,000 at June 28, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 73,733,000,000 at September 27, 2025.",
+      "field": "",
+      "number": "27",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "Reported stockholders’ equity was 73,733,000,000 at September 27, 2025.",
+      "field": "",
+      "number": " 2025",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The closing price was 294.38 on July 1, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The closing price was 316.22 on July 9, 2026.",
+      "field": "",
+      "number": "9",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The closing price was 316.22 on July 9, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The latest supplied closing price was 315.32 on July 10, 2026.",
+      "field": "",
+      "number": "10",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The latest supplied closing price was 315.32 on July 10, 2026.",
+      "field": "",
+      "number": " 2026",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    },
+    {
+      "claim": "The packet includes a closing-price observation of 11.0 dated January 1, 2024.",
+      "field": "",
+      "number": " 2024",
+      "reason": "numeric_not_in_packet_evidence",
+      "evidence_id": ""
+    }
+  ],
+  "old_six": [
+    {
+      "prefix": "Assets were .266 billion",
+      "in_map": false,
+      "failed": []
+    },
+    {
+      "prefix": "Stockholders' equity was .520 billion",
+      "in_map": false,
+      "failed": []
+    },
+    {
+      "prefix": "Reported NetIncomeLoss was .464 billion",
+      "in_map": false,
+      "failed": []
+    },
+    {
+      "prefix": "Assets were .241 billion",
+      "in_map": false,
+      "failed": []
+    },
+    {
+      "prefix": "Stockholders' equity was .733 billion",
+      "in_map": false,
+      "failed": []
+    },
+    {
+      "prefix": "Reported NetIncomeLoss was .010 billion",
+      "in_map": false,
+      "failed": []
+    }
+  ],
+  "claim_n": 11
+}

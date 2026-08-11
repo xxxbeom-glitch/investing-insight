@@ -1,0 +1,13 @@
+{
+  "job_type": "biweekly_research",
+  "limit": 1,
+  "job_id": "9f21b1fd-b4e5-4193-b2df-e8f77c89b405",
+  "security_ids": [
+    "2c3f9b93-d40c-5266-b54b-3fb355525f64"
+  ],
+  "ok": true,
+  "run_id": "bac5e73f-6dbe-4b50-8e6b-2671fd663e36",
+  "researched": 1,
+  "scheduler_enable_allowed": false,
+  "go_declared": false
+}

@@ -1,33 +1,36 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 
+from app.research.numeric_scale import (
+    Quantity,
+    _NUM_RE,
+    _norm,
+    iter_quantities,
+    packet_absolute_magnitudes,
+    quantity_grounded_in,
+)
 
-_NUM_RE = re.compile(r"(?<![A-Za-z])[-+]?\d+(?:\.\d+)?(?:e[-+]?\d+)?")
-
-
-def _evidence_numbers(packet: dict[str, Any]) -> set[str]:
-    nums: set[str] = set()
-    for ev in packet.get("evidence") or []:
-        for key in ("close", "value"):
-            if key in ev and ev[key] is not None:
-                nums.add(_norm(ev[key]))
-        blob = str(ev)
-        for m in _NUM_RE.findall(blob):
-            nums.add(_norm(m))
-    quant = packet.get("quant") or {}
-    for v in quant.values():
-        if isinstance(v, (int, float)):
-            nums.add(_norm(v))
-    return nums
+__all__ = [
+    "Quantity",
+    "_NUM_RE",
+    "_norm",
+    "deterministic_qa",
+    "find_unsupported_numeric_claims",
+]
 
 
-def _norm(v: Any) -> str:
-    try:
-        return f"{float(v):.6g}"
-    except (TypeError, ValueError):
-        return str(v)
+def _tiny_list_count(qty: Quantity) -> bool:
+    return (
+        qty.kind == "absolute"
+        and qty.scale == 1
+        and qty.decimal_places == 0
+        and qty.mantissa in {0, 1, 2, 3}
+    )
+
+
+def _qty_fingerprint(qty: Quantity) -> tuple[str, str, str, int]:
+    return (qty.kind, str(qty.mantissa), str(qty.scale), qty.decimal_places)
 
 
 def find_unsupported_numeric_claims(
@@ -35,7 +38,7 @@ def find_unsupported_numeric_claims(
     research: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """Reject numeric claims that are not grounded in packet evidence/quant."""
-    allowed = _evidence_numbers(packet)
+    allowed = packet_absolute_magnitudes(packet)
     failed: list[dict[str, Any]] = []
 
     def _row(**kwargs: Any) -> dict[str, str]:
@@ -47,31 +50,29 @@ def find_unsupported_numeric_claims(
             "field": str(kwargs.get("field") or ""),
         }
 
+    mapped: set[tuple[str, str, str, int]] = set()
+    evidence_ids = {
+        e.get("evidence_id") for e in (packet.get("evidence") or []) if isinstance(e, dict)
+    }
+
     for item in research.get("claim_evidence_map") or []:
         if not isinstance(item, dict):
             failed.append(_row(reason="claim_evidence_map_item_not_object", claim=str(item)))
             continue
         claim = str(item.get("claim") or "")
         eid = item.get("evidence_id")
-        evidence_ids = {e.get("evidence_id") for e in (packet.get("evidence") or []) if isinstance(e, dict)}
         if eid and eid not in evidence_ids:
             failed.append(_row(claim=claim, evidence_id=str(eid), reason="evidence_id_not_in_packet"))
-        for m in _NUM_RE.findall(claim):
-            if _norm(m) not in allowed:
+        for qty in iter_quantities(claim):
+            mapped.add(_qty_fingerprint(qty))
+            if not quantity_grounded_in(qty, allowed):
                 failed.append(
                     _row(
                         claim=claim,
-                        number=m,
+                        number=qty.text,
                         reason="numeric_not_in_packet_evidence",
                     )
                 )
-
-    # scan free-text fields for invented absolute numbers with no map entry
-    mapped_nums = set()
-    for item in research.get("claim_evidence_map") or []:
-        if isinstance(item, dict):
-            for m in _NUM_RE.findall(str(item.get("claim") or "")):
-                mapped_nums.add(_norm(m))
 
     text_fields = [
         research.get("summary"),
@@ -81,19 +82,18 @@ def find_unsupported_numeric_claims(
     for field in text_fields:
         if not isinstance(field, str):
             continue
-        for m in _NUM_RE.findall(field):
-            n = _norm(m)
-            if n not in allowed and n not in mapped_nums:
-                # ignore tiny integers that look like list counts (1-3) optionally
-                if n in {"0", "1", "2", "3"}:
-                    continue
-                failed.append(
-                    _row(
-                        field="narrative",
-                        number=m,
-                        reason="unsupported_numeric_in_narrative",
-                    )
+        for qty in iter_quantities(field):
+            if _tiny_list_count(qty):
+                continue
+            if quantity_grounded_in(qty, allowed) or _qty_fingerprint(qty) in mapped:
+                continue
+            failed.append(
+                _row(
+                    field="narrative",
+                    number=qty.text,
+                    reason="unsupported_numeric_in_narrative",
                 )
+            )
     return failed
 
 
