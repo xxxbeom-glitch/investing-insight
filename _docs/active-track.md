@@ -4,7 +4,7 @@
 
 **Post-MVP `post-mvp/phase-1`:** M01–M06 코드 PASS. P1-01 grounding 자체 QA exit 0. GO/tag 없음.
 
-**지금:** 이중 진단 NO-GO (`audit/post-mvp/status_diagnosis_ecb778e/`). 로컬 데모 AAPL REJECT. cron DISABLED. GO/tag 없음.
+**지금:** L08 numeric unit scale 정합 중 (`audit/post-mvp/l08_numeric_scale_93a4053/`). 진단은 NO-GO. cron DISABLED. GO/tag 없음.
 
 **Cron:** DISABLED · **Long-Term Optional:** NOT STARTED
 
