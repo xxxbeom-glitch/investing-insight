@@ -1,0 +1,198 @@
+{
+  "evaluation_id": "493e1247-ddb2-4fc3-a6cb-5d3800115089",
+  "eval_kind": "holdout",
+  "evaluator_version": "governance-eval-v0.5",
+  "artifact_type": "llm_profile",
+  "artifact_ref": "llm_profiles.v0.2.yaml",
+  "candidate_version": "llm-profile-v0.2",
+  "dataset_id": "holdout-llm_profile-6416d990d6d9",
+  "dataset_hash": "2789c98522bd3667954c1657811153729a5f9261375db57e815a056372e5dd9a",
+  "sample_count": 1,
+  "metrics": {
+    "artifact_loaded": true,
+    "artifact_path": "config/llm_profiles.v0.2.yaml",
+    "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+    "artifact_hash_encoding": "utf8_text_newline_normalized",
+    "artifact_type": "llm_profile",
+    "candidate_version": "llm-profile-v0.2",
+    "profile": {
+      "kind": "multiagent",
+      "version": "llm-profile-v0.2",
+      "roles": [
+        "market_agent",
+        "industry_agent",
+        "company_agent",
+        "event_agent",
+        "research_agent",
+        "research_qa_agent",
+        "adversarial_agent",
+        "final_selector_agent"
+      ]
+    },
+    "requested_models": {
+      "market_agent": "gpt-5.6-terra",
+      "industry_agent": "gpt-5.6-terra",
+      "company_agent": "gpt-5.6-terra",
+      "event_agent": "gpt-5.6-terra",
+      "research_agent": "gpt-5.6-terra",
+      "research_qa_agent": "gpt-5.6-terra",
+      "adversarial_agent": "gpt-5.6-terra",
+      "final_selector_agent": "gpt-5.6-terra"
+    },
+    "requested_efforts": {
+      "market_agent": "medium",
+      "industry_agent": "medium",
+      "company_agent": "medium",
+      "event_agent": "low",
+      "research_agent": "medium",
+      "research_qa_agent": "high",
+      "adversarial_agent": "high",
+      "final_selector_agent": "high"
+    },
+    "model_capability_source": "config/llm_model_capabilities.yaml",
+    "model_capability_count": 1,
+    "executed": true,
+    "executed_roles": [
+      "market_agent",
+      "industry_agent",
+      "company_agent",
+      "event_agent",
+      "research_agent",
+      "research_qa_agent",
+      "adversarial_agent",
+      "final_selector_agent"
+    ],
+    "executed_role_count": 8,
+    "resolved_models": {
+      "market_agent": "gpt-5.6-terra",
+      "industry_agent": "gpt-5.6-terra",
+      "company_agent": "gpt-5.6-terra",
+      "event_agent": "gpt-5.6-terra",
+      "research_agent": "gpt-5.6-terra",
+      "research_qa_agent": "gpt-5.6-terra",
+      "adversarial_agent": "gpt-5.6-terra",
+      "final_selector_agent": "gpt-5.6-terra"
+    },
+    "requested_models_executed": {
+      "market_agent": "gpt-5.6-terra",
+      "industry_agent": "gpt-5.6-terra",
+      "company_agent": "gpt-5.6-terra",
+      "event_agent": "gpt-5.6-terra",
+      "research_agent": "gpt-5.6-terra",
+      "research_qa_agent": "gpt-5.6-terra",
+      "adversarial_agent": "gpt-5.6-terra",
+      "final_selector_agent": "gpt-5.6-terra"
+    },
+    "gates": {
+      "results": [
+        {
+          "packet_id": "holdout-assessment-watch",
+          "qa": "PASS",
+          "adversarial": "PASS",
+          "final": "PASS",
+          "requested_model": "gpt-5.6-terra",
+          "resolved_model": "gpt-5.6-terra",
+          "requested_models": {
+            "market_agent": "gpt-5.6-terra",
+            "industry_agent": "gpt-5.6-terra",
+            "company_agent": "gpt-5.6-terra",
+            "event_agent": "gpt-5.6-terra",
+            "research_agent": "gpt-5.6-terra",
+            "research_qa_agent": "gpt-5.6-terra",
+            "adversarial_agent": "gpt-5.6-terra",
+            "final_selector_agent": "gpt-5.6-terra"
+          },
+          "resolved_models": {
+            "market_agent": "gpt-5.6-terra",
+            "industry_agent": "gpt-5.6-terra",
+            "company_agent": "gpt-5.6-terra",
+            "event_agent": "gpt-5.6-terra",
+            "research_agent": "gpt-5.6-terra",
+            "research_qa_agent": "gpt-5.6-terra",
+            "adversarial_agent": "gpt-5.6-terra",
+            "final_selector_agent": "gpt-5.6-terra"
+          },
+          "reasoning_effort": "high",
+          "executed_roles": [
+            "market_agent",
+            "industry_agent",
+            "company_agent",
+            "event_agent",
+            "research_agent",
+            "research_qa_agent",
+            "adversarial_agent",
+            "final_selector_agent"
+          ],
+          "behavior_digest": [
+            "05977647c47a36e7",
+            "096d785faaa0f29f",
+            "019cf6ea08da7664",
+            "2b60b8548f3a23ea",
+            "7766194a4b434296",
+            "b5918bcc27303745",
+            "82c99f6e773a0c5b",
+            "95dc9318618d942a"
+          ],
+          "reasons": []
+        }
+      ],
+      "gate_pass_rate": 1.0,
+      "sample_count": 1,
+      "executed_roles": [
+        "market_agent",
+        "industry_agent",
+        "company_agent",
+        "event_agent",
+        "research_agent",
+        "research_qa_agent",
+        "adversarial_agent",
+        "final_selector_agent"
+      ],
+      "executed_role_count": 8,
+      "requested_models": {
+        "market_agent": "gpt-5.6-terra",
+        "industry_agent": "gpt-5.6-terra",
+        "company_agent": "gpt-5.6-terra",
+        "event_agent": "gpt-5.6-terra",
+        "research_agent": "gpt-5.6-terra",
+        "research_qa_agent": "gpt-5.6-terra",
+        "adversarial_agent": "gpt-5.6-terra",
+        "final_selector_agent": "gpt-5.6-terra"
+      },
+      "resolved_models": {
+        "market_agent": "gpt-5.6-terra",
+        "industry_agent": "gpt-5.6-terra",
+        "company_agent": "gpt-5.6-terra",
+        "event_agent": "gpt-5.6-terra",
+        "research_agent": "gpt-5.6-terra",
+        "research_qa_agent": "gpt-5.6-terra",
+        "adversarial_agent": "gpt-5.6-terra",
+        "final_selector_agent": "gpt-5.6-terra"
+      }
+    },
+    "baseline_comparison": {
+      "baseline_version": "llm-profile-v0.2",
+      "baseline_final_model": "gpt-5.6-terra",
+      "candidate_final_model": "gpt-5.6-terra",
+      "baseline_gate_pass_rate": 1.0,
+      "candidate_gate_pass_rate": 1.0,
+      "gate_pass_rate_delta": 0.0
+    }
+  },
+  "baseline": {
+    "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+    "gate_pass_rate": 1.0,
+    "final_model": "gpt-5.6-terra"
+  },
+  "thresholds": {
+    "replay_gate_pass_rate_min": 1.0,
+    "holdout_gate_pass_rate_min": 1.0,
+    "holdout_min_sample": 1,
+    "quant_weight_sum": 100,
+    "quant_score_min": 0.0,
+    "quant_score_max": 100.0
+  },
+  "status": "PASS",
+  "generated_at": "2026-08-11T07:13:19.422818+00:00",
+  "output_hash": "4000093a16c431b0a660e48e0c5043edb1a5ea1f2d24c1686feac8a20896f90f"
+}

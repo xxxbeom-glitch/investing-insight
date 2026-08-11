@@ -1,0 +1,56 @@
+{
+  "multi_agent_run_id": "1199a8d1-7004-457c-9ca8-891663699653",
+  "run_status": "completed",
+  "context_hash": "ce3189fcf68abb03f2717521f57cefaffff4fab7dea5acc7e5098877531a3236",
+  "lineage": {
+    "regime_id": "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+    "regime_as_of": "2026-08-10",
+    "assessment_as_of": [
+      "2026-08-10",
+      "2026-08-10",
+      "2026-08-10"
+    ],
+    "topdown_assessment_ids": [
+      "9b668487-23ec-455d-bfbe-de71811b7514",
+      "0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+      "2a70eb40-d7ff-4dfc-bda9-2419d78eca8f"
+    ]
+  },
+  "union_assessment_ids": [
+    "9b668487-23ec-455d-bfbe-de71811b7514",
+    "0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "2a70eb40-d7ff-4dfc-bda9-2419d78eca8f"
+  ],
+  "regime_id": "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+  "assessment_ids": [
+    "9b668487-23ec-455d-bfbe-de71811b7514",
+    "0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "2a70eb40-d7ff-4dfc-bda9-2419d78eca8f"
+  ],
+  "assessment_regime_ids": [
+    "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+    "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+    "889d1f45-d030-4d79-9f7b-8a4dace27c6d"
+  ],
+  "quant_n": 0,
+  "gates": [
+    {
+      "gate_type": "research_qa",
+      "status": "PASS"
+    },
+    {
+      "gate_type": "adversarial",
+      "status": "PASS"
+    },
+    {
+      "gate_type": "final_selector",
+      "status": "PASS"
+    }
+  ],
+  "judgment": {
+    "judgment_id": "82b71c56-9e90-48c7-8ab2-5cd192bcd494",
+    "status": "WATCH",
+    "multi_agent_run_id": "1199a8d1-7004-457c-9ca8-891663699653"
+  },
+  "scheduler_enable_allowed": false
+}

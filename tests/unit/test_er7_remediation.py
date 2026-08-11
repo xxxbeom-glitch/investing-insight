@@ -1,3 +1,5 @@
+import pytest
+
 from app.agents.claim_support import claim_is_supported, claim_unsupported_tokens
 from app.agents.final_gate import (
     approved_claim_catalog,
@@ -96,3 +98,18 @@ def test_appended_revenue_claim_cannot_reach_judgment_even_if_qa_lies():
     materialized = materialize_final_selector(_ids("claim:0"), catalog)
     assert "revenue" not in materialized["rationale"].lower()
     assert "surged" not in materialized["rationale"].lower()
+
+
+@pytest.mark.parametrize(
+    ("text", "should_pass"),
+    [
+        ("regime is expansion and 매출 급증", False),
+        ("regime is expansion and 收入暴增", False),
+        ("regime is expansion and X", False),
+        ("regime is expansion and revenue surged", False),
+        ("regime is expansion", True),
+    ],
+)
+def test_required_unicode_and_single_char_fixtures(text: str, should_pass: bool):
+    evidence = _BUNDLE["evidence"]
+    assert claim_is_supported(text, "regime", evidence) is should_pass

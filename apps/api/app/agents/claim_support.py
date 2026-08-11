@@ -9,8 +9,7 @@ from typing import Any
 
 from app.research.claim_check import _NUM_RE, _norm
 
-# Closed-class function words only. Not a fact denylist — leftover open-class
-# tokens (revenue, surged, ceo, …) are unsupported if absent from the payload.
+# Closed-class function words only. Not a fact denylist.
 STOPWORDS = {
     "a",
     "an",
@@ -43,7 +42,18 @@ STOPWORDS = {
     "with",
 }
 
-_WRAPPER_KEYS = {"evidence_id", "kind"}
+# Identity / envelope fields — never support text (load_evidence_bundle).
+_WRAPPER_KEYS = frozenset({"evidence_id", "kind", "ref"})
+
+# Flattened items that omit `payload`. Only these keys are factual.
+# See apps/api/app/agents/evidence.py load_evidence_bundle.
+_KIND_FACTUAL_FIELDS: dict[str, tuple[str, ...]] = {
+    "daily_price": ("trading_date", "close"),
+    "financial_fact": ("metric_key", "value", "period_end", "published_at", "source_id"),
+}
+
+# Numbers first so 61.76 stays one token; then Unicode letters (any script).
+_TOKEN_RE = re.compile(r"[0-9]+(?:\.[0-9]+)?|[^\W\d_]+", re.UNICODE)
 
 
 def claim_text_hash(text: str, evidence_id: str) -> str:
@@ -53,16 +63,27 @@ def claim_text_hash(text: str, evidence_id: str) -> str:
 
 
 def content_tokens(text: str) -> set[str]:
-    toks = re.findall(r"[a-z0-9]+(?:\.[0-9]+)?", str(text or "").lower())
-    return {t for t in toks if t not in STOPWORDS and len(t) > 1}
+    """Open-class tokens: Unicode letters (incl. CJK) and numbers. Length-1 kept."""
+    folded = str(text or "").casefold()
+    return {t for t in _TOKEN_RE.findall(folded) if t not in STOPWORDS}
+
+
+def factual_payload(item: dict[str, Any]) -> Any:
+    """Cited facts only. Wrapper keys and unknown top-level leftovers are not facts."""
+    kind = str(item.get("kind") or "")
+    fields = _KIND_FACTUAL_FIELDS.get(kind)
+    if fields is not None:
+        return {k: item[k] for k in fields if k in item}
+    if "payload" not in item:
+        return {}
+    payload = item.get("payload")
+    if isinstance(payload, dict):
+        return {k: v for k, v in payload.items() if k not in _WRAPPER_KEYS}
+    return payload
 
 
 def _payload_blob(item: dict[str, Any]) -> str:
-    """Support text is the cited payload only — wrapper keys are not facts."""
-    payload = item.get("payload")
-    if payload is None:
-        payload = {k: v for k, v in item.items() if k not in _WRAPPER_KEYS}
-    return json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str)
+    return json.dumps(factual_payload(item), ensure_ascii=False, sort_keys=True, default=str)
 
 
 def find_evidence_item(
@@ -81,7 +102,7 @@ def claim_unsupported_tokens(
     evidence_id: str,
     evidence: list[Any] | None,
 ) -> set[str]:
-    """Open-class claim tokens (and numbers) not present in the cited payload."""
+    """Claim tokens/numbers that do not appear in the cited factual payload."""
     text = str(claim_text or "").strip()
     eid = str(evidence_id or "").strip()
     if not text or not eid:
@@ -108,10 +129,7 @@ def claim_is_supported(
     evidence_id: str,
     evidence: list[Any] | None,
 ) -> bool:
-    """True only if every factual token/number in the claim appears in the cited payload.
-
-    An allowed evidence_id is not enough. Any extra open-class fact fails closed.
-    """
+    """True only if every factual token/number in the claim appears in the cited payload."""
     return not claim_unsupported_tokens(claim_text, evidence_id, evidence)
 
 
