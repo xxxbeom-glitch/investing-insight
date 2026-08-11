@@ -1,6 +1,7 @@
 # HANDOFF — L08 numeric unit scale
 
 - status: **STOP** (unit contract landed; live QA not PASS)
+- commit: `6112966`
 - checkpoint: `e5e6762`
 - live run_id: `bac5e73f-6dbe-4b50-8e6b-2671fd663e36`
 - Research QA: FAIL
