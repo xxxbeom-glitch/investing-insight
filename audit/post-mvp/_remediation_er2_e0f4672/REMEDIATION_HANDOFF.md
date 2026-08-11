@@ -8,7 +8,8 @@
 - Long-Term Optional: **NOT STARTED**
 - Post-MVP tag: **not created**
 - MVP tags: unchanged (`mvp-v0.1-pass` @ e98ff33, `mvp-v0.1-review-pass` @ c1a6692)
-- review_candidate: branch HEAD after ER2 commit; bundle `git/HEAD_commit.txt` is SoT
+- remediation_commit: `6ed8dc5` (`6ed8dc5cb9bc2df628b7e65c0b20c6229b95d086`)
+- review_candidate: HANDOFF hash-fill tip on `post-mvp/phase-1` (bundle `git/HEAD_commit.txt` is SoT)
 
 ## Blocking findings closed
 
