@@ -1,0 +1,28 @@
+{
+  "proposal_id": "8bbdbfcc-a51a-427f-99db-38086808eb82",
+  "approve": {
+    "proposal_id": "8bbdbfcc-a51a-427f-99db-38086808eb82",
+    "status": "approved"
+  },
+  "freeze": {
+    "proposal_id": "8bbdbfcc-a51a-427f-99db-38086808eb82",
+    "status": "frozen",
+    "frozen_version": "llm-profile-v0.2"
+  },
+  "replay_evaluation_id": "a8e9f452-4519-41ac-b5b4-5e9c1d1aa64e",
+  "holdout_evaluation_id": "fb47483b-88ec-48b4-8244-5c9e003c686b",
+  "replay_status": "PASS",
+  "holdout_status": "PASS",
+  "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+  "evaluator_version": "governance-eval-v0.3",
+  "executed": true,
+  "baseline_comparison": {
+    "baseline_version": "llm-profile-v0.2",
+    "baseline_final_model": "gpt-5.6-terra",
+    "candidate_final_model": "gpt-5.6-terra",
+    "baseline_gate_pass_rate": 1.0,
+    "candidate_gate_pass_rate": 1.0,
+    "gate_pass_rate_delta": 0.0
+  },
+  "scheduler_enable_allowed": false
+}

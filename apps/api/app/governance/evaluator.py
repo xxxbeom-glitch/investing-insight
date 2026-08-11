@@ -12,13 +12,17 @@ from typing import Any
 import psycopg
 import yaml
 
-from app.agents.final_gate import evaluate_final_selector_gate
+from pydantic import ValidationError
+
+from app.agents.final_gate import approved_claim_catalog, evaluate_final_selector_gate
+from app.agents.mock_client import MockStructuredClient
 from app.agents.profiles import MULTIAGENT_ROLES, MultiAgentProfiles
-from app.agents.runner import evaluate_adversarial_gate, evaluate_research_qa_gate
-from app.llm_profiles import LlmProfiles
+from app.agents.runner import ROLE_SCHEMA, _system_prompt, evaluate_adversarial_gate, evaluate_research_qa_gate
+from app.research.openai_responses import ModelUnavailableError
+from app.research.schema_validate import load_schema, validate_against_schema
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-EVALUATOR_VERSION = "governance-eval-v0.2"
+EVALUATOR_VERSION = "governance-eval-v0.3"
 DEFAULT_THRESHOLDS = {
     "replay_gate_pass_rate_min": 1.0,
     "holdout_gate_pass_rate_min": 1.0,
@@ -83,12 +87,12 @@ _REPLAY_PACKETS: list[dict[str, Any]] = [
         "qa": {"status": "PASS", "failed_claims": [], "warnings": []},
         "final": {
             "status": "WATCH",
-            "rationale": "regime is expansion",
-            "bear_case": ["policy risk"],
-            "risks": ["policy risk"],
-            "invalidation_conditions": ["regime is expansion"],
+            "rationale_claim_refs": ["claim:0"],
+            "bear_case_claim_refs": ["research_bear:0"],
+            "risks_claim_refs": ["research_bear:0"],
+            "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["regime"],
-            "claim_refs": ["claim:0"],
+            "claim_refs": ["claim:0", "research_bear:0"],
         },
     }
 ]
@@ -124,12 +128,12 @@ _HOLDOUT_PACKETS: list[dict[str, Any]] = [
         "qa": {"status": "PASS", "failed_claims": [], "warnings": []},
         "final": {
             "status": "WATCH",
-            "rationale": "software assessment is constructive",
-            "bear_case": ["multiple compression"],
-            "risks": ["multiple compression"],
-            "invalidation_conditions": ["software assessment is constructive"],
+            "rationale_claim_refs": ["claim:0"],
+            "bear_case_claim_refs": ["research_bear:0"],
+            "risks_claim_refs": ["research_bear:0"],
+            "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["assessment:software"],
-            "claim_refs": ["claim:0"],
+            "claim_refs": ["claim:0", "research_bear:0"],
         },
     }
 ]
@@ -203,24 +207,6 @@ def _locate_artifact(root: Path, artifact_type: str, artifact_ref: str, candidat
     raise EvaluatorError(f"unsupported artifact_type: {artifact_type}")
 
 
-def _validate_llm_profile(parsed: Any) -> dict[str, Any]:
-    if not isinstance(parsed, dict):
-        raise EvaluatorError("llm_profile must be a mapping")
-    try:
-        profiles = MultiAgentProfiles.model_validate(parsed)
-        return {"kind": "multiagent", "version": profiles.version, "roles": list(MULTIAGENT_ROLES)}
-    except Exception:
-        try:
-            profiles = LlmProfiles.model_validate(parsed)
-            return {
-                "kind": "research",
-                "version": profiles.version,
-                "roles": ["company_research", "research_qa", "final_judgment"],
-            }
-        except Exception as exc:  # noqa: BLE001
-            raise EvaluatorError(f"llm_profile invalid: {exc}") from exc
-
-
 def _score_quant(rule: dict[str, Any], vector: dict[str, float]) -> float:
     weights = rule.get("weights") or {}
     if not isinstance(weights, dict) or not weights:
@@ -234,22 +220,209 @@ def _score_quant(rule: dict[str, Any], vector: dict[str, float]) -> float:
     return acc
 
 
-def _replay_gates(packets: list[dict[str, Any]]) -> dict[str, Any]:
+def committed_model_names(
+    repo: Path | None = None,
+    *,
+    exclude_path: str | Path | None = None,
+) -> set[str]:
+    """Models from committed profile files, excluding the candidate under evaluation."""
+    names: set[str] = set()
+    exclude: set[Path] = set()
+    if exclude_path:
+        ep = Path(exclude_path)
+        candidates = [ep] if ep.is_absolute() else [ep]
+        if repo is not None and not ep.is_absolute():
+            candidates.append(Path(repo) / ep)
+        candidates.append(REPO_ROOT / ep)
+        for c in candidates:
+            try:
+                exclude.add(c.resolve())
+            except OSError:
+                continue
+    seen_roots: set[Path] = set()
+    for root in (repo or REPO_ROOT, REPO_ROOT):
+        try:
+            resolved_root = Path(root).resolve()
+        except OSError:
+            continue
+        if resolved_root in seen_roots:
+            continue
+        seen_roots.add(resolved_root)
+        config = resolved_root / "config"
+        if not config.is_dir():
+            continue
+        for p in config.glob("llm_profiles*.yaml"):
+            try:
+                if p.resolve() in exclude:
+                    continue
+            except OSError:
+                continue
+            raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+            if not isinstance(raw, dict):
+                continue
+            for val in raw.values():
+                if isinstance(val, dict) and val.get("model"):
+                    names.add(str(val["model"]))
+    return names
+
+
+def _require_models_available(profiles: MultiAgentProfiles, allowed: set[str]) -> None:
+    missing = [
+        f"{role}:{getattr(profiles, role).model}"
+        for role in MULTIAGENT_ROLES
+        if getattr(profiles, role).model not in allowed
+    ]
+    if missing:
+        raise ModelUnavailableError("unavailable model: " + ", ".join(missing))
+
+
+def _load_baseline_multiagent(repo: Path | None = None) -> MultiAgentProfiles | None:
+    for root in (repo or REPO_ROOT, REPO_ROOT):
+        for name in ("llm_profiles.v0.2.yaml", "llm_profiles.yaml"):
+            path = Path(root) / "config" / name
+            if not path.is_file():
+                continue
+            raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            try:
+                return MultiAgentProfiles.model_validate(raw)
+            except (ValidationError, ValueError):
+                continue
+    return None
+
+
+def _prompt_target_role(artifact_ref: str) -> str:
+    ref = str(artifact_ref or "").replace("\\", "/").lower()
+    for role in MULTIAGENT_ROLES:
+        if role in ref:
+            return role
+    return "final_selector_agent"
+
+
+def _record_baseline_comparison(
+    metrics: dict[str, Any],
+    baseline: dict[str, Any] | None,
+    *,
+    candidate_profiles: MultiAgentProfiles | None,
+    packets: list[dict[str, Any]],
+    repo: Path | None,
+) -> dict[str, Any] | None:
+    base_profiles = _load_baseline_multiagent(repo)
+    if base_profiles is None:
+        return baseline
+    allowed = committed_model_names(REPO_ROOT)
+    client = MockStructuredClient(allowed_models=allowed)
+    try:
+        gated = _execute_llm_packets(base_profiles, packets, client)
+    except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError) as exc:
+        metrics["baseline_error"] = str(exc)
+        return baseline
+    cand_rate = (metrics.get("gates") or {}).get("gate_pass_rate")
+    metrics["baseline_comparison"] = {
+        "baseline_version": base_profiles.version,
+        "baseline_final_model": base_profiles.final_selector_agent.model,
+        "candidate_final_model": (
+            candidate_profiles.final_selector_agent.model if candidate_profiles is not None else None
+        ),
+        "baseline_gate_pass_rate": gated["gate_pass_rate"],
+        "candidate_gate_pass_rate": cand_rate,
+        "gate_pass_rate_delta": None if cand_rate is None else cand_rate - gated["gate_pass_rate"],
+    }
+    out = dict(baseline or {})
+    out["gate_pass_rate"] = gated["gate_pass_rate"]
+    out["final_model"] = base_profiles.final_selector_agent.model
+    return out
+
+
+def execute_role_under_profile(
+    agent_role: str,
+    packet: dict[str, Any],
+    profiles: MultiAgentProfiles,
+    client: Any,
+    *,
+    system_prompt: str | None = None,
+) -> dict[str, Any]:
+    """Run the real role execution path with the candidate profile's model/effort."""
+    role_prof = getattr(profiles, agent_role)
+    schema_file, _schema_version = ROLE_SCHEMA[agent_role]
+    schema = load_schema(schema_file)
+    result = client.create_structured(
+        model=role_prof.model,
+        reasoning_effort=role_prof.reasoning_effort,
+        system_prompt=system_prompt if system_prompt is not None else _system_prompt(agent_role),
+        user_payload={**packet, "agent_role": agent_role},
+        output_schema=schema,
+        schema_name=agent_role,
+    )
+    if result.resolved_model != role_prof.model:
+        raise ModelUnavailableError(
+            f"resolved model {result.resolved_model!r} != requested {role_prof.model!r}"
+        )
+    output = json.loads(result.output_text)
+    validate_against_schema(output, schema)
+    return output
+
+
+def _execute_llm_packets(
+    profiles: MultiAgentProfiles,
+    packets: list[dict[str, Any]],
+    client: Any,
+    *,
+    system_prompt: str | None = None,
+    qa_system_prompt: str | None = None,
+) -> dict[str, Any]:
     results = []
     pass_n = 0
     for pkt in packets:
+        qa_packet = {
+            "run_id": "eval",
+            "snapshot_id": "eval",
+            "research_agent": pkt["research"],
+            "claims": (pkt["research"] or {}).get("claims") or [],
+            "evidence": (pkt["evidence_bundle"] or {}).get("evidence") or [],
+            "allowed_evidence_ids": pkt["allowed_evidence_ids"],
+        }
+        qa_out = execute_role_under_profile(
+            "research_qa_agent",
+            qa_packet,
+            profiles,
+            client,
+            system_prompt=qa_system_prompt,
+        )
+        adv_packet = {
+            "run_id": "eval",
+            "snapshot_id": "eval",
+            "research_agent": pkt["research"],
+            "allowed_evidence_ids": pkt["allowed_evidence_ids"],
+        }
+        adv_out = execute_role_under_profile("adversarial_agent", adv_packet, profiles, client)
+        catalog = approved_claim_catalog(pkt["research"], adv_out)
+        final_packet = {
+            "run_id": "eval",
+            "snapshot_id": "eval",
+            "research_agent": pkt["research"],
+            "adversarial_agent": adv_out,
+            "approved_claims": catalog,
+            "allowed_evidence_ids": pkt["allowed_evidence_ids"],
+        }
+        final_out = execute_role_under_profile(
+            "final_selector_agent",
+            final_packet,
+            profiles,
+            client,
+            system_prompt=system_prompt,
+        )
         qa_st, qa_r = evaluate_research_qa_gate(
-            pkt["qa"],
+            qa_out,
             research_output=pkt["research"],
             allowed_evidence_ids=pkt["allowed_evidence_ids"],
         )
-        adv_st, adv_r = evaluate_adversarial_gate(pkt["adversarial"])
+        adv_st, adv_r = evaluate_adversarial_gate(adv_out)
         final_st, final_r = evaluate_final_selector_gate(
-            pkt["final"],
+            final_out,
             allowed_evidence_ids=pkt["allowed_evidence_ids"],
             evidence_bundle=pkt["evidence_bundle"],
             research_output=pkt["research"],
-            adversarial_output=pkt["adversarial"],
+            adversarial_output=adv_out,
         )
         ok = qa_st == "PASS" and adv_st == "PASS" and final_st == "PASS"
         if ok:
@@ -260,6 +433,8 @@ def _replay_gates(packets: list[dict[str, Any]]) -> dict[str, Any]:
                 "qa": qa_st,
                 "adversarial": adv_st,
                 "final": final_st,
+                "requested_model": profiles.final_selector_agent.model,
+                "resolved_model": profiles.final_selector_agent.model,
                 "reasons": qa_r + adv_r + final_r,
             }
         )
@@ -303,25 +478,47 @@ def evaluate_candidate(
     dataset: dict[str, Any] = {"kind": eval_kind, "artifact_type": artifact_type, "path": loaded["path"]}
 
     if artifact_type in {"llm_profile", "model"}:
-        try:
-            meta = _validate_llm_profile(loaded["parsed"])
-            metrics["profile"] = meta
-        except EvaluatorError as exc:
-            fail = True
-            metrics["error"] = str(exc)
-            meta = None
         packets = _REPLAY_PACKETS if eval_kind == "replay" else _HOLDOUT_PACKETS
         dataset["packet_ids"] = [p["packet_id"] for p in packets]
-        gated = _replay_gates(packets)
+        candidate_profiles: MultiAgentProfiles | None = None
+        gated = {"results": [], "gate_pass_rate": 0.0, "sample_count": 0}
+        try:
+            candidate_profiles = MultiAgentProfiles.model_validate(loaded["parsed"])
+            metrics["profile"] = {
+                "kind": "multiagent",
+                "version": candidate_profiles.version,
+                "roles": list(MULTIAGENT_ROLES),
+            }
+            metrics["requested_models"] = {
+                role: getattr(candidate_profiles, role).model for role in MULTIAGENT_ROLES
+            }
+            allowed = committed_model_names(repo, exclude_path=loaded["path"])
+            _require_models_available(candidate_profiles, allowed)
+            client = MockStructuredClient(allowed_models=allowed)
+            gated = _execute_llm_packets(candidate_profiles, packets, client)
+            metrics["executed"] = True
+        except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError, json.JSONDecodeError) as exc:
+            fail = True
+            metrics["error"] = str(exc)
+            metrics["executed"] = False
         metrics["gates"] = gated
         sample_count = gated["sample_count"]
-        min_rate = DEFAULT_THRESHOLDS["replay_gate_pass_rate_min"] if eval_kind == "replay" else DEFAULT_THRESHOLDS["holdout_gate_pass_rate_min"]
+        min_rate = (
+            DEFAULT_THRESHOLDS["replay_gate_pass_rate_min"]
+            if eval_kind == "replay"
+            else DEFAULT_THRESHOLDS["holdout_gate_pass_rate_min"]
+        )
         if gated["gate_pass_rate"] < min_rate:
             fail = True
         if sample_count < DEFAULT_THRESHOLDS["holdout_min_sample"]:
             fail = True
-        if meta is None:
-            fail = True
+        baseline = _record_baseline_comparison(
+            metrics,
+            baseline,
+            candidate_profiles=candidate_profiles,
+            packets=packets,
+            repo=repo,
+        )
     elif artifact_type == "quant_rule":
         vectors = _QUANT_REPLAY_VECTORS if eval_kind == "replay" else _QUANT_HOLDOUT_VECTORS
         scores = []
@@ -340,15 +537,46 @@ def evaluate_candidate(
         baseline = {"weights": (loaded["parsed"] or {}).get("weights")}
     elif artifact_type == "prompt":
         text = loaded["text"]
+        packets = _REPLAY_PACKETS if eval_kind == "replay" else _HOLDOUT_PACKETS
+        dataset["packet_ids"] = [p["packet_id"] for p in packets]
+        gated = {"results": [], "gate_pass_rate": 0.0, "sample_count": 0}
         if len(text.strip()) < 20:
             fail = True
             metrics["error"] = "prompt too short"
-        packets = _REPLAY_PACKETS if eval_kind == "replay" else _HOLDOUT_PACKETS
-        gated = _replay_gates(packets)
+            metrics["executed"] = False
+        else:
+            try:
+                profiles = _load_baseline_multiagent(repo)
+                if profiles is None:
+                    raise EvaluatorError("no multiagent profile available to execute prompt")
+                allowed = committed_model_names(repo) | committed_model_names(REPO_ROOT)
+                client = MockStructuredClient(allowed_models=allowed)
+                role = _prompt_target_role(artifact_ref)
+                metrics["executed_role"] = role
+                gated = _execute_llm_packets(
+                    profiles,
+                    packets,
+                    client,
+                    system_prompt=text if role == "final_selector_agent" else None,
+                    qa_system_prompt=text if role == "research_qa_agent" else None,
+                )
+                metrics["executed"] = True
+                metrics["prompt_sha256"] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError, json.JSONDecodeError) as exc:
+                fail = True
+                metrics["error"] = str(exc)
+                metrics["executed"] = False
         metrics["gates"] = gated
         sample_count = gated["sample_count"]
         if gated["gate_pass_rate"] < 1.0:
             fail = True
+        baseline = _record_baseline_comparison(
+            metrics,
+            baseline,
+            candidate_profiles=_load_baseline_multiagent(repo),
+            packets=packets,
+            repo=repo,
+        )
     elif artifact_type == "score_rule":
         parsed = loaded["parsed"] or {}
         if not parsed.get("industries"):

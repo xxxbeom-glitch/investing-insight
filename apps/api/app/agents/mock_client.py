@@ -3,15 +3,21 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from app.research.openai_responses import ResponsesResult
+from app.research.openai_responses import ModelUnavailableError, ResponsesResult
 
 
 class MockStructuredClient:
     """Deterministic structured Responses stub — no network, no free-chat."""
 
-    def __init__(self, overrides: dict[str, dict[str, Any]] | None = None):
+    def __init__(
+        self,
+        overrides: dict[str, dict[str, Any]] | None = None,
+        *,
+        allowed_models: set[str] | None = None,
+    ):
         self.overrides = overrides or {}
         self.calls: list[str] = []
+        self.allowed_models = allowed_models
 
     def create_structured(
         self,
@@ -23,6 +29,8 @@ class MockStructuredClient:
         output_schema: dict[str, Any],
         schema_name: str,
     ) -> ResponsesResult:
+        if self.allowed_models is not None and model not in self.allowed_models:
+            raise ModelUnavailableError(f"unavailable model: {model}")
         role = user_payload.get("agent_role") or schema_name
         self.calls.append(role)
         payload = self.overrides.get(role) or _default_output(role, user_payload)
@@ -103,16 +111,16 @@ def _default_output(role: str, packet: dict[str, Any]) -> dict[str, Any]:
         }
     if role == "final_selector_agent":
         catalog = packet.get("approved_claims") or []
-        claim_ids = [c.get("claim_id") for c in catalog if c.get("claim_id")][:2] or ["claim:0"]
-        claim_text = (catalog[0].get("text") if catalog else None) or "demand resilient"
-        bear = (packet.get("research_agent") or {}).get("bear_case") or ["multiple compression"]
+        claim_ids = [c.get("claim_id") for c in catalog if c.get("claim_id")]
+        primary_claim = next((c for c in claim_ids if str(c).startswith("claim:")), claim_ids[0] if claim_ids else "claim:0")
+        bear_id = next((c for c in claim_ids if "bear" in str(c) or str(c).startswith("adv:")), primary_claim)
         return {
             "status": "WATCH",
-            "rationale": claim_text,
-            "bear_case": list(bear)[:1] or ["multiple compression"],
-            "risks": list(bear)[:1] or ["multiple compression"],
-            "invalidation_conditions": [claim_text],
+            "rationale_claim_refs": [primary_claim],
+            "bear_case_claim_refs": [bear_id],
+            "risks_claim_refs": [bear_id],
+            "invalidation_claim_refs": [primary_claim],
             "evidence_refs": allowed[:2] or [primary],
-            "claim_refs": claim_ids,
+            "claim_refs": [primary_claim, bear_id],
         }
     raise ValueError(f"no mock for {role}")

@@ -67,14 +67,18 @@ def test_final_selector_new_unsupported_number_fails():
     status, reasons = evaluate_final_selector_gate(
         {
             "status": "WATCH",
-            "rationale": "revenue is 999999.0 with no packet support",
-            "bear_case": ["b"],
-            "risks": ["r"],
-            "invalidation_conditions": ["i"],
+            "rationale_claim_refs": ["claim:0"],
+            "bear_case_claim_refs": ["research_bear:0"],
+            "risks_claim_refs": ["research_bear:0"],
+            "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["regime"],
         },
         allowed_evidence_ids={"regime"},
         evidence_bundle={"evidence": [{"evidence_id": "regime", "value": 2.5}]},
+        research_output={
+            "claims": [{"claim": "revenue is 999999.0 with no packet support", "evidence_id": "regime"}],
+            "bear_case": ["b"],
+        },
     )
     assert status == "FAIL"
     assert any("unsupported_numeric" in r for r in reasons)

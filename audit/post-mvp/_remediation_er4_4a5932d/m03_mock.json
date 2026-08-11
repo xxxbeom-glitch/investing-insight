@@ -1,0 +1,98 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "mock",
+  "job_id": "8b62b9aa-d3ae-4077-ad97-a44d1b5b96cf",
+  "ok": true,
+  "multi_agent_run_id": "d2f202b2-bf8b-405a-94c5-6ba640140578",
+  "run_id": "ffcf4490-53f6-4459-b267-1a9712aa3d05",
+  "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "897fc5de-553d-45cd-8e9c-8c7b677060e4",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "59606b8d-016d-4635-978c-53580abee690",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "91b83deb-287f-4c42-86e5-4317432a0a5a",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "c2d58cc5-72fa-4c08-bbda-60efacbb5c05",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "35ee79be-f9d4-492b-97e6-4e1e0c58b3ad",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "bb07c8f8-5460-4036-a349-8bb6457d9a0f",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "9a3913ac-82bd-4d9a-857e-f4493a9101ea",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "8af9d724-fcd8-4c72-8418-fc0b403ef36f",
+      "snapshot_id": "5c9bee3f-f0c1-50f3-9424-8e867725a9cb"
+    }
+  ],
+  "final": {
+    "status": "WATCH",
+    "rationale_claim_refs": [
+      "claim:0"
+    ],
+    "bear_case_claim_refs": [
+      "research_bear:0"
+    ],
+    "risks_claim_refs": [
+      "research_bear:0"
+    ],
+    "invalidation_claim_refs": [
+      "claim:0"
+    ],
+    "evidence_refs": [
+      "assessment:energy_equip",
+      "assessment:semis"
+    ],
+    "claim_refs": [
+      "claim:0",
+      "research_bear:0"
+    ],
+    "rationale": "demand resilient",
+    "bear_case": [
+      "multiple compression"
+    ],
+    "risks": [
+      "multiple compression"
+    ],
+    "invalidation_conditions": [
+      "demand resilient"
+    ]
+  },
+  "judgment_id": "54f9911f-81b4-44fd-a7d2-0a02e4ff5a67",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

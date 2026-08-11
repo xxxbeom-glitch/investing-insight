@@ -1,0 +1,41 @@
+{
+  "ok": true,
+  "job_id": "36ffc2a4-aec8-43bf-a545-ef2ff708f766",
+  "scheduler_enable_allowed": false,
+  "judgment_count": 1,
+  "eval_count": 3,
+  "complete": 0,
+  "incomplete": 3,
+  "sample": [
+    {
+      "judgment_id": "150b9a2e-df71-409f-a04d-d9c824bffe53",
+      "horizon": "1M",
+      "cohort": "control",
+      "status": "INCOMPLETE",
+      "abs_return": null,
+      "rel_spy": null,
+      "thesis_correctness": "UNASSESSED",
+      "price_outcome": "unknown"
+    },
+    {
+      "judgment_id": "150b9a2e-df71-409f-a04d-d9c824bffe53",
+      "horizon": "3M",
+      "cohort": "control",
+      "status": "INCOMPLETE",
+      "abs_return": null,
+      "rel_spy": null,
+      "thesis_correctness": "UNASSESSED",
+      "price_outcome": "unknown"
+    },
+    {
+      "judgment_id": "150b9a2e-df71-409f-a04d-d9c824bffe53",
+      "horizon": "6M",
+      "cohort": "control",
+      "status": "INCOMPLETE",
+      "abs_return": null,
+      "rel_spy": null,
+      "thesis_correctness": "UNASSESSED",
+      "price_outcome": "unknown"
+    }
+  ]
+}

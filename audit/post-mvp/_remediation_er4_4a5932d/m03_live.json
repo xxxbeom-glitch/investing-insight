@@ -1,0 +1,123 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "live",
+  "job_id": "1a075ed2-22ac-48b9-85d2-221453f03ec8",
+  "ok": true,
+  "multi_agent_run_id": "0f55134f-a5db-4c9e-bb06-a0061424a87c",
+  "run_id": "749acaf8-2466-4ec5-96d1-941f6e92d486",
+  "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "4642736f-3b57-4e5a-9f78-bf671ff824a5",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "4ededbdb-13d3-4e97-a0d9-0f25b062952b",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "cc9a4ac1-271a-4df7-8967-a84997f3e013",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "45a53de5-9814-4975-933a-2c089f1771f8",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "36a03d89-223a-4515-a7db-9a28759aa5de",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "b51958b4-d0c1-4abd-8f98-a87f057540be",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "4f7dcf74-a9d4-431d-a1ae-d6fc0a38a8f7",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "1f53a194-113e-45d2-b0e7-7489453adca4",
+      "snapshot_id": "b854207d-3ef6-5ada-a0ab-9667543db5b9"
+    }
+  ],
+  "final": {
+    "status": "REJECT",
+    "rationale_claim_refs": [
+      "research:synthesis",
+      "claim:0",
+      "claim:1",
+      "claim:2"
+    ],
+    "bear_case_claim_refs": [
+      "adv:counter_thesis",
+      "research_bear:1"
+    ],
+    "risks_claim_refs": [
+      "research_bear:3",
+      "research_bear:4",
+      "adv:broken:1"
+    ],
+    "invalidation_claim_refs": [
+      "adv:broken:0",
+      "adv:broken:2",
+      "adv:broken:3"
+    ],
+    "evidence_refs": [
+      "assessment:software",
+      "assessment:semis",
+      "assessment:energy_equip",
+      "regime"
+    ],
+    "claim_refs": [
+      "research:synthesis",
+      "claim:0",
+      "claim:1",
+      "claim:2",
+      "adv:counter_thesis",
+      "research_bear:1",
+      "research_bear:3",
+      "research_bear:4",
+      "adv:broken:1",
+      "adv:broken:0",
+      "adv:broken:2",
+      "adv:broken:3"
+    ],
+    "rationale": "The packet supports a limited industry-context assessment rather than an MSFT-specific research conclusion. As of 2026-08-10, Software / Platforms had the highest supplied overall score among the three covered industries (61.76), ahead of Semiconductors (56.16) and Energy Equipment (55.92). Software demand was its strongest supplied dimension at 81.32; its other reported dimension scores were capex 55.0, margin 55.0, pricing 54.11, supply 50.0, and bottleneck 50.0. The packet\u2019s rules-based macro classification was expansion, based on inputs reported on differing dates. These scores and regime label lack disclosed methodology, underlying operating indicators, and MSFT-specific financial or valuation evidence, so they do not support a company-level investment conclusion. Software / Platforms had the highest supplied overall industry-assessment score among the three covered industries as of 2026-08-10, at 61.76 versus 56.16 for Semiconductors and 55.92 for Energy Equipment. Demand was the highest supplied Software / Platforms dimension score, at 81.32. The supplied macro regime was classified as expansion as of 2026-08-10 under market-regime-v0.1.",
+    "bear_case": [
+      "The evidence supports only a relative, supplied-score comparison across the three covered industries and a rules-based point-in-time macro label. It does not establish why Software / Platforms scored highest, whether the score is durable, or any MSFT-specific fundamental or valuation conclusion.",
+      "No MSFT-specific financial, operational, valuation, market-price, or return data is supplied."
+    ],
+    "risks": [
+      "The industry-assessment methodology and inputs are not disclosed, constraining causal interpretation and durability assessment.",
+      "The expansion classification is point-in-time and its inputs have differing observation dates; it does not establish future macro, software-industry, or MSFT outcomes.",
+      "The 81.32 Software / Platforms demand score is an assessment output rather than evidence of underlying bookings, spending, retention, or revenue conditions."
+    ],
+    "invalidation_conditions": [
+      "The industry-score methodology, weighting, source inputs, and interpretation are not disclosed, so the scores cannot support causal or forward-looking inferences.",
+      "The expansion regime combines inputs observed across June through August 2026 and does not establish future macro or software-industry outcomes.",
+      "No MSFT-specific financial, operational, competitive, valuation, price, or return evidence is supplied."
+    ]
+  },
+  "judgment_id": "150b9a2e-df71-409f-a04d-d9c824bffe53",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

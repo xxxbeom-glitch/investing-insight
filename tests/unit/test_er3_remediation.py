@@ -7,6 +7,10 @@ def test_fabricated_nonnumeric_claim_cannot_reach_pass():
     status, reasons = evaluate_final_selector_gate(
         {
             "status": "SELECTED",
+            "rationale_claim_refs": ["claim:0"],
+            "bear_case_claim_refs": ["research_bear:0"],
+            "risks_claim_refs": ["research_bear:0"],
+            "invalidation_claim_refs": ["claim:0"],
             "rationale": "Microsoft lost a major cloud contract and is insolvent.",
             "bear_case": ["Microsoft is insolvent"],
             "risks": ["The CEO resigned unexpectedly"],
@@ -26,19 +30,19 @@ def test_fabricated_nonnumeric_claim_cannot_reach_pass():
         },
     )
     assert status == "FAIL"
-    assert any("unsupported_factual" in r for r in reasons)
+    assert any("not_bound_to_claim_refs" in r for r in reasons)
 
 
 def test_final_selector_grounded_claim_pass():
     status, reasons = evaluate_final_selector_gate(
         {
             "status": "WATCH",
-            "rationale": "regime is expansion",
-            "bear_case": ["policy risk"],
-            "risks": ["policy risk"],
-            "invalidation_conditions": ["regime is expansion"],
+            "rationale_claim_refs": ["claim:0"],
+            "bear_case_claim_refs": ["research_bear:0"],
+            "risks_claim_refs": ["research_bear:0"],
+            "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["regime"],
-            "claim_refs": ["claim:0"],
+            "claim_refs": ["claim:0", "research_bear:0"],
         },
         allowed_evidence_ids={"regime"},
         evidence_bundle={
@@ -58,16 +62,19 @@ def test_unknown_claim_ref_fails():
     status, reasons = evaluate_final_selector_gate(
         {
             "status": "WATCH",
-            "rationale": "regime is expansion",
-            "bear_case": ["policy risk"],
-            "risks": ["policy risk"],
-            "invalidation_conditions": ["regime is expansion"],
+            "rationale_claim_refs": ["claim:999"],
+            "bear_case_claim_refs": ["research_bear:0"],
+            "risks_claim_refs": ["research_bear:0"],
+            "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["regime"],
             "claim_refs": ["claim:999"],
         },
         allowed_evidence_ids={"regime"},
         evidence_bundle={"evidence": [{"evidence_id": "regime", "payload": {"regime": "expansion"}}]},
-        research_output={"claims": [{"claim": "regime is expansion", "evidence_id": "regime"}]},
+        research_output={
+            "claims": [{"claim": "regime is expansion", "evidence_id": "regime"}],
+            "bear_case": ["policy risk"],
+        },
     )
     assert status == "FAIL"
     assert any("unknown_claim_ref" in r for r in reasons)
@@ -142,6 +149,9 @@ def test_valid_llm_profile_artifact_passes_replay_and_holdout():
     assert replay["ok"] is True, replay
     assert holdout["ok"] is True, holdout
     assert replay["metrics"]["artifact_content_hash"]
+    assert replay["metrics"].get("executed") is True
+    assert replay["metrics"]["gates"]["results"][0]["requested_model"]
+    assert "baseline_comparison" in replay["metrics"]
     assert replay["dataset_id"] != holdout["dataset_id"]
     assert "replay-regime-watch" in str(replay["metrics"])
     assert "holdout-assessment-watch" in str(holdout["metrics"])

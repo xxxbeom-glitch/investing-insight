@@ -9,7 +9,11 @@ from typing import Any
 
 import psycopg
 
-from app.governance.evaluator import EvaluatorError, load_recorded_evaluation
+from app.governance.evaluator import (
+    EvaluatorError,
+    load_recorded_evaluation,
+    resolve_candidate_artifact,
+)
 
 ARTIFACT_TYPES = {"score_rule", "prompt", "model", "llm_profile", "quant_rule", "other"}
 STATUSES = {"draft", "proposed", "approved", "rejected", "frozen"}
@@ -18,6 +22,77 @@ PASS_STATUSES = {"PASS", "pass", "passed", "PASSED"}
 
 class GovernanceError(RuntimeError):
     pass
+
+
+def _canonical_ref(ref: str | None) -> str:
+    return str(ref or "").replace("\\", "/").rstrip("/").split("/")[-1].strip().lower()
+
+
+def _eval_content_hash(recorded: dict[str, Any]) -> str | None:
+    metrics = recorded.get("metrics") or {}
+    if isinstance(metrics, str):
+        metrics = json.loads(metrics)
+    h = metrics.get("artifact_content_hash")
+    return str(h) if h else None
+
+
+def assert_eval_bound_to_proposal(
+    proposal: dict[str, Any],
+    recorded: dict[str, Any],
+    *,
+    label: str,
+) -> None:
+    if recorded.get("artifact_type") != proposal.get("artifact_type"):
+        raise GovernanceError(
+            f"{label} artifact_type {recorded.get('artifact_type')!r} "
+            f"!= proposal {proposal.get('artifact_type')!r}"
+        )
+    if _canonical_ref(recorded.get("artifact_ref")) != _canonical_ref(proposal.get("artifact_ref")):
+        raise GovernanceError(
+            f"{label} artifact_ref {recorded.get('artifact_ref')!r} "
+            f"!= proposal {proposal.get('artifact_ref')!r}"
+        )
+    if str(recorded.get("candidate_version") or "") != str(proposal.get("to_version") or ""):
+        raise GovernanceError(
+            f"{label} candidate_version {recorded.get('candidate_version')!r} "
+            f"!= to_version {proposal.get('to_version')!r}"
+        )
+    if not _eval_content_hash(recorded):
+        raise GovernanceError(f"{label} missing artifact_content_hash")
+
+
+def assert_replay_holdout_same_candidate(replay: dict[str, Any], holdout: dict[str, Any]) -> None:
+    if replay.get("artifact_type") != holdout.get("artifact_type"):
+        raise GovernanceError("replay/holdout artifact_type mismatch")
+    if _canonical_ref(replay.get("artifact_ref")) != _canonical_ref(holdout.get("artifact_ref")):
+        raise GovernanceError("replay/holdout artifact_ref mismatch")
+    if str(replay.get("candidate_version") or "") != str(holdout.get("candidate_version") or ""):
+        raise GovernanceError("replay/holdout candidate_version mismatch")
+    rh = _eval_content_hash(replay)
+    hh = _eval_content_hash(holdout)
+    if not rh or rh != hh:
+        raise GovernanceError("replay/holdout content hash mismatch")
+
+
+def assert_candidate_hash_current(
+    proposal: dict[str, Any],
+    recorded: dict[str, Any],
+    *,
+    repo: Any = None,
+) -> str:
+    try:
+        loaded = resolve_candidate_artifact(
+            proposal["artifact_type"],
+            proposal["artifact_ref"],
+            proposal["to_version"],
+            repo=repo,
+        )
+    except EvaluatorError as exc:
+        raise GovernanceError(f"cannot re-hash candidate: {exc}") from exc
+    expected = _eval_content_hash(recorded)
+    if loaded["content_hash"] != expected:
+        raise GovernanceError("artifact changed after evaluation; cannot freeze")
+    return loaded["content_hash"]
 
 
 def _require_recorded_eval(
@@ -88,7 +163,10 @@ def attach_eval_artifacts(
     holdout = _require_recorded_eval(conn, "holdout", "holdout", holdout_evaluation_id)
     with conn.cursor() as cur:
         cur.execute(
-            "select status from change_proposals where proposal_id=%s::uuid",
+            """
+            select status, artifact_type, artifact_ref, to_version
+            from change_proposals where proposal_id=%s::uuid
+            """,
             (proposal_id,),
         )
         row = cur.fetchone()
@@ -96,6 +174,14 @@ def attach_eval_artifacts(
             raise GovernanceError("proposal not found")
         if row[0] not in {"draft", "proposed"}:
             raise GovernanceError(f"cannot attach evals from status={row[0]}")
+        proposal = {
+            "artifact_type": row[1],
+            "artifact_ref": row[2],
+            "to_version": row[3],
+        }
+        assert_eval_bound_to_proposal(proposal, replay, label="replay")
+        assert_eval_bound_to_proposal(proposal, holdout, label="holdout")
+        assert_replay_holdout_same_candidate(replay, holdout)
         cur.execute(
             """
             update change_proposals set
@@ -145,7 +231,8 @@ def approve_proposal(
         cur.execute(
             """
             select status, approval_log, replay_eval, holdout_eval, replay_status, holdout_status,
-                   replay_evaluation_id::text, holdout_evaluation_id::text
+                   replay_evaluation_id::text, holdout_evaluation_id::text,
+                   artifact_type, artifact_ref, to_version
             from change_proposals where proposal_id=%s::uuid
             """,
             (proposal_id,),
@@ -162,6 +249,14 @@ def approve_proposal(
         holdout = _require_recorded_eval(
             conn, "holdout", "holdout", holdout_evaluation_id or row[7], holdout_eval
         )
+        proposal = {
+            "artifact_type": row[8],
+            "artifact_ref": row[9],
+            "to_version": row[10],
+        }
+        assert_eval_bound_to_proposal(proposal, replay, label="replay")
+        assert_eval_bound_to_proposal(proposal, holdout, label="holdout")
+        assert_replay_holdout_same_candidate(replay, holdout)
 
         # Notes are optional annotations only — cannot substitute for PASS evals
         log = row[1] if isinstance(row[1], list) else json.loads(row[1] or "[]")
@@ -213,7 +308,8 @@ def freeze_proposal(conn: psycopg.Connection, proposal_id: str, *, by: str = "op
     with conn.cursor() as cur:
         cur.execute(
             """
-            select status, approval_log, to_version, replay_status, holdout_status
+            select status, approval_log, to_version, replay_status, holdout_status,
+                   artifact_type, artifact_ref, replay_evaluation_id::text, holdout_evaluation_id::text
             from change_proposals where proposal_id=%s::uuid
             """,
             (proposal_id,),
@@ -225,6 +321,18 @@ def freeze_proposal(conn: psycopg.Connection, proposal_id: str, *, by: str = "op
             raise GovernanceError("freeze requires approved status")
         if str(row[3]) not in PASS_STATUSES or str(row[4]) not in PASS_STATUSES:
             raise GovernanceError("freeze requires replay_status and holdout_status PASS")
+        proposal = {
+            "artifact_type": row[5],
+            "artifact_ref": row[6],
+            "to_version": row[2],
+        }
+        replay = _require_recorded_eval(conn, "replay", "replay", row[7])
+        holdout = _require_recorded_eval(conn, "holdout", "holdout", row[8])
+        assert_eval_bound_to_proposal(proposal, replay, label="replay")
+        assert_eval_bound_to_proposal(proposal, holdout, label="holdout")
+        assert_replay_holdout_same_candidate(replay, holdout)
+        assert_candidate_hash_current(proposal, replay)
+        assert_candidate_hash_current(proposal, holdout)
         log = row[1] if isinstance(row[1], list) else json.loads(row[1] or "[]")
         log.append({"at": datetime.now(timezone.utc).isoformat(), "action": "freeze", "by": by})
         cur.execute(

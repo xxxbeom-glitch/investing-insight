@@ -7,7 +7,11 @@ import psycopg
 
 from app.agents.binding import bind_multi_agent_run, verify_frozen_context
 from app.agents.evidence import load_evidence_bundle
-from app.agents.final_gate import evaluate_final_selector_gate
+from app.agents.final_gate import (
+    approved_claim_catalog,
+    evaluate_final_selector_gate,
+    materialize_final_selector,
+)
 from app.agents.judgment_project import project_final_selector_to_judgment
 from app.agents.profiles import load_multiagent_profiles
 from app.agents.runner import (
@@ -213,6 +217,7 @@ def run_multi_agent_pipeline(
         )
         snapshot_ids.add(final_result["snapshot_id"])
 
+        catalog = approved_claim_catalog(prior.get("research_agent"), prior.get("adversarial_agent"))
         final_status, final_reasons = evaluate_final_selector_gate(
             final_result["output"],
             allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],
@@ -231,12 +236,13 @@ def run_multi_agent_pipeline(
         if final_status == "FAIL":
             raise GateBlockedError(f"final_selector gate FAIL: {final_reasons}")
 
+        materialized = materialize_final_selector(final_result["output"], catalog)
         judgment = project_final_selector_to_judgment(
             conn,
             multi_agent_run_id=multi_id,
             run_id=run_id,
             security_id=security_id,
-            final_output=final_result["output"],
+            final_output=materialized,
             source_agent_output_id=final_result["output_id"],
         )
 
@@ -262,7 +268,7 @@ def run_multi_agent_pipeline(
             "security_id": security_id,
             "ticker": ticker,
             "outputs": outputs_meta,
-            "final": final_result["output"],
+            "final": materialized,
             "judgment_id": judgment["judgment_id"],
             "allowed_evidence_ids": evidence_bundle.get("allowed_evidence_ids"),
             "scheduler_enable_allowed": False,

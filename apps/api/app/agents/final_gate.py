@@ -1,48 +1,10 @@
-"""Deterministic Final Selector gate before judgment projection (ER3-P1-01)."""
+"""Final Selector gate: factual content is claim IDs; text is reconstructed (ER3-P1-01)."""
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from app.research.claim_check import find_unsupported_numeric_claims
-
-_TOKEN_RE = re.compile(r"[a-z0-9]+")
-
-# Interpretive / process vocabulary allowed in Final Selector prose.
-# Factual leftovers like insolvent/resigned/cloud-contract are NOT in this set.
-_META = {
-    "packet", "evidence", "snapshot", "claim", "claims", "thesis", "rationale",
-    "however", "therefore", "insufficient", "missing", "specific", "company",
-    "sector", "industry", "assessment", "assessments", "regime", "expansion",
-    "contraction", "ranked", "highest", "provided", "supplied", "conclusion",
-    "observation", "dated", "current", "cannot", "without", "which", "while",
-    "among", "supports", "only", "macro", "context", "research", "fundamentals",
-    "risks", "risk", "bear", "invalidation", "watch", "selected", "reject",
-    "tracking", "gates", "passed", "using", "allowed", "grounded", "ticker",
-    "security", "union", "shortlist", "model", "labeled", "conditions",
-    "dimension", "operating", "financial", "valuation", "market", "event",
-    "forecast", "primary", "material", "performance", "guidance", "balance",
-    "sheet", "capital", "product", "execution", "regulatory", "exposure",
-    "would", "rely", "unsupported", "extrapolation", "level", "fill", "absence",
-    "data", "record", "contains", "connect", "outcomes", "thresholds",
-    "historical", "validation", "synchronized", "inputs", "classification",
-    "premise", "usefulness", "durability", "methodology", "weighting", "trend",
-    "history", "confidence", "measure", "non", "synchronous", "through",
-    "limiting", "interpretation", "single", "contemporaneous", "favorable",
-    "establish", "margins", "competitive", "position", "future", "derived",
-    "disclosed", "predictive", "platforms", "software", "energy", "semis",
-    "equip", "demand", "capex", "supply", "pricing", "margin", "bottleneck",
-    "overall", "score", "agent", "final", "selector", "status", "because",
-    "since", "also", "into", "from", "this", "that", "with", "have", "been",
-    "does", "not", "there", "their", "about", "must", "should", "gate",
-    "approved", "qa", "adversarial", "refs", "ref", "id", "ids", "none",
-    "available", "present", "absent", "limited", "incomplete", "unknown",
-    "cannot", "beyond", "scope", "given", "based", "cited", "citing",
-    "although", "supplies", "establishes", "reassess", "rejection", "rejected",
-    "unless", "until", "whether", "within", "without", "instead", "rather",
-    "neither", "either", "nor", "via", "per", "versus", "vs", "etc",
-}
 
 
 def approved_claim_catalog(
@@ -83,59 +45,57 @@ def approved_claim_catalog(
     return catalog
 
 
-def _tokens(text: str) -> set[str]:
-    return set(_TOKEN_RE.findall(str(text or "").lower()))
+def _norm(text: str) -> str:
+    return " ".join(str(text or "").lower().split())
 
 
-_FACTUAL_DENY = {
-    "insolvent", "insolvency", "bankrupt", "bankruptcy", "resigned", "resignation",
-    "defaulted", "ousted", "hacked", "fraud", "lawsuit", "indicted",
-}
+def _id_list(output: dict[str, Any], key: str) -> list[str]:
+    return [str(x).strip() for x in (output.get(key) or []) if str(x).strip()]
 
 
-def _significant(tokens: set[str]) -> set[str]:
-    out = set()
-    for t in tokens:
-        if t in _META:
-            continue
-        if t.isdigit():
-            continue
-        if t in _FACTUAL_DENY or len(t) >= 8:
-            out.add(t)
+def materialize_final_selector(
+    output: dict[str, Any],
+    catalog: list[dict[str, str]],
+) -> dict[str, Any]:
+    """Authoritative judgment text is reconstructed from cited claim IDs only."""
+    by_id = {c["claim_id"]: c["text"] for c in catalog}
+    r_ids = _id_list(output, "rationale_claim_refs")
+    b_ids = _id_list(output, "bear_case_claim_refs")
+    k_ids = _id_list(output, "risks_claim_refs")
+    i_ids = _id_list(output, "invalidation_claim_refs")
+    if not r_ids:
+        r_ids = _id_list(output, "claim_refs")
+    out = dict(output)
+    out["rationale"] = " ".join(by_id[i] for i in r_ids if i in by_id)
+    out["bear_case"] = [by_id[i] for i in b_ids if i in by_id]
+    out["risks"] = [by_id[i] for i in k_ids if i in by_id]
+    out["invalidation_conditions"] = [by_id[i] for i in i_ids if i in by_id]
+    out["rationale_claim_refs"] = r_ids
+    out["bear_case_claim_refs"] = b_ids
+    out["risks_claim_refs"] = k_ids
+    out["invalidation_claim_refs"] = i_ids
+    out["claim_refs"] = list(dict.fromkeys(r_ids + b_ids + k_ids + i_ids))
     return out
 
 
-def _corpus_text(evidence_bundle: dict[str, Any] | None, cited_ids: set[str]) -> str:
-    parts: list[str] = []
-    bundle = evidence_bundle or {}
-    for ev in bundle.get("evidence") or []:
-        if not isinstance(ev, dict):
-            continue
-        eid = str(ev.get("evidence_id") or "")
-        if cited_ids and eid not in cited_ids:
-            continue
-        parts.append(eid)
-        parts.append(json_blob(ev))
-    ticker = str(bundle.get("ticker") or "")
-    if ticker:
-        parts.append(ticker)
-    return " ".join(parts)
-
-
-def json_blob(obj: Any) -> str:
-    if isinstance(obj, dict):
-        return " ".join(json_blob(v) for v in obj.values())
-    if isinstance(obj, list):
-        return " ".join(json_blob(v) for v in obj)
-    return str(obj)
-
-
-def _final_texts(output: dict[str, Any]) -> list[str]:
-    texts = [str(output.get("rationale") or "")]
+def _free_text_must_match(
+    output: dict[str, Any],
+    expected: dict[str, Any],
+    reasons: list[str],
+) -> None:
+    if "rationale" in output and str(output.get("rationale") or "").strip():
+        if _norm(str(output.get("rationale"))) != _norm(expected.get("rationale") or ""):
+            reasons.append("rationale_not_bound_to_claim_refs")
     for field in ("bear_case", "risks", "invalidation_conditions"):
-        for item in output.get(field) or []:
-            texts.append(str(item))
-    return texts
+        if field not in output:
+            continue
+        got = output.get(field)
+        if not got:
+            continue
+        got_n = [_norm(x) for x in got]
+        exp_n = [_norm(x) for x in (expected.get(field) or [])]
+        if got_n != exp_n:
+            reasons.append(f"{field}_not_bound_to_claim_refs")
 
 
 def evaluate_final_selector_gate(
@@ -155,35 +115,36 @@ def evaluate_final_selector_gate(
         if ref not in allowed:
             reasons.append(f"unknown_ref:{ref}")
 
-    if status == "SELECTED":
-        for field in ("bear_case", "risks", "invalidation_conditions", "evidence_refs"):
-            arr = output.get(field) or []
-            if not isinstance(arr, list) or not any(str(x).strip() for x in arr):
-                reasons.append(f"selected_empty_{field}")
-
     catalog = approved_claim_catalog(research_output, adversarial_output)
     by_id = {c["claim_id"]: c for c in catalog}
-    claim_refs = [str(x) for x in (output.get("claim_refs") or []) if str(x).strip()]
-    if catalog and not claim_refs:
+    r_ids = _id_list(output, "rationale_claim_refs")
+    b_ids = _id_list(output, "bear_case_claim_refs")
+    k_ids = _id_list(output, "risks_claim_refs")
+    i_ids = _id_list(output, "invalidation_claim_refs")
+    if not r_ids:
+        r_ids = _id_list(output, "claim_refs")
+
+    if catalog and not r_ids:
         reasons.append("missing_claim_refs")
-    for cid in claim_refs:
+
+    for cid in r_ids + b_ids + k_ids + i_ids:
         if cid not in by_id:
             reasons.append(f"unknown_claim_ref:{cid}")
-    if status == "SELECTED" and catalog and not claim_refs:
-        reasons.append("selected_empty_claim_refs")
 
-    # QA-approved catalog is the only allowed factual corpus (cited refs must still be valid IDs).
-    allowed_tokens = _tokens(" ".join(c["text"] for c in catalog))
-    allowed_tokens |= _tokens(_corpus_text(evidence_bundle, set(refs)))
-    ticker = str((evidence_bundle or {}).get("ticker") or "")
-    if ticker:
-        allowed_tokens |= _tokens(ticker)
+    if status == "SELECTED":
+        if not b_ids:
+            reasons.append("selected_empty_bear_case")
+        if not k_ids:
+            reasons.append("selected_empty_risks")
+        if not i_ids:
+            reasons.append("selected_empty_invalidation_conditions")
+        if not refs:
+            reasons.append("selected_empty_evidence_refs")
+        if catalog and not r_ids:
+            reasons.append("selected_empty_claim_refs")
 
-    for text in _final_texts(output):
-        leftover = _significant(_tokens(text) - allowed_tokens)
-        if leftover:
-            sample = ",".join(sorted(leftover)[:6])
-            reasons.append(f"unsupported_factual:{sample}")
+    expected = materialize_final_selector(output, catalog)
+    _free_text_must_match(output, expected, reasons)
 
     bundle = evidence_bundle or {}
     packet = {
@@ -191,8 +152,10 @@ def evaluate_final_selector_gate(
         "quant": bundle.get("quant") or {},
     }
     research = {
-        "claim_evidence_map": [{"claim": str(output.get("rationale") or ""), "evidence_id": refs[0] if refs else ""}],
-        "summary": str(output.get("rationale") or ""),
+        "claim_evidence_map": [
+            {"claim": expected.get("rationale") or "", "evidence_id": refs[0] if refs else ""}
+        ],
+        "summary": expected.get("rationale") or "",
         "financial_interpretation": "",
         "valuation_interpretation": "",
     }
