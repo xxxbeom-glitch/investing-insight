@@ -147,6 +147,8 @@ def build_role_packet(
             prior.get("research_agent"),
             prior.get("adversarial_agent"),
             allowed_evidence_ids=allowed,
+            evidence_bundle=bundle,
+            qa_output=prior.get("research_qa_agent"),
         )
         return {
             **base,
@@ -337,13 +339,46 @@ def evaluate_research_qa_gate(
     *,
     research_output: dict[str, Any] | None = None,
     allowed_evidence_ids: list[str] | set[str] | None = None,
+    evidence_bundle: dict[str, Any] | None = None,
 ) -> tuple[str, list[str]]:
+    from app.agents.claim_support import deterministic_claim_verdicts
     from app.agents.evidence import validate_research_evidence_ids
 
     if research_output is not None and allowed_evidence_ids is not None:
         det_status, det_reasons = validate_research_evidence_ids(research_output, allowed_evidence_ids)
         if det_status != "PASS":
             return "FAIL", det_reasons
+
+    claims = list((research_output or {}).get("claims") or []) if research_output is not None else []
+    if claims:
+        evidence = list((evidence_bundle or {}).get("evidence") or [])
+        if evidence_bundle is None:
+            return "FAIL", ["missing_evidence_bundle_for_support_check"]
+        expected = deterministic_claim_verdicts(research_output, evidence)
+        qa_map: dict[str, dict[str, Any]] = {}
+        for item in output.get("claim_verdicts") or []:
+            if isinstance(item, dict) and item.get("claim_id"):
+                qa_map[str(item["claim_id"])] = item
+        support_reasons: list[str] = []
+        for row in expected:
+            cid = row["claim_id"]
+            verdict = qa_map.get(cid)
+            if verdict is None:
+                support_reasons.append(f"missing_claim_verdict:{cid}")
+                continue
+            if str(verdict.get("evidence_id") or "").strip() != row["evidence_id"]:
+                support_reasons.append(f"claim_verdict_evidence_mismatch:{cid}")
+            vhash = str(verdict.get("claim_hash") or "").strip()
+            if vhash and vhash != row["claim_hash"]:
+                support_reasons.append(f"claim_verdict_hash_mismatch:{cid}")
+            qa_support = str(verdict.get("support") or "").upper()
+            if row["support"] == "UNSUPPORTED" or qa_support != "SUPPORTED":
+                support_reasons.append(f"unsupported_claim:{cid}")
+            elif qa_support != row["support"]:
+                support_reasons.append(f"claim_verdict_mismatch:{cid}")
+        if support_reasons:
+            return "FAIL", support_reasons
+
     status = output.get("status")
     reasons = list(output.get("failed_claims") or [])
     if status != "PASS":

@@ -13,15 +13,11 @@ class ModelUnavailableError(RuntimeError):
     """Requested model cannot be used — fail closed, never silent fallback."""
 
 
-def resolve_requested_model(model: str) -> str:
-    """Shared resolution gate used by the live client and eval harness. No silent remap."""
-    name = (model or "").strip()
-    if not name:
-        raise ModelUnavailableError("empty model")
-    upper = name.upper().replace("-", "_")
-    if "DOES_NOT_EXIST" in upper or upper.startswith("THIS_") or "NOT_AVAILABLE" in upper:
-        raise ModelUnavailableError(f"unavailable model: {model}")
-    return name
+def resolve_requested_model(model: str, *, available: set[str] | None = None) -> str:
+    """Shared resolution: exact name must be in the production capability registry."""
+    from app.research.model_capabilities import resolve_against_registry
+
+    return resolve_against_registry(model, available=available)
 
 
 class ResponsesApiError(RuntimeError):

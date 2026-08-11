@@ -45,7 +45,10 @@ def _gate(output):
 def test_ids_only_final_selector_pass_and_server_reconstructs_text():
     status, reasons = _gate(_IDS)
     assert status == "PASS", reasons
-    materialized = materialize_final_selector(_IDS, approved_claim_catalog(_RESEARCH))
+    materialized = materialize_final_selector(
+        _IDS,
+        approved_claim_catalog(_RESEARCH, allowed_evidence_ids={"regime"}, evidence_bundle=_BUNDLE),
+    )
     assert materialized["rationale"] == "regime is expansion"
     assert materialized["bear_case"] == ["regime is expansion"]
 

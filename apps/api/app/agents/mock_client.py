@@ -4,7 +4,9 @@ import hashlib
 import json
 from typing import Any
 
-from app.research.openai_responses import ModelUnavailableError, ResponsesResult, resolve_requested_model
+from app.agents.claim_support import deterministic_claim_verdicts
+from app.research.model_capabilities import load_recorded_model_capabilities
+from app.research.openai_responses import ResponsesResult, resolve_requested_model
 
 HIGH_STAKES_ROLES = {"research_qa_agent", "adversarial_agent", "final_selector_agent"}
 HIGH_STAKES_EFFORTS = {"medium", "high", "xhigh"}
@@ -38,7 +40,9 @@ class MockStructuredClient:
         self.overrides = overrides or {}
         self.calls: list[str] = []
         self.fingerprints: list[str] = []
-        self.allowed_models = allowed_models
+        self.allowed_models = (
+            set(allowed_models) if allowed_models is not None else load_recorded_model_capabilities()
+        )
 
     def create_structured(
         self,
@@ -50,9 +54,7 @@ class MockStructuredClient:
         output_schema: dict[str, Any],
         schema_name: str,
     ) -> ResponsesResult:
-        resolved = resolve_requested_model(model)
-        if self.allowed_models is not None and resolved not in self.allowed_models:
-            raise ModelUnavailableError(f"unavailable model: {model}")
+        resolved = resolve_requested_model(model, available=self.allowed_models)
         role = user_payload.get("agent_role") or schema_name
         self.calls.append(role)
         self.fingerprints.append(
@@ -79,10 +81,42 @@ class MockStructuredClient:
         )
 
 
+def _grounded_claims(packet: dict[str, Any]) -> list[dict[str, str]]:
+    evidence = [e for e in (packet.get("evidence") or []) if isinstance(e, dict)]
+    claims: list[dict[str, str]] = []
+    for ev in evidence:
+        eid = str(ev.get("evidence_id") or "").strip()
+        if not eid:
+            continue
+        payload = ev.get("payload") if isinstance(ev.get("payload"), dict) else {}
+        if "regime" in payload:
+            claims.append({"claim": f"regime is {payload.get('regime')}", "evidence_id": eid})
+        elif payload.get("industry_id") is not None:
+            ind = str(payload.get("industry_id"))
+            score = payload.get("overall_score")
+            if score is not None:
+                claims.append({"claim": f"{ind} overall_score {score}", "evidence_id": eid})
+            else:
+                claims.append({"claim": f"{ind} assessment", "evidence_id": eid})
+        else:
+            blob = json.dumps(payload, ensure_ascii=False, sort_keys=True) if payload else eid
+            claims.append({"claim": blob, "evidence_id": eid})
+    if not claims:
+        allowed = list(packet.get("allowed_evidence_ids") or [])
+        primary = allowed[0] if allowed else "regime"
+        claims = [{"claim": "regime is expansion", "evidence_id": primary}]
+    return claims
+
+
 def _weak_output(role: str, packet: dict[str, Any]) -> dict[str, Any]:
     """Schema-valid but gate-failing output when high-stakes effort is too low."""
     if role == "research_qa_agent":
-        return {"status": "FAIL", "failed_claims": ["insufficient_reasoning_effort"], "warnings": []}
+        return {
+            "status": "FAIL",
+            "failed_claims": ["insufficient_reasoning_effort"],
+            "warnings": [],
+            "claim_verdicts": [],
+        }
     if role == "adversarial_agent":
         return {
             "status": "FAIL",
@@ -151,16 +185,31 @@ def _default_output(role: str, packet: dict[str, Any]) -> dict[str, Any]:
             "unsupported_or_missing": [] if refs else ["full event calendar"],
         }
     if role == "research_agent":
-        refs = allowed[:3] or [primary]
+        claims = _grounded_claims(packet)
+        refs = list(dict.fromkeys([c["evidence_id"] for c in claims] + allowed[:3])) or [primary]
         return {
             "synthesis": "mock synthesis using allowed evidence only",
-            "claims": [{"claim": "demand resilient", "evidence_id": refs[0]}],
+            "claims": claims,
             "bear_case": ["multiple compression"],
             "evidence_refs": refs,
             "unsupported_or_missing": [],
         }
     if role == "research_qa_agent":
-        return {"status": "PASS", "failed_claims": [], "warnings": []}
+        research = packet.get("research_agent") or {}
+        claims = packet.get("claims") if packet.get("claims") is not None else research.get("claims") or []
+        evidence = packet.get("evidence") or []
+        verdicts = deterministic_claim_verdicts({"claims": claims}, evidence)
+        public = [
+            {"claim_id": v["claim_id"], "evidence_id": v["evidence_id"], "support": v["support"]}
+            for v in verdicts
+        ]
+        failed = [v["claim_id"] for v in verdicts if v["support"] != "SUPPORTED"]
+        return {
+            "status": "PASS" if not failed else "FAIL",
+            "failed_claims": failed,
+            "warnings": [],
+            "claim_verdicts": public,
+        }
     if role == "adversarial_agent":
         return {
             "status": "PASS",

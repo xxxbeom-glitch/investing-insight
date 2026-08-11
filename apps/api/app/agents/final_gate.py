@@ -4,7 +4,19 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.agents.claim_support import claim_is_supported, claim_text_hash
 from app.research.claim_check import find_unsupported_numeric_claims
+
+
+def _qa_verdict_map(qa_output: dict[str, Any] | None) -> dict[str, dict[str, str]]:
+    out: dict[str, dict[str, str]] = {}
+    for item in (qa_output or {}).get("claim_verdicts") or []:
+        if not isinstance(item, dict):
+            continue
+        cid = str(item.get("claim_id") or "").strip()
+        if cid:
+            out[cid] = item
+    return out
 
 
 def approved_claim_catalog(
@@ -12,16 +24,23 @@ def approved_claim_catalog(
     adversarial_output: dict[str, Any] | None = None,
     *,
     allowed_evidence_ids: list[str] | set[str] | None = None,
+    evidence_bundle: dict[str, Any] | None = None,
+    qa_output: dict[str, Any] | None = None,
 ) -> list[dict[str, str]]:
-    """Authoritative catalog: evidence-bound research.claims only.
+    """Authoritative catalog: evidence-bound, QA-verified research.claims only.
 
-    synthesis / bear_case / adversarial free text are presentation-only and
-    cannot be cited into a persisted judgment.
+    A claim is admitted only when its evidence_id is allowed, the cited evidence
+    payload supports the exact claim text, and (when QA is present) the QA
+    verdict is SUPPORTED for the same claim_id + evidence_id + claim hash.
+    synthesis / bear_case / adversarial free text are never admitted.
     """
     del adversarial_output  # not admitted as factual catalog entries
     catalog: list[dict[str, str]] = []
     research = research_output or {}
     allowed = set(allowed_evidence_ids) if allowed_evidence_ids is not None else None
+    evidence = list((evidence_bundle or {}).get("evidence") or [])
+    qa_map = _qa_verdict_map(qa_output)
+    require_qa = qa_output is not None
     for i, item in enumerate(research.get("claims") or []):
         if not isinstance(item, dict):
             continue
@@ -31,7 +50,29 @@ def approved_claim_catalog(
             continue
         if allowed is not None and eid not in allowed:
             continue
-        catalog.append({"claim_id": f"claim:{i}", "text": text, "evidence_id": eid})
+        if not claim_is_supported(text, eid, evidence):
+            continue
+        cid = f"claim:{i}"
+        digest = claim_text_hash(text, eid)
+        if require_qa:
+            verdict = qa_map.get(cid)
+            if not isinstance(verdict, dict):
+                continue
+            if str(verdict.get("support") or "").upper() != "SUPPORTED":
+                continue
+            if str(verdict.get("evidence_id") or "").strip() != eid:
+                continue
+            vhash = str(verdict.get("claim_hash") or "").strip()
+            if vhash and vhash != digest:
+                continue
+        catalog.append(
+            {
+                "claim_id": cid,
+                "text": text,
+                "evidence_id": eid,
+                "claim_hash": digest,
+            }
+        )
     return catalog
 
 
@@ -95,6 +136,7 @@ def evaluate_final_selector_gate(
     evidence_bundle: dict[str, Any] | None = None,
     research_output: dict[str, Any] | None = None,
     adversarial_output: dict[str, Any] | None = None,
+    qa_output: dict[str, Any] | None = None,
 ) -> tuple[str, list[str]]:
     allowed = set(allowed_evidence_ids or [])
     reasons: list[str] = []
@@ -109,6 +151,8 @@ def evaluate_final_selector_gate(
         research_output,
         adversarial_output,
         allowed_evidence_ids=allowed,
+        evidence_bundle=evidence_bundle,
+        qa_output=qa_output,
     )
     by_id = {c["claim_id"]: c for c in catalog}
     r_ids = _id_list(output, "rationale_claim_refs")

@@ -135,6 +135,7 @@ def run_multi_agent_pipeline(
             qa_result["output"],
             research_output=prior.get("research_agent"),
             allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],
+            evidence_bundle=evidence_bundle,
         )
         record_gate(
             conn,
@@ -221,6 +222,8 @@ def run_multi_agent_pipeline(
             prior.get("research_agent"),
             prior.get("adversarial_agent"),
             allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],
+            evidence_bundle=evidence_bundle,
+            qa_output=prior.get("research_qa_agent"),
         )
         final_status, final_reasons = evaluate_final_selector_gate(
             final_result["output"],
@@ -228,6 +231,7 @@ def run_multi_agent_pipeline(
             evidence_bundle=evidence_bundle,
             research_output=prior.get("research_agent"),
             adversarial_output=prior.get("adversarial_agent"),
+            qa_output=prior.get("research_qa_agent"),
         )
         record_gate(
             conn,

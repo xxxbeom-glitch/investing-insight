@@ -81,7 +81,7 @@ def test_final_selector_new_unsupported_number_fails():
         },
     )
     assert status == "FAIL"
-    assert any("unsupported_numeric" in r for r in reasons)
+    assert any("unsupported_numeric" in r or "unknown_claim_ref" in r for r in reasons)
 
 
 def test_hand_authored_pass_json_rejected_without_evaluation_id():

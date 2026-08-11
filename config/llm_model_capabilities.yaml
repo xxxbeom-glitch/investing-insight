@@ -1,0 +1,8 @@
+# Recorded production model capability registry (non-secret).
+# Generated from OpenAIResponsesClient: Responses API `model` / `resolved_model`
+# (POST /v1/responses) for models the production client has actually resolved.
+# Eval/mock use this exact set. Names not listed fail closed. No substring heuristics.
+schema_version: llm-model-capabilities-v0.1
+source: openai.responses.create_structured.resolved_model
+models:
+  - gpt-5.6-terra

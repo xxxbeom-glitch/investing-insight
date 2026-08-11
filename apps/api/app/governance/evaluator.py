@@ -24,11 +24,12 @@ from app.agents.runner import (
     evaluate_adversarial_gate,
     evaluate_research_qa_gate,
 )
+from app.research.model_capabilities import load_recorded_model_capabilities
 from app.research.openai_responses import ModelUnavailableError
 from app.research.schema_validate import load_schema, validate_against_schema
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-EVALUATOR_VERSION = "governance-eval-v0.4"
+EVALUATOR_VERSION = "governance-eval-v0.5"
 DEFAULT_THRESHOLDS = {
     "replay_gate_pass_rate_min": 1.0,
     "holdout_gate_pass_rate_min": 1.0,
@@ -262,7 +263,7 @@ def _record_baseline_comparison(
     base_profiles = _load_baseline_multiagent(repo)
     if base_profiles is None:
         return baseline
-    client = MockStructuredClient()
+    client = MockStructuredClient(allowed_models=load_recorded_model_capabilities())
     try:
         gated = _execute_llm_packets(base_profiles, packets, client)
     except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError) as exc:
@@ -311,7 +312,7 @@ def execute_role_under_profile(
         )
     output = json.loads(result.output_text)
     validate_against_schema(output, schema)
-    return output
+    return {"output": output, "resolved_model": result.resolved_model, "requested_model": role_prof.model}
 
 
 def _eval_frozen_context(pkt: dict[str, Any]) -> dict[str, Any]:
@@ -346,10 +347,18 @@ def _execute_llm_packets(
     *,
     system_prompt: str | None = None,
     qa_system_prompt: str | None = None,
+    prompt_overrides: dict[str, str] | None = None,
 ) -> dict[str, Any]:
+    overrides = dict(prompt_overrides or {})
+    if system_prompt is not None:
+        overrides.setdefault("final_selector_agent", system_prompt)
+    if qa_system_prompt is not None:
+        overrides.setdefault("research_qa_agent", qa_system_prompt)
     results = []
     pass_n = 0
     executed_roles: list[str] = []
+    resolved_models: dict[str, str] = {}
+    requested_models: dict[str, str] = {}
     for pkt in packets:
         prior: dict[str, Any] = {}
         bundle = dict(pkt.get("evidence_bundle") or {})
@@ -357,6 +366,7 @@ def _execute_llm_packets(
         frozen = _eval_frozen_context(pkt)
         ticker = pkt.get("ticker") or bundle.get("ticker") or "TEST"
         security_id = pkt.get("security_id") or "eval-sec"
+        packet_resolved: dict[str, str] = {}
         for role in MULTIAGENT_ROLES:
             packet = build_role_packet(
                 agent_role=role,
@@ -368,19 +378,17 @@ def _execute_llm_packets(
                 prior_outputs=prior,
                 evidence_bundle=bundle,
             )
-            prompt_override = None
-            if role == "final_selector_agent" and system_prompt is not None:
-                prompt_override = system_prompt
-            elif role == "research_qa_agent" and qa_system_prompt is not None:
-                prompt_override = qa_system_prompt
-            out = execute_role_under_profile(
+            executed = execute_role_under_profile(
                 role,
                 packet,
                 profiles,
                 client,
-                system_prompt=prompt_override,
+                system_prompt=overrides.get(role),
             )
-            prior[role] = out
+            prior[role] = executed["output"]
+            packet_resolved[role] = executed["resolved_model"]
+            requested_models[role] = executed["requested_model"]
+            resolved_models[role] = executed["resolved_model"]
             if role not in executed_roles:
                 executed_roles.append(role)
         research_out = prior["research_agent"]
@@ -391,14 +399,16 @@ def _execute_llm_packets(
             qa_out,
             research_output=research_out,
             allowed_evidence_ids=pkt["allowed_evidence_ids"],
+            evidence_bundle=bundle,
         )
         adv_st, adv_r = evaluate_adversarial_gate(adv_out)
         final_st, final_r = evaluate_final_selector_gate(
             final_out,
             allowed_evidence_ids=pkt["allowed_evidence_ids"],
-            evidence_bundle=pkt["evidence_bundle"],
+            evidence_bundle=bundle,
             research_output=research_out,
             adversarial_output=adv_out,
+            qa_output=qa_out,
         )
         ok = qa_st == "PASS" and adv_st == "PASS" and final_st == "PASS"
         if ok:
@@ -411,7 +421,9 @@ def _execute_llm_packets(
                 "adversarial": adv_st,
                 "final": final_st,
                 "requested_model": profiles.final_selector_agent.model,
-                "resolved_model": profiles.final_selector_agent.model,
+                "resolved_model": packet_resolved.get("final_selector_agent"),
+                "requested_models": dict(requested_models),
+                "resolved_models": dict(packet_resolved),
                 "reasoning_effort": profiles.final_selector_agent.reasoning_effort,
                 "executed_roles": list(MULTIAGENT_ROLES),
                 "behavior_digest": fingerprints[-len(MULTIAGENT_ROLES) :] if fingerprints else [],
@@ -425,6 +437,8 @@ def _execute_llm_packets(
         "sample_count": len(packets),
         "executed_roles": executed_roles,
         "executed_role_count": len(executed_roles),
+        "requested_models": requested_models,
+        "resolved_models": resolved_models,
     }
 
 
@@ -482,11 +496,16 @@ def evaluate_candidate(
             metrics["requested_efforts"] = {
                 role: getattr(candidate_profiles, role).reasoning_effort for role in MULTIAGENT_ROLES
             }
-            client = MockStructuredClient()
+            available = load_recorded_model_capabilities()
+            metrics["model_capability_source"] = "config/llm_model_capabilities.yaml"
+            metrics["model_capability_count"] = len(available)
+            client = MockStructuredClient(allowed_models=available)
             gated = _execute_llm_packets(candidate_profiles, packets, client)
             metrics["executed"] = True
             metrics["executed_roles"] = gated.get("executed_roles")
             metrics["executed_role_count"] = gated.get("executed_role_count")
+            metrics["resolved_models"] = gated.get("resolved_models")
+            metrics["requested_models_executed"] = gated.get("requested_models")
         except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError, json.JSONDecodeError) as exc:
             fail = True
             metrics["error"] = str(exc)
@@ -539,19 +558,21 @@ def evaluate_candidate(
                 profiles = _load_baseline_multiagent(repo)
                 if profiles is None:
                     raise EvaluatorError("no multiagent profile available to execute prompt")
-                client = MockStructuredClient()
+                available = load_recorded_model_capabilities()
+                client = MockStructuredClient(allowed_models=available)
                 role = _prompt_target_role(artifact_ref)
                 metrics["executed_role"] = role
+                metrics["model_capability_source"] = "config/llm_model_capabilities.yaml"
                 gated = _execute_llm_packets(
                     profiles,
                     packets,
                     client,
-                    system_prompt=text if role == "final_selector_agent" else None,
-                    qa_system_prompt=text if role == "research_qa_agent" else None,
+                    prompt_overrides={role: text},
                 )
                 metrics["executed"] = True
                 metrics["executed_roles"] = gated.get("executed_roles")
                 metrics["executed_role_count"] = gated.get("executed_role_count")
+                metrics["resolved_models"] = gated.get("resolved_models")
                 metrics["prompt_sha256"] = hashlib.sha256(text.encode("utf-8")).hexdigest()
             except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError, json.JSONDecodeError) as exc:
                 fail = True

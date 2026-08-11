@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "error_id": "7d22c544-52db-4d5d-9163-fd198ad50247",
+  "error_type": "data_error",
+  "severity": "P3",
+  "judgment_id": "49ed5bf3-80aa-48fa-9ace-8b3ae995f30c",
+  "run_id": "4fb5d775-4a0d-4e51-8cb7-fc76416cfeac",
+  "scheduler_enable_allowed": false
+}

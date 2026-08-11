@@ -1,0 +1,23 @@
+{
+  "proposal_id": "8632ca98-8169-4c5e-87a7-705d85a9cef5",
+  "approve": {
+    "proposal_id": "8632ca98-8169-4c5e-87a7-705d85a9cef5",
+    "status": "approved"
+  },
+  "freeze": {
+    "proposal_id": "8632ca98-8169-4c5e-87a7-705d85a9cef5",
+    "status": "frozen",
+    "frozen_version": "llm-profile-v0.2"
+  },
+  "replay_evaluation_id": "ad860a18-123d-49a3-b863-417f16b7b825",
+  "holdout_evaluation_id": "8b7fc4ac-b120-4e36-bf1d-12388719508e",
+  "replay_status": "PASS",
+  "holdout_status": "PASS",
+  "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+  "evaluator_version": "governance-eval-v0.5",
+  "executed": true,
+  "executed_role_count": 8,
+  "resolved_models_recorded": true,
+  "model_capability_source": "config/llm_model_capabilities.yaml",
+  "scheduler_enable_allowed": false
+}

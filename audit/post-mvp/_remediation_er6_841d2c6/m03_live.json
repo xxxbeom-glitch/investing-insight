@@ -1,0 +1,82 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "live",
+  "job_id": "8513c1d6-3dfc-43e0-9af7-de2dc386fefb",
+  "ok": true,
+  "multi_agent_run_id": "8c12da30-72c7-4f13-ac82-f9f2f3303f27",
+  "run_id": "4fb5d775-4a0d-4e51-8cb7-fc76416cfeac",
+  "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "7dc1071c-071c-4c72-b7f4-5a573ec2e839",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "876e5282-a1c9-48d9-945e-d6300ba9df48",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "3f61262e-a3e8-496c-979d-cf59003ad863",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "158168eb-0733-47f8-b41f-b295e5902ce6",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "8ad83f6a-d37d-49db-88d1-23b198e382b6",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "a8831874-b6af-4f4b-aa8e-80a0269a8329",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "d6dae1c6-78f0-4359-9b62-5312745cf88e",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "ba119e66-aa2f-4d04-86a7-627346af87f3",
+      "snapshot_id": "b2a39ff8-6589-5acb-bec5-6008dd202aba"
+    }
+  ],
+  "final": {
+    "status": "REJECT",
+    "rationale_claim_refs": ["claim:0", "claim:1", "claim:2"],
+    "bear_case_claim_refs": ["claim:2"],
+    "risks_claim_refs": ["claim:2"],
+    "invalidation_claim_refs": [],
+    "evidence_refs": ["regime", "assessment:software"],
+    "claim_refs": ["claim:0", "claim:1", "claim:2"],
+    "rationale": "The regime classification was expansion as of 2026-08-10. The Software / Platforms industry assessment had an overall score of 61.76 as of 2026-08-10. Within the Software / Platforms assessment, demand scored 81.32, versus capex and margin at 55.0, pricing at 54.11, and supply and bottleneck at 50.0.",
+    "bear_case": [
+      "Within the Software / Platforms assessment, demand scored 81.32, versus capex and margin at 55.0, pricing at 54.11, and supply and bottleneck at 50.0."
+    ],
+    "risks": [
+      "Within the Software / Platforms assessment, demand scored 81.32, versus capex and margin at 55.0, pricing at 54.11, and supply and bottleneck at 50.0."
+    ],
+    "invalidation_conditions": []
+  },
+  "judgment_id": "49ed5bf3-80aa-48fa-9ace-8b3ae995f30c",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

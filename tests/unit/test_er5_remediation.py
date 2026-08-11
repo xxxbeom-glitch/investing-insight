@@ -47,7 +47,9 @@ def test_catalog_excludes_synthesis_bear_and_adversarial_free_text():
         "broken_assumptions": ["The CEO resigned yesterday"],
         "gate_blockers": [],
     }
-    catalog = approved_claim_catalog(research, adv, allowed_evidence_ids={"regime"})
+    catalog = approved_claim_catalog(
+        research, adv, allowed_evidence_ids={"regime"}, evidence_bundle=_BUNDLE
+    )
     ids = {c["claim_id"] for c in catalog}
     assert ids == {"claim:0"}
     assert all(c["evidence_id"] == "regime" for c in catalog)
@@ -66,13 +68,22 @@ def test_ungrounded_facts_via_non_claim_fields_cannot_reach_judgment():
         "broken_assumptions": ["The CEO resigned yesterday"],
         "gate_blockers": [],
     }
+    qa_out = {
+        "status": "PASS",
+        "failed_claims": [],
+        "warnings": [],
+        "claim_verdicts": [{"claim_id": "claim:0", "evidence_id": "regime", "support": "SUPPORTED"}],
+    }
     qa_st, _ = evaluate_research_qa_gate(
-        {"status": "PASS", "failed_claims": [], "warnings": []},
+        qa_out,
         research_output=research,
         allowed_evidence_ids={"regime"},
+        evidence_bundle=_BUNDLE,
     )
     assert qa_st == "PASS"
-    catalog = approved_claim_catalog(research, adv, allowed_evidence_ids={"regime"})
+    catalog = approved_claim_catalog(
+        research, adv, allowed_evidence_ids={"regime"}, evidence_bundle=_BUNDLE, qa_output=qa_out
+    )
     for cid in ("research:synthesis", "research_bear:0", "adv:counter_thesis", "adv:broken:0"):
         status, reasons = evaluate_final_selector_gate(
             _ids(cid),
