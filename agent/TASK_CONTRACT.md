@@ -1,7 +1,7 @@
-﻿# TASK CONTRACT — L08 numeric unit scale
+﻿# TASK CONTRACT — L08 English date non-quantity
 
-- scope: L08 `claim_check` billion/raw 정합 + 공유 numeric contract. M03 schema 불변.
-- constraints: production cron DISABLED; Long-Term Optional NOT STARTED; no Post-MVP tag; no GO; no gate relaxation
-- status: STOP — unit-scale PASS, live AAPL Research QA FAIL (English dates)
-- evidence: `audit/post-mvp/l08_numeric_scale_93a4053/`
-- live run_id: `bac5e73f-6dbe-4b50-8e6b-2671fd663e36`
+- scope: `June 27, 2026` 등 month-name 날짜를 L08 quantity에서 제외. billion 계약 유지.
+- constraints: production cron DISABLED; Long-Term Optional NOT STARTED; no Post-MVP tag; no GO
+- status: PLAN
+- evidence: `audit/post-mvp/l08_english_date_9e94983/`
+- previous: `audit/post-mvp/l08_numeric_scale_93a4053/` (STOP: English dates)
