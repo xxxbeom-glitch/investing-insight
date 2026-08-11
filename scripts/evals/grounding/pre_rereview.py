@@ -36,6 +36,7 @@ def steps(*, llm: bool) -> list[tuple[str, list[str], Path]]:
     out: list[tuple[str, list[str], Path]] = [
         ("pytest", [py, "-m", "pytest", "tests", "-q"], REPO),
         ("secret_scan", [py, str(REPO / "scripts" / "secret_scan.py")], REPO),
+        ("client_secret_scan", [py, str(REPO / "scripts" / "check_client_secrets.py")], REPO),
         ("web_build", [_npm(), "run", "build"], REPO / "apps" / "web"),
         (
             "grounding_replay",

@@ -165,6 +165,13 @@ pre_rereview = _load("pre_rereview")
 self_remediate = _load("self_remediate")
 
 
+def test_pre_rereview_includes_client_secret_scan():
+    names = [name for name, _cmd, _cwd in pre_rereview.steps(llm=False)]
+    assert names == ["pytest", "secret_scan", "client_secret_scan", "web_build", "grounding_replay"]
+    cmd = next(c for name, c, _cwd in pre_rereview.steps(llm=False) if name == "client_secret_scan")
+    assert Path(cmd[-1]).name == "check_client_secrets.py"
+
+
 def test_web_build_uses_resolvable_npm():
     cmd = next(c for name, c, _cwd in pre_rereview.steps(llm=False) if name == "web_build")
     assert Path(cmd[0]).name.lower() in {"npm.cmd", "npm.exe", "npm"}

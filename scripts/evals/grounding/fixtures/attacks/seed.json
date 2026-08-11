@@ -439,5 +439,41 @@
     "expected_gate": "UNSUPPORTED",
     "attack_class": "unicode_leftover",
     "source": "grounding self-remediation FP"
+  },
+  {
+    "id": "er12-control-del",
+    "claim": "regime is expansion\u007f.",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "unicode_leftover",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er12-format-zwsp",
+    "claim": "close is 100.5\u200b.",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "unicode_leftover",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er12-asof-expansion-date",
+    "claim": "as_of is expansion 2026-08-10",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er12-asof-date-true",
+    "claim": "as_of is 2026-08-10",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
   }
 ]

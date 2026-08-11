@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import unicodedata
 from dataclasses import dataclass
 from typing import Any
 
@@ -81,6 +82,8 @@ _KIND_FACTUAL_FIELDS: dict[str, tuple[str, ...]] = {
 _TOKEN_RE = re.compile(r"[0-9]+(?:\.[0-9]+)?|[^\W\d_]+", re.UNICODE)
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}")
 _DATE_ONLY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# Keep ordinary whitespace; reject other Cc and all Cf (ZWSP, DEL, BOM, …).
+_ALLOWED_CC = frozenset("\t\n\r")
 
 
 @dataclass(frozen=True)
@@ -114,6 +117,16 @@ def claim_text_hash(text: str, evidence_id: str) -> str:
     norm = " ".join(str(text or "").split())
     blob = f"{evidence_id}\n{norm}".encode("utf-8")
     return hashlib.sha256(blob).hexdigest()
+
+
+def _has_disallowed_control_or_format(text: str) -> bool:
+    for ch in text:
+        cat = unicodedata.category(ch)
+        if cat == "Cf":
+            return True
+        if cat == "Cc" and ch not in _ALLOWED_CC:
+            return True
+    return False
 
 
 def content_tokens(text: str) -> set[str]:
@@ -330,6 +343,42 @@ def _field_vocab(inv: dict[str, _Leaf]) -> set[str]:
     return toks
 
 
+def _span_gap(a: _Span, b: _Span) -> int | None:
+    if a.end <= b.start:
+        return b.start - a.end
+    if b.end <= a.start:
+        return a.start - b.end
+    return None
+
+
+def _nearest_value_span(
+    field_span: _Span,
+    value_spans: list[_Span],
+    inv: dict[str, _Leaf],
+) -> _Span | None:
+    """Closest value. Equal gaps: prefer a value owned by this field, not a farther rescue."""
+    scored: list[tuple[int, int, int, _Span]] = []
+    for value in value_spans:
+        gap = _span_gap(field_span, value)
+        if gap is None:
+            continue
+        owned = any(
+            path in value.paths
+            and path in inv
+            and path in field_span.paths
+            and _leaf_value_mentioned(inv[path], [value], inv)
+            for path in field_span.paths
+        )
+        scored.append((gap, 0 if owned else 1, value.start, value))
+    if not scored:
+        return None
+    scored.sort()
+    min_gap = scored[0][0]
+    group = [row for row in scored if row[0] == min_gap]
+    group.sort()
+    return group[0][3]
+
+
 def _leftover_tokens(folded: str, spans: list[_Span], inv: dict[str, _Leaf]) -> set[str]:
     chars = list(folded)
     for span in spans:
@@ -344,7 +393,10 @@ def _leftover_tokens(folded: str, spans: list[_Span], inv: dict[str, _Leaf]) -> 
 
 def parse_claim_against_leaves(text: str, leaves: dict[str, Any]) -> tuple[list[ClaimTriple], set[str]]:
     """Recover field/operator/value triples from claim text × payload inventory."""
-    raw = str(text or "").strip()
+    raw = str(text or "")
+    if _has_disallowed_control_or_format(raw):
+        return [], {"disallowed_control_or_format"}
+    raw = raw.strip()
     if not raw:
         return [], {"empty_claim_or_evidence_id"}
     inv = _inventory(leaves)
@@ -361,33 +413,49 @@ def parse_claim_against_leaves(text: str, leaves: dict[str, Any]) -> tuple[list[
     missing: set[str] = set()
     missing |= _leftover_tokens(folded, spans, inv)
 
-    mentioned_fields: dict[str, _Leaf] = {}
-    for span in field_spans:
-        for path in span.paths:
-            leaf = inv.get(path)
-            if leaf is not None:
-                mentioned_fields[path] = leaf
-
     triples: list[ClaimTriple] = []
     bound: set[str] = set()
-    for path, leaf in mentioned_fields.items():
-        if _leaf_value_mentioned(leaf, value_spans, inv):
-            bound.add(path)
-            triples.append(ClaimTriple(field=leaf.field, operator="equals", value=_value_display(leaf.value_raw)))
-        else:
-            missing.add(f"field_mismatch:{leaf.field}")
+    used_values: set[tuple[int, int, str]] = set()
+
+    mentioned_paths = {path for fs in field_spans for path in fs.paths}
+
+    for field_span in field_spans:
+        nearest = _nearest_value_span(field_span, value_spans, inv)
+        label = field_span.phrase.replace(" ", "_") or "field"
+        if nearest is None:
+            missing.add(f"field_mismatch:{label}")
+            continue
+        matching = [
+            inv[path]
+            for path in field_span.paths
+            if path in inv and _leaf_value_mentioned(inv[path], [nearest], inv)
+        ]
+        value_key = (nearest.start, nearest.end, nearest.phrase)
+        if len(matching) != 1:
+            missing.add(f"field_mismatch:{label}")
+            continue
+        leaf = matching[0]
+        if value_key in used_values and leaf.path not in bound:
+            missing.add(f"field_mismatch:{label}")
+            continue
+        bound.add(leaf.path)
+        used_values.add(value_key)
+        triples.append(ClaimTriple(field=leaf.field, operator="equals", value=_value_display(leaf.value_raw)))
 
     for span in value_spans:
+        value_key = (span.start, span.end, span.phrase)
+        if value_key in used_values:
+            continue
         owners = [inv[p] for p in span.paths if p in inv]
         if any(leaf.path in bound for leaf in owners):
             continue
-        mentioned_owners = [leaf for leaf in owners if leaf.path in mentioned_fields]
-        if mentioned_owners:
-            # Mentioned field(s) did not bind this value — already field_mismatch.
+        if any(leaf.path in mentioned_paths for leaf in owners):
             continue
         exact = [leaf for leaf in owners if _leaf_value_mentioned(leaf, [span], inv)]
         if len(exact) == 1:
             leaf = exact[0]
+            bound.add(leaf.path)
+            used_values.add(value_key)
             triples.append(ClaimTriple(field=leaf.field, operator="equals", value=_value_display(leaf.value_raw)))
         elif len(exact) > 1:
             missing.add(f"ambiguous_value:{span.phrase}")
@@ -425,7 +493,10 @@ def parse_claim(
     evidence_id: str,
     evidence: list[Any] | None,
 ) -> tuple[list[ClaimTriple], set[str]]:
-    text = str(claim_text or "").strip()
+    raw = str(claim_text or "")
+    if _has_disallowed_control_or_format(raw):
+        return [], {"disallowed_control_or_format"}
+    text = raw.strip()
     eid = str(evidence_id or "").strip()
     if not text or not eid:
         return [], {"empty_claim_or_evidence_id"}

@@ -103,6 +103,9 @@ def test_copula_and_orientation_do_not_change_true_pair(text):
         ("The CEO resigned yesterday", "regime", _REGIME),
         ("secret-ref close 100.5", "price:1", _PRICE),
         ("kind is daily_price", "price:1", _PRICE),
+        ("regime is expansion\x7f.", "regime", _REGIME),
+        ("close is 100.5\u200b.", "price:1", _PRICE),
+        ("as_of is expansion 2026-08-10", "regime", _REGIME),
     ],
 )
 def test_generalized_attacks_fail_without_copula_list(text, eid, evidence):
@@ -119,6 +122,8 @@ def test_generalized_attacks_fail_without_copula_list(text, eid, evidence):
         ("100.5 was close", "price:1", _PRICE),
         ("trading_date is 2026-08-10", "price:1", _PRICE),
         ("2026-08-10 is trading_date", "price:1", _PRICE),
+        ("regime is expansion", "regime", _REGIME),
+        ("as_of is 2026-08-10", "regime", _REGIME),
         ("regime is expansion as of 2026-08-10", "regime", _REGIME),
         ("overall_score 61.76", "assessment:software", _ASSESS),
         ("software overall_score 61.76", "assessment:software", _ASSESS),
