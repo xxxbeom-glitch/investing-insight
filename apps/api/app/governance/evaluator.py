@@ -17,12 +17,18 @@ from pydantic import ValidationError
 from app.agents.final_gate import approved_claim_catalog, evaluate_final_selector_gate
 from app.agents.mock_client import MockStructuredClient
 from app.agents.profiles import MULTIAGENT_ROLES, MultiAgentProfiles
-from app.agents.runner import ROLE_SCHEMA, _system_prompt, evaluate_adversarial_gate, evaluate_research_qa_gate
+from app.agents.runner import (
+    ROLE_SCHEMA,
+    _system_prompt,
+    build_role_packet,
+    evaluate_adversarial_gate,
+    evaluate_research_qa_gate,
+)
 from app.research.openai_responses import ModelUnavailableError
 from app.research.schema_validate import load_schema, validate_against_schema
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-EVALUATOR_VERSION = "governance-eval-v0.3"
+EVALUATOR_VERSION = "governance-eval-v0.4"
 DEFAULT_THRESHOLDS = {
     "replay_gate_pass_rate_min": 1.0,
     "holdout_gate_pass_rate_min": 1.0,
@@ -153,9 +159,11 @@ def resolve_candidate_artifact(
     *,
     repo: Path | None = None,
 ) -> dict[str, Any]:
-    """Load the actual candidate file and hash its bytes. Missing/invalid → error."""
+    """Load the actual candidate file and hash canonical UTF-8 text (newline-normalized)."""
     root = repo or REPO_ROOT
     path = _locate_artifact(root, artifact_type, artifact_ref, candidate_version)
+    # Canonical UTF-8 text hash after Path.read_text (newline-normalized).
+    # Archive bytes on CRLF checkouts may differ; attach/approve/freeze use this same method.
     text = path.read_text(encoding="utf-8")
     content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
     parsed: Any = None
@@ -170,6 +178,7 @@ def resolve_candidate_artifact(
         "text": text,
         "parsed": parsed,
         "content_hash": content_hash,
+        "artifact_hash_encoding": "utf8_text_newline_normalized",
         "artifact_type": artifact_type,
         "artifact_ref": artifact_ref,
         "candidate_version": candidate_version,
@@ -220,62 +229,6 @@ def _score_quant(rule: dict[str, Any], vector: dict[str, float]) -> float:
     return acc
 
 
-def committed_model_names(
-    repo: Path | None = None,
-    *,
-    exclude_path: str | Path | None = None,
-) -> set[str]:
-    """Models from committed profile files, excluding the candidate under evaluation."""
-    names: set[str] = set()
-    exclude: set[Path] = set()
-    if exclude_path:
-        ep = Path(exclude_path)
-        candidates = [ep] if ep.is_absolute() else [ep]
-        if repo is not None and not ep.is_absolute():
-            candidates.append(Path(repo) / ep)
-        candidates.append(REPO_ROOT / ep)
-        for c in candidates:
-            try:
-                exclude.add(c.resolve())
-            except OSError:
-                continue
-    seen_roots: set[Path] = set()
-    for root in (repo or REPO_ROOT, REPO_ROOT):
-        try:
-            resolved_root = Path(root).resolve()
-        except OSError:
-            continue
-        if resolved_root in seen_roots:
-            continue
-        seen_roots.add(resolved_root)
-        config = resolved_root / "config"
-        if not config.is_dir():
-            continue
-        for p in config.glob("llm_profiles*.yaml"):
-            try:
-                if p.resolve() in exclude:
-                    continue
-            except OSError:
-                continue
-            raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-            if not isinstance(raw, dict):
-                continue
-            for val in raw.values():
-                if isinstance(val, dict) and val.get("model"):
-                    names.add(str(val["model"]))
-    return names
-
-
-def _require_models_available(profiles: MultiAgentProfiles, allowed: set[str]) -> None:
-    missing = [
-        f"{role}:{getattr(profiles, role).model}"
-        for role in MULTIAGENT_ROLES
-        if getattr(profiles, role).model not in allowed
-    ]
-    if missing:
-        raise ModelUnavailableError("unavailable model: " + ", ".join(missing))
-
-
 def _load_baseline_multiagent(repo: Path | None = None) -> MultiAgentProfiles | None:
     for root in (repo or REPO_ROOT, REPO_ROOT):
         for name in ("llm_profiles.v0.2.yaml", "llm_profiles.yaml"):
@@ -309,8 +262,7 @@ def _record_baseline_comparison(
     base_profiles = _load_baseline_multiagent(repo)
     if base_profiles is None:
         return baseline
-    allowed = committed_model_names(REPO_ROOT)
-    client = MockStructuredClient(allowed_models=allowed)
+    client = MockStructuredClient()
     try:
         gated = _execute_llm_packets(base_profiles, packets, client)
     except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError) as exc:
@@ -362,6 +314,31 @@ def execute_role_under_profile(
     return output
 
 
+def _eval_frozen_context(pkt: dict[str, Any]) -> dict[str, Any]:
+    if pkt.get("frozen_context"):
+        return pkt["frozen_context"]
+    bundle = pkt.get("evidence_bundle") or {}
+    regime: dict[str, Any] = {"regime": "expansion"}
+    assessments: list[dict[str, Any]] = []
+    for ev in bundle.get("evidence") or []:
+        if not isinstance(ev, dict):
+            continue
+        eid = str(ev.get("evidence_id") or "")
+        payload = ev.get("payload") if isinstance(ev.get("payload"), dict) else {}
+        if eid == "regime":
+            regime = payload or regime
+            if "regime" not in regime:
+                regime = {"regime": "expansion", **regime}
+        if eid.startswith("assessment"):
+            assessments.append(payload)
+    ticker = pkt.get("ticker") or bundle.get("ticker") or "TEST"
+    return {
+        "regime": regime,
+        "assessments": assessments,
+        "union": {"members": [{"ticker": ticker, "security_id": pkt.get("security_id") or "eval-sec"}]},
+    }
+
+
 def _execute_llm_packets(
     profiles: MultiAgentProfiles,
     packets: list[dict[str, Any]],
@@ -372,48 +349,47 @@ def _execute_llm_packets(
 ) -> dict[str, Any]:
     results = []
     pass_n = 0
+    executed_roles: list[str] = []
     for pkt in packets:
-        qa_packet = {
-            "run_id": "eval",
-            "snapshot_id": "eval",
-            "research_agent": pkt["research"],
-            "claims": (pkt["research"] or {}).get("claims") or [],
-            "evidence": (pkt["evidence_bundle"] or {}).get("evidence") or [],
-            "allowed_evidence_ids": pkt["allowed_evidence_ids"],
-        }
-        qa_out = execute_role_under_profile(
-            "research_qa_agent",
-            qa_packet,
-            profiles,
-            client,
-            system_prompt=qa_system_prompt,
-        )
-        adv_packet = {
-            "run_id": "eval",
-            "snapshot_id": "eval",
-            "research_agent": pkt["research"],
-            "allowed_evidence_ids": pkt["allowed_evidence_ids"],
-        }
-        adv_out = execute_role_under_profile("adversarial_agent", adv_packet, profiles, client)
-        catalog = approved_claim_catalog(pkt["research"], adv_out)
-        final_packet = {
-            "run_id": "eval",
-            "snapshot_id": "eval",
-            "research_agent": pkt["research"],
-            "adversarial_agent": adv_out,
-            "approved_claims": catalog,
-            "allowed_evidence_ids": pkt["allowed_evidence_ids"],
-        }
-        final_out = execute_role_under_profile(
-            "final_selector_agent",
-            final_packet,
-            profiles,
-            client,
-            system_prompt=system_prompt,
-        )
+        prior: dict[str, Any] = {}
+        bundle = dict(pkt.get("evidence_bundle") or {})
+        bundle["allowed_evidence_ids"] = pkt["allowed_evidence_ids"]
+        frozen = _eval_frozen_context(pkt)
+        ticker = pkt.get("ticker") or bundle.get("ticker") or "TEST"
+        security_id = pkt.get("security_id") or "eval-sec"
+        for role in MULTIAGENT_ROLES:
+            packet = build_role_packet(
+                agent_role=role,
+                run_id="eval",
+                snapshot_id="eval",
+                frozen_context=frozen,
+                security_id=security_id,
+                ticker=ticker,
+                prior_outputs=prior,
+                evidence_bundle=bundle,
+            )
+            prompt_override = None
+            if role == "final_selector_agent" and system_prompt is not None:
+                prompt_override = system_prompt
+            elif role == "research_qa_agent" and qa_system_prompt is not None:
+                prompt_override = qa_system_prompt
+            out = execute_role_under_profile(
+                role,
+                packet,
+                profiles,
+                client,
+                system_prompt=prompt_override,
+            )
+            prior[role] = out
+            if role not in executed_roles:
+                executed_roles.append(role)
+        research_out = prior["research_agent"]
+        qa_out = prior["research_qa_agent"]
+        adv_out = prior["adversarial_agent"]
+        final_out = prior["final_selector_agent"]
         qa_st, qa_r = evaluate_research_qa_gate(
             qa_out,
-            research_output=pkt["research"],
+            research_output=research_out,
             allowed_evidence_ids=pkt["allowed_evidence_ids"],
         )
         adv_st, adv_r = evaluate_adversarial_gate(adv_out)
@@ -421,12 +397,13 @@ def _execute_llm_packets(
             final_out,
             allowed_evidence_ids=pkt["allowed_evidence_ids"],
             evidence_bundle=pkt["evidence_bundle"],
-            research_output=pkt["research"],
+            research_output=research_out,
             adversarial_output=adv_out,
         )
         ok = qa_st == "PASS" and adv_st == "PASS" and final_st == "PASS"
         if ok:
             pass_n += 1
+        fingerprints = getattr(client, "fingerprints", [])
         results.append(
             {
                 "packet_id": pkt["packet_id"],
@@ -435,11 +412,20 @@ def _execute_llm_packets(
                 "final": final_st,
                 "requested_model": profiles.final_selector_agent.model,
                 "resolved_model": profiles.final_selector_agent.model,
+                "reasoning_effort": profiles.final_selector_agent.reasoning_effort,
+                "executed_roles": list(MULTIAGENT_ROLES),
+                "behavior_digest": fingerprints[-len(MULTIAGENT_ROLES) :] if fingerprints else [],
                 "reasons": qa_r + adv_r + final_r,
             }
         )
     n = len(packets) or 1
-    return {"results": results, "gate_pass_rate": pass_n / n, "sample_count": len(packets)}
+    return {
+        "results": results,
+        "gate_pass_rate": pass_n / n,
+        "sample_count": len(packets),
+        "executed_roles": executed_roles,
+        "executed_role_count": len(executed_roles),
+    }
 
 
 def evaluate_candidate(
@@ -469,6 +455,7 @@ def evaluate_candidate(
         "artifact_loaded": True,
         "artifact_path": loaded["path"],
         "artifact_content_hash": loaded["content_hash"],
+        "artifact_hash_encoding": "utf8_text_newline_normalized",
         "artifact_type": artifact_type,
         "candidate_version": candidate_version,
     }
@@ -492,11 +479,14 @@ def evaluate_candidate(
             metrics["requested_models"] = {
                 role: getattr(candidate_profiles, role).model for role in MULTIAGENT_ROLES
             }
-            allowed = committed_model_names(repo, exclude_path=loaded["path"])
-            _require_models_available(candidate_profiles, allowed)
-            client = MockStructuredClient(allowed_models=allowed)
+            metrics["requested_efforts"] = {
+                role: getattr(candidate_profiles, role).reasoning_effort for role in MULTIAGENT_ROLES
+            }
+            client = MockStructuredClient()
             gated = _execute_llm_packets(candidate_profiles, packets, client)
             metrics["executed"] = True
+            metrics["executed_roles"] = gated.get("executed_roles")
+            metrics["executed_role_count"] = gated.get("executed_role_count")
         except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError, json.JSONDecodeError) as exc:
             fail = True
             metrics["error"] = str(exc)
@@ -549,8 +539,7 @@ def evaluate_candidate(
                 profiles = _load_baseline_multiagent(repo)
                 if profiles is None:
                     raise EvaluatorError("no multiagent profile available to execute prompt")
-                allowed = committed_model_names(repo) | committed_model_names(REPO_ROOT)
-                client = MockStructuredClient(allowed_models=allowed)
+                client = MockStructuredClient()
                 role = _prompt_target_role(artifact_ref)
                 metrics["executed_role"] = role
                 gated = _execute_llm_packets(
@@ -561,6 +550,8 @@ def evaluate_candidate(
                     qa_system_prompt=text if role == "research_qa_agent" else None,
                 )
                 metrics["executed"] = True
+                metrics["executed_roles"] = gated.get("executed_roles")
+                metrics["executed_role_count"] = gated.get("executed_role_count")
                 metrics["prompt_sha256"] = hashlib.sha256(text.encode("utf-8")).hexdigest()
             except (EvaluatorError, ModelUnavailableError, ValidationError, ValueError, json.JSONDecodeError) as exc:
                 fail = True

@@ -1,0 +1,108 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "live",
+  "job_id": "756bdecf-0271-4954-850b-8e3ac9122ffb",
+  "ok": true,
+  "multi_agent_run_id": "94b23811-8336-4616-b311-e009333fe6db",
+  "run_id": "51c62a7b-2ff9-4a82-ad4e-672434f952e2",
+  "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "9477ca76-ea0c-4f96-8df5-47e407232365",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "e51b73f1-0e87-4528-a22c-5f3ef7ad10ce",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "237d38de-0081-40eb-9856-ea2541c9658a",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "f8177269-7cbc-4b56-b050-9c8b8c920da5",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "467b02cc-4a92-45e7-b228-688fb9ff2bb3",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "e77fcd48-c2e2-4c2a-b62d-0aab5d1ffa1d",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "3624dc78-efbe-43e9-8669-fcb3a521c23a",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "9c2850d3-894b-4b2d-a035-0e2cf548b6b2",
+      "snapshot_id": "a1aae921-46c2-5f65-b7a4-3133f1a437ac"
+    }
+  ],
+  "final": {
+    "status": "WATCH",
+    "rationale_claim_refs": [
+      "claim:0",
+      "claim:1",
+      "claim:4"
+    ],
+    "bear_case_claim_refs": [
+      "claim:2",
+      "claim:3",
+      "claim:5"
+    ],
+    "risks_claim_refs": [
+      "claim:2",
+      "claim:3",
+      "claim:5"
+    ],
+    "invalidation_claim_refs": [],
+    "evidence_refs": [
+      "assessment:software",
+      "regime"
+    ],
+    "claim_refs": [
+      "claim:0",
+      "claim:1",
+      "claim:4",
+      "claim:2",
+      "claim:3",
+      "claim:5"
+    ],
+    "rationale": "Software / Platforms had the highest supplied overall score of the three assessed industries: 61.76, versus 56.16 for Semiconductors and 55.92 for Energy Equipment. Software / Platforms had the highest supplied demand score, at 81.32, versus 66.02 for Semiconductors and 61.32 for Energy Equipment. The packet's regime classification was expansion as of 2026-08-10.",
+    "bear_case": [
+      "Software / Platforms' capex, supply, margin, and bottleneck scores were 55.0, 50.0, 55.0, and 50.0, respectively; these do not indicate a broad differentiated advantage over the two assessed peers.",
+      "Software / Platforms' pricing score was 54.11, modestly below the 54.39 scores supplied for both Semiconductors and Energy Equipment.",
+      "The regime inputs were observed on different dates, including June 2026 inflation and industrial production, July 2026 labor and policy-rate readings, and an August 10, 2026 yield-curve reading; this limits interpretation of the classification as a single contemporaneous snapshot."
+    ],
+    "risks": [
+      "Software / Platforms' capex, supply, margin, and bottleneck scores were 55.0, 50.0, 55.0, and 50.0, respectively; these do not indicate a broad differentiated advantage over the two assessed peers.",
+      "Software / Platforms' pricing score was 54.11, modestly below the 54.39 scores supplied for both Semiconductors and Energy Equipment.",
+      "The regime inputs were observed on different dates, including June 2026 inflation and industrial production, July 2026 labor and policy-rate readings, and an August 10, 2026 yield-curve reading; this limits interpretation of the classification as a single contemporaneous snapshot."
+    ],
+    "invalidation_conditions": []
+  },
+  "judgment_id": "20380d75-aea5-470e-b7cd-65aa873e05e6",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

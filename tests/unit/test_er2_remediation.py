@@ -68,8 +68,8 @@ def test_final_selector_new_unsupported_number_fails():
         {
             "status": "WATCH",
             "rationale_claim_refs": ["claim:0"],
-            "bear_case_claim_refs": ["research_bear:0"],
-            "risks_claim_refs": ["research_bear:0"],
+            "bear_case_claim_refs": ["claim:0"],
+            "risks_claim_refs": ["claim:0"],
             "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["regime"],
         },

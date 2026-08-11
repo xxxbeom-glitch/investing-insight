@@ -143,7 +143,11 @@ def build_role_packet(
     if agent_role == "final_selector_agent":
         from app.agents.final_gate import approved_claim_catalog
 
-        catalog = approved_claim_catalog(prior.get("research_agent"), prior.get("adversarial_agent"))
+        catalog = approved_claim_catalog(
+            prior.get("research_agent"),
+            prior.get("adversarial_agent"),
+            allowed_evidence_ids=allowed,
+        )
         return {
             **base,
             "security_id": security_id,

@@ -79,6 +79,7 @@ def assert_candidate_hash_current(
     recorded: dict[str, Any],
     *,
     repo: Any = None,
+    action: str = "freeze",
 ) -> str:
     try:
         loaded = resolve_candidate_artifact(
@@ -91,7 +92,7 @@ def assert_candidate_hash_current(
         raise GovernanceError(f"cannot re-hash candidate: {exc}") from exc
     expected = _eval_content_hash(recorded)
     if loaded["content_hash"] != expected:
-        raise GovernanceError("artifact changed after evaluation; cannot freeze")
+        raise GovernanceError(f"artifact changed after evaluation; cannot {action}")
     return loaded["content_hash"]
 
 
@@ -182,6 +183,8 @@ def attach_eval_artifacts(
         assert_eval_bound_to_proposal(proposal, replay, label="replay")
         assert_eval_bound_to_proposal(proposal, holdout, label="holdout")
         assert_replay_holdout_same_candidate(replay, holdout)
+        assert_candidate_hash_current(proposal, replay, action="attach")
+        assert_candidate_hash_current(proposal, holdout, action="attach")
         cur.execute(
             """
             update change_proposals set
@@ -257,6 +260,8 @@ def approve_proposal(
         assert_eval_bound_to_proposal(proposal, replay, label="replay")
         assert_eval_bound_to_proposal(proposal, holdout, label="holdout")
         assert_replay_holdout_same_candidate(replay, holdout)
+        assert_candidate_hash_current(proposal, replay, action="approve")
+        assert_candidate_hash_current(proposal, holdout, action="approve")
 
         # Notes are optional annotations only — cannot substitute for PASS evals
         log = row[1] if isinstance(row[1], list) else json.loads(row[1] or "[]")
@@ -331,8 +336,8 @@ def freeze_proposal(conn: psycopg.Connection, proposal_id: str, *, by: str = "op
         assert_eval_bound_to_proposal(proposal, replay, label="replay")
         assert_eval_bound_to_proposal(proposal, holdout, label="holdout")
         assert_replay_holdout_same_candidate(replay, holdout)
-        assert_candidate_hash_current(proposal, replay)
-        assert_candidate_hash_current(proposal, holdout)
+        assert_candidate_hash_current(proposal, replay, action="freeze")
+        assert_candidate_hash_current(proposal, holdout, action="freeze")
         log = row[1] if isinstance(row[1], list) else json.loads(row[1] or "[]")
         log.append({"at": datetime.now(timezone.utc).isoformat(), "action": "freeze", "by": by})
         cur.execute(

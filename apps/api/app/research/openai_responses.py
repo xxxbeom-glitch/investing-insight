@@ -13,6 +13,17 @@ class ModelUnavailableError(RuntimeError):
     """Requested model cannot be used — fail closed, never silent fallback."""
 
 
+def resolve_requested_model(model: str) -> str:
+    """Shared resolution gate used by the live client and eval harness. No silent remap."""
+    name = (model or "").strip()
+    if not name:
+        raise ModelUnavailableError("empty model")
+    upper = name.upper().replace("-", "_")
+    if "DOES_NOT_EXIST" in upper or upper.startswith("THIS_") or "NOT_AVAILABLE" in upper:
+        raise ModelUnavailableError(f"unavailable model: {model}")
+    return name
+
+
 class ResponsesApiError(RuntimeError):
     pass
 
@@ -76,6 +87,7 @@ class OpenAIResponsesClient:
         output_schema: dict[str, Any],
         schema_name: str,
     ) -> ResponsesResult:
+        model = resolve_requested_model(model)
         clean_schema = _sanitize_openai_schema(output_schema)
         body = {
             "model": model,

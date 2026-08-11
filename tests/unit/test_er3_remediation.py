@@ -8,8 +8,8 @@ def test_fabricated_nonnumeric_claim_cannot_reach_pass():
         {
             "status": "SELECTED",
             "rationale_claim_refs": ["claim:0"],
-            "bear_case_claim_refs": ["research_bear:0"],
-            "risks_claim_refs": ["research_bear:0"],
+            "bear_case_claim_refs": ["claim:0"],
+            "risks_claim_refs": ["claim:0"],
             "invalidation_claim_refs": ["claim:0"],
             "rationale": "Microsoft lost a major cloud contract and is insolvent.",
             "bear_case": ["Microsoft is insolvent"],
@@ -38,11 +38,11 @@ def test_final_selector_grounded_claim_pass():
         {
             "status": "WATCH",
             "rationale_claim_refs": ["claim:0"],
-            "bear_case_claim_refs": ["research_bear:0"],
-            "risks_claim_refs": ["research_bear:0"],
+            "bear_case_claim_refs": ["claim:0"],
+            "risks_claim_refs": ["claim:0"],
             "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["regime"],
-            "claim_refs": ["claim:0", "research_bear:0"],
+            "claim_refs": ["claim:0"],
         },
         allowed_evidence_ids={"regime"},
         evidence_bundle={
@@ -63,8 +63,8 @@ def test_unknown_claim_ref_fails():
         {
             "status": "WATCH",
             "rationale_claim_refs": ["claim:999"],
-            "bear_case_claim_refs": ["research_bear:0"],
-            "risks_claim_refs": ["research_bear:0"],
+            "bear_case_claim_refs": ["claim:0"],
+            "risks_claim_refs": ["claim:0"],
             "invalidation_claim_refs": ["claim:0"],
             "evidence_refs": ["regime"],
             "claim_refs": ["claim:999"],
@@ -150,6 +150,7 @@ def test_valid_llm_profile_artifact_passes_replay_and_holdout():
     assert holdout["ok"] is True, holdout
     assert replay["metrics"]["artifact_content_hash"]
     assert replay["metrics"].get("executed") is True
+    assert replay["metrics"].get("executed_role_count") == 8
     assert replay["metrics"]["gates"]["results"][0]["requested_model"]
     assert "baseline_comparison" in replay["metrics"]
     assert replay["dataset_id"] != holdout["dataset_id"]

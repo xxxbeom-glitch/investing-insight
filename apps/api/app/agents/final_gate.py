@@ -10,38 +10,28 @@ from app.research.claim_check import find_unsupported_numeric_claims
 def approved_claim_catalog(
     research_output: dict[str, Any] | None,
     adversarial_output: dict[str, Any] | None = None,
+    *,
+    allowed_evidence_ids: list[str] | set[str] | None = None,
 ) -> list[dict[str, str]]:
-    """Immutable IDs for QA-approved research claims and adversarial findings."""
+    """Authoritative catalog: evidence-bound research.claims only.
+
+    synthesis / bear_case / adversarial free text are presentation-only and
+    cannot be cited into a persisted judgment.
+    """
+    del adversarial_output  # not admitted as factual catalog entries
     catalog: list[dict[str, str]] = []
     research = research_output or {}
+    allowed = set(allowed_evidence_ids) if allowed_evidence_ids is not None else None
     for i, item in enumerate(research.get("claims") or []):
         if not isinstance(item, dict):
             continue
         text = str(item.get("claim") or "").strip()
-        if not text:
+        eid = str(item.get("evidence_id") or "").strip()
+        if not text or not eid:
             continue
-        catalog.append(
-            {
-                "claim_id": f"claim:{i}",
-                "text": text,
-                "evidence_id": str(item.get("evidence_id") or ""),
-            }
-        )
-    for i, text in enumerate(research.get("bear_case") or []):
-        t = str(text).strip()
-        if t:
-            catalog.append({"claim_id": f"research_bear:{i}", "text": t, "evidence_id": ""})
-    synth = str(research.get("synthesis") or "").strip()
-    if synth:
-        catalog.append({"claim_id": "research:synthesis", "text": synth, "evidence_id": ""})
-    adv = adversarial_output or {}
-    ct = str(adv.get("counter_thesis") or "").strip()
-    if ct:
-        catalog.append({"claim_id": "adv:counter_thesis", "text": ct, "evidence_id": ""})
-    for i, text in enumerate(adv.get("broken_assumptions") or []):
-        t = str(text).strip()
-        if t:
-            catalog.append({"claim_id": f"adv:broken:{i}", "text": t, "evidence_id": ""})
+        if allowed is not None and eid not in allowed:
+            continue
+        catalog.append({"claim_id": f"claim:{i}", "text": text, "evidence_id": eid})
     return catalog
 
 
@@ -115,7 +105,11 @@ def evaluate_final_selector_gate(
         if ref not in allowed:
             reasons.append(f"unknown_ref:{ref}")
 
-    catalog = approved_claim_catalog(research_output, adversarial_output)
+    catalog = approved_claim_catalog(
+        research_output,
+        adversarial_output,
+        allowed_evidence_ids=allowed,
+    )
     by_id = {c["claim_id"]: c for c in catalog}
     r_ids = _id_list(output, "rationale_claim_refs")
     b_ids = _id_list(output, "bear_case_claim_refs")

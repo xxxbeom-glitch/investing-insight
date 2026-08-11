@@ -217,7 +217,11 @@ def run_multi_agent_pipeline(
         )
         snapshot_ids.add(final_result["snapshot_id"])
 
-        catalog = approved_claim_catalog(prior.get("research_agent"), prior.get("adversarial_agent"))
+        catalog = approved_claim_catalog(
+            prior.get("research_agent"),
+            prior.get("adversarial_agent"),
+            allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],
+        )
         final_status, final_reasons = evaluate_final_selector_gate(
             final_result["output"],
             allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],

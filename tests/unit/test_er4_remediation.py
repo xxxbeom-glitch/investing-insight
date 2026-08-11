@@ -25,11 +25,11 @@ _BUNDLE = {
 _IDS = {
     "status": "WATCH",
     "rationale_claim_refs": ["claim:0"],
-    "bear_case_claim_refs": ["research_bear:0"],
-    "risks_claim_refs": ["research_bear:0"],
+    "bear_case_claim_refs": ["claim:0"],
+    "risks_claim_refs": ["claim:0"],
     "invalidation_claim_refs": ["claim:0"],
     "evidence_refs": ["regime"],
-    "claim_refs": ["claim:0", "research_bear:0"],
+    "claim_refs": ["claim:0"],
 }
 
 
@@ -47,7 +47,7 @@ def test_ids_only_final_selector_pass_and_server_reconstructs_text():
     assert status == "PASS", reasons
     materialized = materialize_final_selector(_IDS, approved_claim_catalog(_RESEARCH))
     assert materialized["rationale"] == "regime is expansion"
-    assert materialized["bear_case"] == ["policy risk"]
+    assert materialized["bear_case"] == ["regime is expansion"]
 
 
 def test_negated_approved_claim_fails():
