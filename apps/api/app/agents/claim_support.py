@@ -75,12 +75,11 @@ _KIND_FACTUAL_FIELDS: dict[str, tuple[str, ...]] = {
 
 # Numbers first so 61.76 stays one token; then Unicode letters (any script).
 _TOKEN_RE = re.compile(r"[0-9]+(?:\.[0-9]+)?|[^\W\d_]+", re.UNICODE)
-_COPULA_RE = re.compile(
-    r"(?P<field>[^\W\d_]+(?:[_\s/-]+[^\W\d_]+)*)\s+(?:is|:)\s+(?P<neg>not\s+)?"
-    r"(?P<value>.+?)(?=\s+(?:and|,|;)\s+|\s+as\s+of\b|$)",
-    re.UNICODE | re.IGNORECASE,
-)
-_NUM_PAT = r"[0-9]+(?:\.[0-9]+)?"
+_CONN_RE = re.compile(r":|\bis\b", re.UNICODE | re.IGNORECASE)
+_TRAIL_NUM_RE = re.compile(r"([0-9]+(?:\.[0-9]+)?(?:-[0-9]+(?:\.[0-9]+)?)*)\s*$")
+_LEAD_NUM_RE = re.compile(r"^\s*([0-9]+(?:\.[0-9]+)?(?:-[0-9]+(?:\.[0-9]+)?)*)")
+_TRAIL_WORD_RE = re.compile(r"([^\W\d_]+)\s*$", re.UNICODE)
+_LEAD_WORD_RE = re.compile(r"^\s*([^\W\d_]+)", re.UNICODE)
 
 
 def claim_text_hash(text: str, evidence_id: str) -> str:
@@ -126,7 +125,7 @@ def _key_phrases(leaf: str) -> list[str]:
     spaced = raw.replace("_", " ").strip()
     out: list[str] = []
     for phrase in (raw, spaced):
-        if phrase and phrase not in out and phrase not in STOPWORDS:
+        if phrase and phrase not in out:
             out.append(phrase)
     return sorted(out, key=len, reverse=True)
 
@@ -173,60 +172,138 @@ def _payload_token_set(leaves: dict[str, Any]) -> set[str]:
     return toks
 
 
-def _resolve_field(name: str, leaves: dict[str, Any]) -> list[str]:
-    ntoks = _key_tokens(name)
-    if not ntoks:
-        return []
-    exact: list[str] = []
-    partial: list[str] = []
+def _contains_phrase(folded: str, phrase: str) -> bool:
+    if not phrase:
+        return False
+    if re.search(r"[0-9a-z]", phrase, re.I):
+        return re.search(rf"(?<![\w]){re.escape(phrase)}(?![\w])", folded) is not None
+    return phrase in folded
+
+
+def _field_mentioned(folded: str, path: str) -> bool:
+    return any(_contains_phrase(folded, phrase) for phrase in _key_phrases(_leaf_key(path)))
+
+
+def _side_matches_field(raw: str, path: str) -> bool:
+    folded = " ".join(str(raw or "").casefold().split())
+    if not folded:
+        return False
+    leaf = _leaf_key(path)
+    if folded in {p for p in _key_phrases(leaf)}:
+        return True
+    toks = content_tokens(raw)
+    ktoks = _key_tokens(leaf)
+    return bool(toks) and bool(ktoks) and toks == ktoks
+
+
+def _side_matches_value(raw: str, value: Any) -> bool:
+    toks = content_tokens(raw)
+    if toks and toks <= _value_tokens(value):
+        return True
+    nums = {_norm(x) for x in _NUM_RE.findall(str(raw or ""))}
+    return bool(nums) and nums <= _value_nums(value)
+
+
+def _same_leaf_relation(left: str, right: str, leaves: dict[str, Any]) -> bool:
+    """True if left/right are field and value of one leaf, either orientation."""
+    for path, value in leaves.items():
+        field_l = _side_matches_field(left, path)
+        field_r = _side_matches_field(right, path)
+        val_l = _side_matches_value(left, value)
+        val_r = _side_matches_value(right, value)
+        if field_l and val_r and not field_r:
+            return True
+        if field_r and val_l and not field_l:
+            return True
+    return False
+
+
+def _pair_is_grounding(left: str, right: str, leaves: dict[str, Any]) -> bool:
+    """Pair mentions at least one payload field or payload value."""
+    for path, value in leaves.items():
+        if _side_matches_field(left, path) or _side_matches_field(right, path):
+            return True
+        if _side_matches_value(left, value) or _side_matches_value(right, value):
+            return True
+    return False
+
+
+def _longest_field_suffix(prefix: str, leaves: dict[str, Any]) -> str:
+    stripped = prefix.rstrip()
+    folded = stripped.casefold()
+    best = ""
     for path in leaves:
-        ktoks = _key_tokens(_leaf_key(path))
-        if not ktoks:
-            continue
-        if ntoks == ktoks:
-            exact.append(path)
-        elif ntoks <= ktoks or ktoks <= ntoks:
-            partial.append(path)
-    return exact or partial
+        for phrase in _key_phrases(_leaf_key(path)):
+            if folded.endswith(phrase) and len(phrase) > len(best):
+                best = phrase
+    if not best:
+        return ""
+    return stripped[len(stripped) - len(best) :]
 
 
-def _copula_mismatches(text: str, leaves: dict[str, Any]) -> set[str]:
+def _longest_field_prefix(suffix: str, leaves: dict[str, Any]) -> str:
+    stripped = suffix.lstrip()
+    folded = stripped.casefold()
+    best = ""
+    for path in leaves:
+        for phrase in _key_phrases(_leaf_key(path)):
+            if folded.startswith(phrase) and len(phrase) > len(best):
+                best = phrase
+    if not best:
+        return ""
+    return stripped[: len(best)]
+
+
+def _entity_before(text: str, idx: int, leaves: dict[str, Any]) -> str:
+    prefix = text[:idx]
+    field = _longest_field_suffix(prefix, leaves)
+    if field:
+        return field
+    num = _TRAIL_NUM_RE.search(prefix)
+    if num:
+        return num.group(1)
+    word = _TRAIL_WORD_RE.search(prefix)
+    return word.group(1) if word else ""
+
+
+def _entity_after(text: str, idx: int, leaves: dict[str, Any]) -> str:
+    suffix = text[idx:]
+    field = _longest_field_prefix(suffix, leaves)
+    if field:
+        return field
+    num = _LEAD_NUM_RE.search(suffix)
+    if num:
+        return num.group(1)
+    word = _LEAD_WORD_RE.search(suffix)
+    return word.group(1) if word else ""
+
+
+def _relation_mismatches(text: str, leaves: dict[str, Any]) -> set[str]:
+    """Direction-free: claim field/value pairing must be a real payload leaf."""
     missing: set[str] = set()
-    for match in _COPULA_RE.finditer(text):
-        if match.group("neg"):
+    folded = str(text or "").casefold()
+    for match in _CONN_RE.finditer(text):
+        left = _entity_before(text, match.start(), leaves)
+        right = _entity_after(text, match.end(), leaves)
+        if not left or not right:
+            continue
+        if content_tokens(f"{left} {right}") & {"not"}:
             missing.add("negation")
             continue
-        field = str(match.group("field") or "").strip()
-        value = str(match.group("value") or "").strip()
-        vtoks = content_tokens(value)
-        paths = _resolve_field(field, leaves)
-        if not paths:
+        if not _pair_is_grounding(left, right, leaves):
             continue
-        if not vtoks:
-            missing.add(f"field_mismatch:{_leaf_key(paths[0])}")
-            continue
-        if not any(vtoks <= _value_tokens(leaves[path]) for path in paths):
-            missing.add(f"field_mismatch:{_leaf_key(paths[0])}")
-    return missing
+        if not _same_leaf_relation(left, right, leaves):
+            missing.add(f"field_mismatch:{left.casefold()}|{right.casefold()}")
 
-
-def _field_number_mismatches(text: str, leaves: dict[str, Any]) -> set[str]:
-    folded = str(text or "").casefold()
-    missing: set[str] = set()
-    for path, value in leaves.items():
-        leaf = _leaf_key(path)
-        if leaf.isdigit():
-            continue
-        field_nums = _value_nums(value)
-        for phrase in _key_phrases(leaf):
-            pat = re.compile(
-                rf"(?<![\w]){re.escape(phrase)}(?![\w])\s+(?:score\s+)?(?:of\s+|is\s+|:\s*)?({_NUM_PAT})",
-                re.UNICODE,
-            )
-            for hit in pat.finditer(folded):
-                num = _norm(hit.group(1))
-                if num not in field_nums:
-                    missing.add(f"field_mismatch:{leaf}")
+    mentioned = [path for path in leaves if _field_mentioned(folded, path)]
+    claim_nums = {_norm(x) for x in _NUM_RE.findall(text)}
+    if mentioned and claim_nums:
+        for num in claim_nums:
+            owners = [path for path, value in leaves.items() if num in _value_nums(value)]
+            if not owners:
+                continue
+            if not any(path in mentioned for path in owners):
+                missing.add(f"field_mismatch:{_leaf_key(mentioned[0])}")
     return missing
 
 
@@ -246,7 +323,7 @@ def claim_unsupported_tokens(
     evidence_id: str,
     evidence: list[Any] | None,
 ) -> set[str]:
-    """Claim tokens/numbers that are not field-true in the cited factual payload."""
+    """Unsupported unless leftover tokens exist in payload AND field/value relations match."""
     text = str(claim_text or "").strip()
     eid = str(evidence_id or "").strip()
     if not text or not eid:
@@ -267,8 +344,7 @@ def claim_unsupported_tokens(
         missing.add("no_content_tokens")
         return missing
     missing |= ctoks - _payload_token_set(leaves)
-    missing |= _copula_mismatches(text, leaves)
-    missing |= _field_number_mismatches(text, leaves)
+    missing |= _relation_mismatches(text, leaves)
     return missing
 
 
@@ -277,7 +353,7 @@ def claim_is_supported(
     evidence_id: str,
     evidence: list[Any] | None,
 ) -> bool:
-    """True only if claim tokens exist in payload and field/value pairings match."""
+    """True only if claim tokens exist in payload and field/value relations match."""
     return not claim_unsupported_tokens(claim_text, evidence_id, evidence)
 
 
