@@ -1,0 +1,90 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "live",
+  "job_id": "9a8c3213-fe79-405f-b66f-32e4fd36a8f3",
+  "ok": true,
+  "multi_agent_run_id": "7752a9b9-f5af-4cf0-807f-ddcb1fe100a7",
+  "run_id": "b5c96b0e-6599-4bba-85c2-4094e0d29a0e",
+  "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "97039e78-13dd-4b32-b5f0-73360231377e",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "d7805e6d-fc92-4f64-a15b-9889375e5fa8",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "a637d456-80bf-490b-8c3e-9f9b098b83eb",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "484d8478-9498-406e-9ee9-8f56400e29f4",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "27ccfada-b0cb-44db-9104-9e67c1286fe0",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "bf09e421-5461-457a-9548-d0d02752b28b",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "77e357f3-6959-4660-b627-e47335040fe2",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "be598ead-e113-4a4a-8f22-68bbed7660db",
+      "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671"
+    }
+  ],
+  "final": {
+    "status": "REJECT",
+    "rationale": "The packet supports only a dated sector and macro-context observation, not an MSFT-specific research conclusion. Software / Platforms ranked highest among the supplied industry assessments and demand was its strongest supplied dimension, while the macro model labeled conditions as expansion. However, there is no MSFT operating, financial, valuation, market, event, or forecast evidence with which to assess company-specific fundamentals or risks.",
+    "bear_case": [
+      "A favorable Software / Platforms assessment does not establish MSFT-specific demand, revenue, margins, competitive position, valuation, or future performance.",
+      "The expansion classification is model-derived, with no disclosed thresholds or historical context to evaluate durability or predictive usefulness.",
+      "The macro inputs are non-synchronous across June through August, limiting interpretation as a single contemporaneous observation.",
+      "The industry assessment is a dated snapshot without disclosed methodology, weighting, thresholds, trend history, or confidence measure."
+    ],
+    "risks": [
+      "Company-specific conclusions would rely on unsupported extrapolation from sector-level evidence.",
+      "No evidence addresses MSFT earnings, guidance, balance sheet, capital allocation, product execution, regulatory exposure, valuation, or market performance.",
+      "The shortlist-union record contains no company data and cannot fill the absence of MSFT-specific evidence."
+    ],
+    "invalidation_conditions": [
+      "Provide current MSFT-specific primary evidence covering operating performance, financial condition, guidance, material events, and valuation context.",
+      "Provide the industry-assessment methodology, historical series, and evidence that connects sector conditions to MSFT-specific outcomes.",
+      "Provide macro-model thresholds, historical validation, and synchronized inputs if the expansion classification is to be used as a material research premise."
+    ],
+    "evidence_refs": [
+      "assessment:software",
+      "regime",
+      "union"
+    ]
+  },
+  "judgment_id": "4e012869-26db-461a-b35e-d3d3dadefe2a",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

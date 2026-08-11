@@ -1,0 +1,60 @@
+{
+  "multi_agent_run": {
+    "multi_agent_run_id": "7752a9b9-f5af-4cf0-807f-ddcb1fe100a7",
+    "context_hash": "017b4b175c84c431bb7c769f0f8221825832cce1d6f23cb712bcee88341a0bca",
+    "status": "completed",
+    "union_id": "b3eda58e-077a-4330-acca-344ee335aad4",
+    "bottom_up_run_id": "799c55d1-af10-46d2-a5c3-846bc5664580",
+    "snapshot_id": "a0ca79e6-10ff-592e-a387-5a905a25c671",
+    "has_quant_records": true,
+    "quant_type": "array",
+    "quant_n": 0,
+    "has_snapshot_in_frozen": false,
+    "has_snapshot_content_hash": true,
+    "has_snapshot_id_in_frozen": true,
+    "has_quant_run_id": true,
+    "quant_run_id": "799c55d1-af10-46d2-a5c3-846bc5664580"
+  },
+  "gates": [
+    {
+      "gate_type": "research_qa",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "gate_type": "adversarial",
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "gate_type": "final_selector",
+      "status": "PASS",
+      "reasons": []
+    }
+  ],
+  "judgment": {
+    "judgment_id": "4e012869-26db-461a-b35e-d3d3dadefe2a",
+    "status": "REJECT",
+    "multi_agent_run_id": "7752a9b9-f5af-4cf0-807f-ddcb1fe100a7",
+    "source_agent_output_id": "be598ead-e113-4a4a-8f22-68bbed7660db"
+  },
+  "error_event": {
+    "error_id": "8eec5e69-1043-4ac6-ba09-cd0ea10f21ee",
+    "error_type": "data_error",
+    "severity": "P3",
+    "judgment_id": "4e012869-26db-461a-b35e-d3d3dadefe2a",
+    "run_id": "b5c96b0e-6599-4bba-85c2-4094e0d29a0e",
+    "summary": "ER2 linkage smoke for live multi-agent judgment"
+  },
+  "proposal": {
+    "proposal_id": "868df628-d28f-41ed-a992-8fe4511e5fb1",
+    "status": "frozen",
+    "replay_evaluation_id": "2ec8de6b-0599-4853-b54e-cc6a6e534c24",
+    "holdout_evaluation_id": "1338ae50-b745-4b81-8cd3-b44e11b2cb29",
+    "to_version": "v0.2-er2",
+    "replay_status": "PASS",
+    "holdout_status": "PASS"
+  },
+  "trigger_multi_agent_runs_freeze_context": 1,
+  "scheduler_enable_allowed": false
+}

@@ -1,7 +1,5 @@
-import pytest
-
 from app.agents.evidence import validate_research_evidence_ids
-from app.governance.proposals import GovernanceError, ARTIFACT_TYPES, _require_eval_pass
+from app.governance.proposals import ARTIFACT_TYPES, GovernanceError, _require_recorded_eval
 
 
 def test_artifact_types_include_profile_and_prompt():
@@ -10,18 +8,26 @@ def test_artifact_types_include_profile_and_prompt():
     assert "quant_rule" in ARTIFACT_TYPES
 
 
-def test_notes_alone_cannot_pass_governance():
-    with pytest.raises(GovernanceError, match="eval artifact required"):
-        _require_eval_pass("replay", None)
-    with pytest.raises(GovernanceError, match="must be PASS"):
-        _require_eval_pass("replay", {"status": "NOTES_ONLY", "dataset_id": "d1", "metrics": {}})
-    with pytest.raises(GovernanceError, match="dataset_id or snapshot_id"):
-        _require_eval_pass("holdout", {"status": "PASS", "metrics": {}})
-    # valid
-    _require_eval_pass(
-        "replay",
-        {"status": "PASS", "snapshot_id": "s1", "metrics": {"n": 1}},
-    )
+def test_notes_and_hand_json_cannot_pass_governance():
+    class _Conn:
+        pass
+
+    try:
+        _require_recorded_eval(_Conn(), "replay", "replay", None, None)
+        assert False
+    except GovernanceError as exc:
+        assert "evaluation_id" in str(exc)
+    try:
+        _require_recorded_eval(
+            _Conn(),
+            "replay",
+            "replay",
+            None,
+            {"status": "PASS", "dataset_id": "d1", "metrics": {"n": 1}},
+        )
+        assert False
+    except GovernanceError as exc:
+        assert "evaluation_id" in str(exc)
 
 
 def test_unknown_evidence_ids_fail_deterministic_qa():

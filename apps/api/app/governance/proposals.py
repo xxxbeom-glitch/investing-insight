@@ -9,6 +9,8 @@ from typing import Any
 
 import psycopg
 
+from app.governance.evaluator import EvaluatorError, load_recorded_evaluation
+
 ARTIFACT_TYPES = {"score_rule", "prompt", "model", "llm_profile", "quant_rule", "other"}
 STATUSES = {"draft", "proposed", "approved", "rejected", "frozen"}
 PASS_STATUSES = {"PASS", "pass", "passed", "PASSED"}
@@ -18,16 +20,28 @@ class GovernanceError(RuntimeError):
     pass
 
 
-def _require_eval_pass(label: str, eval_obj: dict[str, Any] | None) -> None:
-    if not isinstance(eval_obj, dict):
-        raise GovernanceError(f"{label} eval artifact required (dict)")
-    status = str(eval_obj.get("status") or "")
-    if status not in PASS_STATUSES:
-        raise GovernanceError(f"{label} status must be PASS, got {status!r}")
-    if not eval_obj.get("dataset_id") and not eval_obj.get("snapshot_id") and not eval_obj.get("run_id"):
-        raise GovernanceError(f"{label} must include dataset_id or snapshot_id or run_id")
-    if "metrics" not in eval_obj:
-        raise GovernanceError(f"{label} must include metrics object")
+def _require_recorded_eval(
+    conn: psycopg.Connection,
+    label: str,
+    eval_kind: str,
+    evaluation_id: str | None,
+    eval_obj: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Trust only DB-recorded evaluator runs — hand-authored PASS JSON is rejected."""
+    eid = evaluation_id or (eval_obj or {}).get("evaluation_id")
+    if not eid:
+        raise GovernanceError(f"{label} must reference a recorded evaluation_id (evaluator run required)")
+    try:
+        recorded = load_recorded_evaluation(conn, str(eid))
+    except EvaluatorError as exc:
+        raise GovernanceError(str(exc)) from exc
+    if recorded["eval_kind"] != eval_kind:
+        raise GovernanceError(f"{label} eval_kind must be {eval_kind}, got {recorded['eval_kind']}")
+    if recorded["status"] not in PASS_STATUSES:
+        raise GovernanceError(f"{label} recorded status must be PASS, got {recorded['status']!r}")
+    if eval_obj and eval_obj.get("output_hash") and eval_obj["output_hash"] != recorded["output_hash"]:
+        raise GovernanceError(f"{label} output_hash does not match recorded evaluation")
+    return recorded
 
 
 def create_proposal(
@@ -66,12 +80,12 @@ def attach_eval_artifacts(
     conn: psycopg.Connection,
     proposal_id: str,
     *,
-    replay_eval: dict[str, Any],
-    holdout_eval: dict[str, Any],
+    replay_evaluation_id: str,
+    holdout_evaluation_id: str,
 ) -> dict[str, Any]:
-    """Persist machine-verifiable replay/holdout results before approve."""
-    _require_eval_pass("replay", replay_eval)
-    _require_eval_pass("holdout", holdout_eval)
+    """Attach DB-recorded evaluator runs (not hand-authored PASS JSON)."""
+    replay = _require_recorded_eval(conn, "replay", "replay", replay_evaluation_id)
+    holdout = _require_recorded_eval(conn, "holdout", "holdout", holdout_evaluation_id)
     with conn.cursor() as cur:
         cur.execute(
             "select status from change_proposals where proposal_id=%s::uuid",
@@ -89,22 +103,28 @@ def attach_eval_artifacts(
               holdout_eval=%s::jsonb,
               replay_status=%s,
               holdout_status=%s,
+              replay_evaluation_id=%s::uuid,
+              holdout_evaluation_id=%s::uuid,
               updated_at=now()
             where proposal_id=%s::uuid
             """,
             (
-                json.dumps(replay_eval),
-                json.dumps(holdout_eval),
-                str(replay_eval.get("status")),
-                str(holdout_eval.get("status")),
+                json.dumps(replay),
+                json.dumps(holdout),
+                replay["status"],
+                holdout["status"],
+                replay["evaluation_id"],
+                holdout["evaluation_id"],
                 proposal_id,
             ),
         )
     conn.commit()
     return {
         "proposal_id": proposal_id,
-        "replay_status": replay_eval.get("status"),
-        "holdout_status": holdout_eval.get("status"),
+        "replay_status": replay["status"],
+        "holdout_status": holdout["status"],
+        "replay_evaluation_id": replay["evaluation_id"],
+        "holdout_evaluation_id": holdout["evaluation_id"],
     }
 
 
@@ -115,14 +135,17 @@ def approve_proposal(
     replay_notes: str = "",
     holdout_notes: str = "",
     approver: str = "operator",
+    replay_evaluation_id: str | None = None,
+    holdout_evaluation_id: str | None = None,
     replay_eval: dict[str, Any] | None = None,
     holdout_eval: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Approve only when replay+holdout evals are PASS (notes alone insufficient)."""
+    """Approve only when recorded evaluator PASS runs exist (notes/JSON alone insufficient)."""
     with conn.cursor() as cur:
         cur.execute(
             """
-            select status, approval_log, replay_eval, holdout_eval, replay_status, holdout_status
+            select status, approval_log, replay_eval, holdout_eval, replay_status, holdout_status,
+                   replay_evaluation_id::text, holdout_evaluation_id::text
             from change_proposals where proposal_id=%s::uuid
             """,
             (proposal_id,),
@@ -133,12 +156,12 @@ def approve_proposal(
         if row[0] != "proposed":
             raise GovernanceError(f"cannot approve from status={row[0]}")
 
-        stored_replay = row[2] if isinstance(row[2], dict) else (json.loads(row[2]) if row[2] else None)
-        stored_holdout = row[3] if isinstance(row[3], dict) else (json.loads(row[3]) if row[3] else None)
-        replay = replay_eval or stored_replay
-        holdout = holdout_eval or stored_holdout
-        _require_eval_pass("replay", replay)
-        _require_eval_pass("holdout", holdout)
+        replay = _require_recorded_eval(
+            conn, "replay", "replay", replay_evaluation_id or row[6], replay_eval
+        )
+        holdout = _require_recorded_eval(
+            conn, "holdout", "holdout", holdout_evaluation_id or row[7], holdout_eval
+        )
 
         # Notes are optional annotations only — cannot substitute for PASS evals
         log = row[1] if isinstance(row[1], list) else json.loads(row[1] or "[]")
@@ -163,6 +186,8 @@ def approve_proposal(
               holdout_eval=%s::jsonb,
               replay_status=%s,
               holdout_status=%s,
+              replay_evaluation_id=%s::uuid,
+              holdout_evaluation_id=%s::uuid,
               approval_log=%s::jsonb,
               updated_at=now()
             where proposal_id=%s::uuid
@@ -174,6 +199,8 @@ def approve_proposal(
                 json.dumps(holdout),
                 str(replay.get("status")),
                 str(holdout.get("status")),
+                replay["evaluation_id"],
+                holdout["evaluation_id"],
                 json.dumps(log),
                 proposal_id,
             ),

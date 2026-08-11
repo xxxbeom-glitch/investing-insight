@@ -1,0 +1,15 @@
+{
+  "proposal_id": "868df628-d28f-41ed-a992-8fe4511e5fb1",
+  "approve": {
+    "proposal_id": "868df628-d28f-41ed-a992-8fe4511e5fb1",
+    "status": "approved"
+  },
+  "freeze": {
+    "proposal_id": "868df628-d28f-41ed-a992-8fe4511e5fb1",
+    "status": "frozen",
+    "frozen_version": "v0.2-er2"
+  },
+  "replay_evaluation_id": "2ec8de6b-0599-4853-b54e-cc6a6e534c24",
+  "holdout_evaluation_id": "1338ae50-b745-4b81-8cd3-b44e11b2cb29",
+  "scheduler_enable_allowed": false
+}

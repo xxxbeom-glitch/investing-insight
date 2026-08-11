@@ -1,0 +1,50 @@
+{
+  "evaluation_id": "2ec8de6b-0599-4853-b54e-cc6a6e534c24",
+  "eval_kind": "replay",
+  "evaluator_version": "governance-eval-v0.1",
+  "artifact_type": "llm_profile",
+  "artifact_ref": "llm_profiles",
+  "candidate_version": "v0.2-er2",
+  "dataset_id": "macro-latest-replay",
+  "dataset_hash": "be643e7d7bb190c7d39cd72eed0c21832b79df74354113b900e95c444c22ae70",
+  "sample_count": 3,
+  "metrics": {
+    "deltas": [
+      {
+        "industry_id": "semis",
+        "replay_overall": 56.16,
+        "stored_overall": 56.16,
+        "abs_delta": 0.0
+      },
+      {
+        "industry_id": "software",
+        "replay_overall": 61.76,
+        "stored_overall": 61.76,
+        "abs_delta": 0.0
+      },
+      {
+        "industry_id": "energy_equip",
+        "replay_overall": 55.92,
+        "stored_overall": 55.92,
+        "abs_delta": 0.0
+      }
+    ],
+    "regime": "expansion"
+  },
+  "baseline": {
+    "stored_overall": {
+      "energy_equip": 55.92,
+      "semis": 56.16,
+      "software": 61.76
+    }
+  },
+  "thresholds": {
+    "score_min": 0.0,
+    "score_max": 100.0,
+    "replay_overall_abs_delta_max": 1.0,
+    "holdout_min_sample": 1
+  },
+  "status": "PASS",
+  "generated_at": "2026-08-11T03:00:37.287949+00:00",
+  "output_hash": "6c943443649b3491f817ba1aa5cfba82488e5ac487860960f15220e17120eb54"
+}

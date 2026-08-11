@@ -2,20 +2,24 @@
 
 ## Current Task
 
-- Task ID: L00
-- Status: BLOCKED (credentials)
+- Task ID: ER2 external re-review remediation
+- Status: STOP — awaiting external re-review
+- Report: `EXTERNAL_REREVIEW_POST_MVP_e0f4672.md`
 
 ## Completed
 
-- L00 PLAN + FastAPI/Next foundation + tests/scripts
-- Most AC PASS; DB connection/migrate blocked
+- ER2-P0-01 frozen_context immutability + hash verify
+- ER2-P1-01 Quant frozen-run binding
+- ER2-P1-02 Final Selector deterministic gate
+- ER2-P1-03 recorded replay/holdout evaluator
+- M03→M06 re-verify; full pytest 84 PASS; secret_scan PASS; web build PASS
 
-## Open Blockers
+## Constraints (unchanged)
 
-- Real `SUPABASE_URL` + keys (not `xxxxx.supabase.co`)
-- `SUPABASE_DB_URL` for SQL migrations
+- Production cron DISABLED
+- Long-Term Optional NOT STARTED
+- No Post-MVP PASS tag
 
 ## Next Action
 
-1. User: fix `.env.local` Supabase values
-2. Agent: re-run `/health/db` + `migrate.py` → L00 PASS → L01
+External re-review on clean commit bundle. Do not start next milestone.

@@ -1,0 +1,82 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "mock",
+  "job_id": "45869abe-913b-4722-939e-fc045bf9f09b",
+  "ok": true,
+  "multi_agent_run_id": "ae7edeb6-26b2-45d3-8527-52be11e8aa95",
+  "run_id": "655e19f1-1fa8-4c2a-9275-62f769cb9919",
+  "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "ce0f325c-c123-4d12-9c39-f5539d7eff65",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "24e9bbdf-c88a-4d09-bde9-9cf63c0bbce7",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "44eaec4e-fb9c-425d-a4e5-4c9c121f790c",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "df8f9a0a-02f0-4f5c-ae75-69b2a2be9be7",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "f38b80dc-ecc3-4646-8174-faaeb4855d11",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "947c5f0b-39f0-421c-b79c-405684f580a8",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "7e3a510e-f978-469e-b8bb-46b184746407",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "0514c9f7-bac2-45a0-b884-c9ee517c591b",
+      "snapshot_id": "6e4b42bd-e4f9-5d64-bac2-f9f5ede00153"
+    }
+  ],
+  "final": {
+    "status": "WATCH",
+    "rationale": "gates passed; tracking only",
+    "bear_case": [
+      "competition"
+    ],
+    "risks": [
+      "valuation"
+    ],
+    "invalidation_conditions": [
+      "QA regresses"
+    ],
+    "evidence_refs": [
+      "assessment:energy_equip",
+      "assessment:semis"
+    ]
+  },
+  "judgment_id": "77e3436f-2e90-4799-93f4-369bc6281eb2",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

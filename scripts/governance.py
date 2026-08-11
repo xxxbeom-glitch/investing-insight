@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""M06 governance CLI — replay/holdout PASS artifacts required before approve."""
+"""M06 governance CLI — recorded evaluator PASS required before approve."""
 
 from __future__ import annotations
 
@@ -28,10 +28,6 @@ from app.governance.proposals import (  # noqa: E402
 from app.settings import get_settings  # noqa: E402
 
 
-def _load_json(path: str) -> dict:
-    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
-
-
 def main() -> int:
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -45,14 +41,14 @@ def main() -> int:
     s.add_argument("--id", required=True)
     e = sub.add_parser("attach-evals")
     e.add_argument("--id", required=True)
-    e.add_argument("--replay-eval", required=True, help="JSON file with status=PASS + ids + metrics")
-    e.add_argument("--holdout-eval", required=True)
+    e.add_argument("--replay-evaluation-id", required=True)
+    e.add_argument("--holdout-evaluation-id", required=True)
     a = sub.add_parser("approve")
     a.add_argument("--id", required=True)
     a.add_argument("--replay-notes", default="")
     a.add_argument("--holdout-notes", default="")
-    a.add_argument("--replay-eval", default="", help="optional JSON file override")
-    a.add_argument("--holdout-eval", default="")
+    a.add_argument("--replay-evaluation-id", default="")
+    a.add_argument("--holdout-evaluation-id", default="")
     f = sub.add_parser("freeze")
     f.add_argument("--id", required=True)
     args = p.parse_args()
@@ -80,8 +76,8 @@ def main() -> int:
                 out = attach_eval_artifacts(
                     conn,
                     args.id,
-                    replay_eval=_load_json(args.replay_eval),
-                    holdout_eval=_load_json(args.holdout_eval),
+                    replay_evaluation_id=args.replay_evaluation_id,
+                    holdout_evaluation_id=args.holdout_evaluation_id,
                 )
             elif args.cmd == "approve":
                 out = approve_proposal(
@@ -89,12 +85,12 @@ def main() -> int:
                     args.id,
                     replay_notes=args.replay_notes,
                     holdout_notes=args.holdout_notes,
-                    replay_eval=_load_json(args.replay_eval) if args.replay_eval else None,
-                    holdout_eval=_load_json(args.holdout_eval) if args.holdout_eval else None,
+                    replay_evaluation_id=args.replay_evaluation_id or None,
+                    holdout_evaluation_id=args.holdout_evaluation_id or None,
                 )
             else:
                 out = freeze_proposal(conn, args.id)
-        print(json.dumps({"ok": True, **out, "scheduler_enable_allowed": False}, indent=2))
+        print(json.dumps({"ok": True, **out, "scheduler_enable_allowed": False}, indent=2, default=str))
         return 0
     except GovernanceError as exc:
         print(json.dumps({"ok": False, "error_code": "GovernanceError", "error": str(exc)}))

@@ -5,8 +5,9 @@ from typing import Any
 
 import psycopg
 
-from app.agents.binding import bind_multi_agent_run
+from app.agents.binding import bind_multi_agent_run, verify_frozen_context
 from app.agents.evidence import load_evidence_bundle
+from app.agents.final_gate import evaluate_final_selector_gate
 from app.agents.judgment_project import project_final_selector_to_judgment
 from app.agents.profiles import load_multiagent_profiles
 from app.agents.runner import (
@@ -48,7 +49,7 @@ def run_multi_agent_pipeline(
     multi_id = binding["multi_agent_run_id"]
     run_id = binding["run_id"]
     snapshot_id = binding["snapshot_id"]
-    frozen = binding["frozen_context"]
+    frozen = verify_frozen_context(conn, multi_id)
     security_id = binding["security_ids"][0]
 
     ticker = None
@@ -211,6 +212,22 @@ def run_multi_agent_pipeline(
             }
         )
         snapshot_ids.add(final_result["snapshot_id"])
+
+        final_status, final_reasons = evaluate_final_selector_gate(
+            final_result["output"],
+            allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],
+            evidence_bundle=evidence_bundle,
+        )
+        record_gate(
+            conn,
+            multi_agent_run_id=multi_id,
+            gate_type="final_selector",
+            status=final_status,
+            reasons=final_reasons,
+            source_output_id=final_result["output_id"],
+        )
+        if final_status == "FAIL":
+            raise GateBlockedError(f"final_selector gate FAIL: {final_reasons}")
 
         judgment = project_final_selector_to_judgment(
             conn,

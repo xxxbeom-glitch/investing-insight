@@ -8,6 +8,63 @@ from typing import Any
 import psycopg
 
 
+def pick_quant_record(
+    records: list[dict[str, Any]],
+    *,
+    security_id: str,
+    frozen_run_id: str | None,
+) -> dict[str, Any] | None:
+    """Select Quant only from the frozen run. UUID/creation order must not matter."""
+    if not frozen_run_id:
+        return None
+    matches = [
+        r
+        for r in records
+        if str(r.get("security_id")) == str(security_id) and str(r.get("run_id")) == str(frozen_run_id)
+    ]
+    return matches[0] if matches else None
+
+
+def load_quant_for_frozen_run(
+    conn: psycopg.Connection,
+    *,
+    security_id: str,
+    frozen_run_id: str | None,
+) -> dict[str, Any] | None:
+    """Exact (run_id, security_id) Quant. Absent if the frozen run has no row — never borrow."""
+    if not frozen_run_id:
+        return None
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select q.run_id::text, q.security_id::text, s.ticker,
+                   q.total_score, q.growth_score, q.quality_score, q.valuation_score,
+                   q.momentum_score, q.rank_market, q.rule_version, q.input_hash
+            from quant_scores q
+            join securities s on s.security_id = q.security_id
+            where q.security_id=%s::uuid and q.run_id=%s::uuid
+            """,
+            (security_id, frozen_run_id),
+        )
+        q = cur.fetchone()
+    if not q:
+        return None
+    return {
+        "run_id": q[0],
+        "security_id": q[1],
+        "ticker": q[2],
+        "total_score": float(q[3]) if q[3] is not None else None,
+        "growth_score": float(q[4]) if q[4] is not None else None,
+        "quality_score": float(q[5]) if q[5] is not None else None,
+        "valuation_score": float(q[6]) if q[6] is not None else None,
+        "momentum_score": float(q[7]) if q[7] is not None else None,
+        "rank_market": q[8],
+        "rule_version": q[9],
+        "input_hash": q[10],
+        "evidence_id": "quant",
+    }
+
+
 def load_evidence_bundle(
     conn: psycopg.Connection,
     *,
@@ -117,32 +174,20 @@ def load_evidence_bundle(
                     filings.append({**item, "evidence_id": feid, "kind": "filing_or_fact"})
                     evidence.append({"evidence_id": feid, "kind": "filing_or_fact", "payload": pl})
 
-        # Quant score if present for run
-        cur.execute(
-            """
-            select total_score, growth_score, quality_score, valuation_score, momentum_score, rank_market
-            from quant_scores
-            where security_id=%s::uuid
-            order by run_id desc
-            limit 1
-            """,
-            (security_id,),
-        )
-        q = cur.fetchone()
-        quant = None
-        if q:
-            eid = "quant"
-            allowed.add(eid)
-            quant = {
-                "total_score": float(q[0]) if q[0] is not None else None,
-                "growth_score": float(q[1]) if q[1] is not None else None,
-                "quality_score": float(q[2]) if q[2] is not None else None,
-                "valuation_score": float(q[3]) if q[3] is not None else None,
-                "momentum_score": float(q[4]) if q[4] is not None else None,
-                "rank_market": q[5],
-                "evidence_id": eid,
-            }
-            evidence.append({"evidence_id": eid, "kind": "quant_score", "payload": quant})
+    frozen_run_id = frozen_context.get("quant_run_id") or (frozen_context.get("bottom_up") or {}).get(
+        "run_id"
+    ) or (frozen_context.get("union") or {}).get("bottom_up_run_id")
+    quant = pick_quant_record(
+        list(frozen_context.get("quant_records") or []),
+        security_id=security_id,
+        frozen_run_id=frozen_run_id,
+    )
+    if quant is None:
+        quant = load_quant_for_frozen_run(conn, security_id=security_id, frozen_run_id=frozen_run_id)
+    if quant:
+        eid = "quant"
+        allowed.add(eid)
+        evidence.append({"evidence_id": eid, "kind": "quant_score", "payload": quant})
 
     return {
         "security_id": security_id,

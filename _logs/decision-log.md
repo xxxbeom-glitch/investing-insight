@@ -16,7 +16,18 @@
 | 설계 SoT | `investing-insight-spec-v1.6/` | |
 | 코드 경로 | `apps/*` · `src/` · `config/` | |
 | Cursor 하네스 | Layer audit + 불변식 · **자동 commit/push** | |
-| 현재 Layer | L00 전 | |
+| 현재 Layer | Post-MVP ER2 remediation STOP (re-review) | |
+
+---
+
+## 2026-08-11 — ER2 remediation STOP
+
+| # | 결정 |
+|---|------|
+| 1 | Scope: ER2-P0-01, ER2-P1-01…03 only |
+| 2 | Production cron remains DISABLED |
+| 3 | Long-Term Optional remains NOT STARTED |
+| 4 | No Post-MVP PASS tag |
 
 ---
 

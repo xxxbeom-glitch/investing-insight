@@ -105,6 +105,53 @@ def _load_frozen_context(conn: psycopg.Connection) -> dict[str, Any]:
     return ctx
 
 
+class FrozenContextError(RuntimeError):
+    pass
+
+
+def verify_frozen_context(conn: psycopg.Connection, multi_agent_run_id: str) -> dict[str, Any]:
+    """Reload frozen_context from DB and fail-closed if hash diverges (ER2-P0-01)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select frozen_context, context_hash, snapshot_id::text, run_id::text
+            from multi_agent_runs
+            where multi_agent_run_id=%s::uuid
+            """,
+            (multi_agent_run_id,),
+        )
+        row = cur.fetchone()
+    if not row:
+        raise FrozenContextError(f"multi_agent_run not found: {multi_agent_run_id}")
+    frozen = row[0] if isinstance(row[0], dict) else json.loads(row[0] or "{}")
+    stored = row[1]
+    recomputed = context_hash(frozen)
+    if not stored or stored != recomputed:
+        raise FrozenContextError("context_hash mismatch — frozen_context tampered or stale")
+    return frozen
+
+
+def attach_quant_records(
+    conn: psycopg.Connection,
+    frozen: dict[str, Any],
+    security_ids: list[str],
+) -> dict[str, Any]:
+    """Bind Quant to frozen bottom_up_run_id only — never borrow another run (ER2-P1-01)."""
+    from app.agents.evidence import load_quant_for_frozen_run
+
+    run_id = (frozen.get("bottom_up") or {}).get("run_id") or (frozen.get("union") or {}).get(
+        "bottom_up_run_id"
+    )
+    records = []
+    for sid in security_ids:
+        rec = load_quant_for_frozen_run(conn, security_id=sid, frozen_run_id=run_id)
+        if rec:
+            records.append(rec)
+    frozen["quant_records"] = records
+    frozen["quant_run_id"] = run_id
+    return frozen
+
+
 def bind_multi_agent_run(
     conn: psycopg.Connection,
     *,
@@ -147,6 +194,9 @@ def bind_multi_agent_run(
         llm_profile_version=llm_profile_version,
         security_ids=security_ids,
     )
+    frozen["snapshot_content_hash"] = snap["content_hash"]
+    frozen["snapshot_id"] = snap["snapshot_id"]
+    attach_quant_records(conn, frozen, security_ids)
 
     ctx_hash = context_hash(frozen)
     multi_id = str(uuid.uuid4())
