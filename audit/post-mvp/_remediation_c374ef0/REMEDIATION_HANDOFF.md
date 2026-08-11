@@ -1,6 +1,7 @@
 # REMEDIATION HANDOFF — External Review NO-GO c374ef0
 
 - status: remediation complete (await re-review)
+- remediation_commit: `e1f61c4` (`e1f61c4dc1ac5145eccf2c2d1b5e1a827fcda456`)
 - baseline_review: `EXTERNAL_REVIEW_POST_MVP_c374ef0.md`
 - branch: `post-mvp/phase-1`
 - production cron: **DISABLED**
