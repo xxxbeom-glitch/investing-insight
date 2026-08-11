@@ -171,6 +171,14 @@ def test_web_build_uses_resolvable_npm():
     assert shutil.which(cmd[0]) or Path(cmd[0]).is_file()
 
 
+def test_web_build_env_forces_production(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("NODE_ENV", "development")
+    env = pre_rereview._step_env("web_build")
+    assert env["NODE_ENV"] == "production"
+    other = pre_rereview._step_env("pytest")
+    assert other["NODE_ENV"] == "development"
+
+
 def test_self_remediate_pass_resets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(self_remediate, "STATE_PATH", tmp_path / "loop_state.json")
 

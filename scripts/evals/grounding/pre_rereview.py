@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -59,6 +60,15 @@ def _clean_web_next() -> None:
         shutil.rmtree(nxt, ignore_errors=True)
 
 
+def _step_env(name: str) -> dict[str, str]:
+    env = os.environ.copy()
+    if name == "web_build":
+        # Root .env.local sets NODE_ENV=development; next build then uses
+        # app-page.runtime.dev.js and static workers crash.
+        env["NODE_ENV"] = "production"
+    return env
+
+
 def run_step(name: str, cmd: list[str], cwd: Path) -> dict[str, Any]:
     if name == "web_build":
         _clean_web_next()
@@ -66,6 +76,7 @@ def run_step(name: str, cmd: list[str], cwd: Path) -> dict[str, Any]:
         proc = subprocess.run(
             cmd,
             cwd=cwd,
+            env=_step_env(name),
             capture_output=True,
             text=True,
             encoding="utf-8",
