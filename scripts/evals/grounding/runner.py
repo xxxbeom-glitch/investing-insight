@@ -59,12 +59,35 @@ def load_evidence() -> dict[str, dict[str, Any]]:
 def load_seed(evidence: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     rows = json.loads(SEED_PATH.read_text(encoding="utf-8"))
     resolved: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
     for row in rows:
         ref = str(row.get("evidence_ref") or "")
         item = evidence.get(ref)
         if item is None:
             raise ValueError(f"seed {row.get('id')}: unknown evidence_ref {ref}")
         resolved.append({**row, "evidence_item": item})
+        seen.add(compare.claim_key(str(row.get("claim") or ""), str(row.get("evidence_id") or "")))
+    for ref, item in evidence.items():
+        payload = factual_payload(item)
+        if not payload:
+            continue
+        for i, atk in enumerate(redteam.structural_attacks(item=item, payload=payload)):
+            key = compare.claim_key(str(atk.get("claim") or ""), str(atk.get("evidence_id") or ""))
+            if not key[0] or not key[1] or key in seen:
+                continue
+            seen.add(key)
+            resolved.append(
+                {
+                    "id": f"struct-{ref}-{i}",
+                    "claim": atk["claim"],
+                    "evidence_id": atk["evidence_id"],
+                    "evidence_ref": ref,
+                    "expected_gate": "UNSUPPORTED",
+                    "attack_class": atk.get("attack_class"),
+                    "source": "redteam.structural_attacks",
+                    "evidence_item": item,
+                }
+            )
     return resolved
 
 

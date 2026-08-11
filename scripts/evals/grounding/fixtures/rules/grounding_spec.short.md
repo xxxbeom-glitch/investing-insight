@@ -11,6 +11,7 @@ UNSUPPORTED if any of these hold:
 - year used as a full date, or a number used for a different field
 - negation or novel paraphrase that adds words not in the payload
 - unsupported operator/relation: anything other than equality (`!=`, `≠`, `<`, `>`, `<=`, `>=`, and other comparison symbols)
+- value copula value: two payload values joined by is/was/were/are/: with no field as the subject
 
 Copula words (is/was/were/are) and ":" are equality scaffolding, not comparison operators.
 Comparison/inequality symbols are not scaffolding; they make the claim UNSUPPORTED.

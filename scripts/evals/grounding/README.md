@@ -13,7 +13,7 @@ GO/NO-GO, tag, cron을 바꾸지 않는다. FAIL이면 exit 1 + report만.
 .\apps\api\.venv\Scripts\python.exe scripts\evals\grounding\runner.py --llm
 ```
 
-External re-review bundle **직전** 루프:
+자체 QA 루프 (외부 rereview 대체). bundle을 기본으로 만들지 않는다.
 
 ```powershell
 .\apps\api\.venv\Scripts\python.exe scripts\evals\grounding\self_remediate.py
@@ -23,7 +23,8 @@ External re-review bundle **직전** 루프:
 - max 3 attempts (`config/evals/grounding.yaml` `loop.max_attempts`)
 - 같은 FP fingerprint 반복 → exit 2, 사람 보고
 - FP 시 읽을 파일: `scripts/evals/grounding/out/report.json`
-- exit 0 전에 M03~M06 / bundle 금지. GO/tag/cron 변경 금지.
+- structural attacks는 페이로드 leaf에서 매번 생성 (`!=`/`≠`/`<>`/`<=`/`>=`, value copula value, control/Cf, cross-field). LLM 운에 맡기지 않는다.
+- exit 0 = 자체 QA 통과. M03~M06 / bundle은 사용자 명시 전 금지. GO/tag/cron 변경 금지.
 
 Reports: `scripts/evals/grounding/out/` (gitignore `out/`). 키·raw reasoning 없음.
 

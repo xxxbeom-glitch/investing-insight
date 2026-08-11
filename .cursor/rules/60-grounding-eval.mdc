@@ -9,7 +9,10 @@ P1-01 / `claim_support` / rereview candidate 작업에만 적용. 다른 작업�
 
 ## 순서
 
-코드 수정 → `scripts/evals/grounding/self_remediate.py` → (exit 0만) M03~M06 → 사람 요청 시에만 bundle → STOP
+코드 수정 → `scripts/evals/grounding/self_remediate.py` → FP면 `claim_support.py`만 고치고 재실행.
+
+외부 rereview bundle을 기본 경로로 두지 않는다. 자체 QA가 게이트다.
+M03~M06 / bundle은 **사용자가 명시한 경우에만**. 통과 후 외부 리뷰를 기다리지 말고 멈추지 말 것 — 루프는 FP/exit 2에서만 멈춘다.
 
 ```powershell
 .\apps\api\.venv\Scripts\python.exe scripts\evals\grounding\self_remediate.py
@@ -21,7 +24,7 @@ P1-01 / `claim_support` / rereview candidate 작업에만 적용. 다른 작업�
 
 | code | 의미 | Cursor |
 |------|------|--------|
-| 0 | FP=0, steps PASS | M03 진행은 **사용자 요청 시만** |
+| 0 | FP=0, steps PASS | 자체 QA 통과. M03/bundle은 사용자 명시 시에만. GO 아님 |
 | 1 | FP 또는 step FAIL, 재시도 가능 | `scripts/evals/grounding/out/report.json` + `report.md` 읽기. `claim_support.py`만 수정. 재실행 |
 | 2 | `stop_max` 또는 `stop_repeat` | **STOP**. 사람에게 FP claim/fingerprint 보고. 자동 재시도 금지 |
 
@@ -34,7 +37,7 @@ P1-01 / `claim_support` / rereview candidate 작업에만 적용. 다른 작업�
 ## 수정 범위 (exit 1)
 
 허용: `apps/api/app/agents/claim_support.py`, grounding fixtures, `tests/unit/test_er*.py`
-금지: production claim schema, M03~M06 의미, GO/NO-GO, tag, cron enable, Long-Term Optional, bundle 자동 생성
+금지: production claim schema, M03~M06 의미, GO/NO-GO, tag, cron enable, Long-Term Optional, 외부 rereview bundle 자동 생성
 
 ## 읽기
 

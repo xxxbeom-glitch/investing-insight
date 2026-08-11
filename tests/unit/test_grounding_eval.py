@@ -149,6 +149,36 @@ def test_redteam_includes_operator_semantics():
     assert "operator_semantics" in _load("judge").REASON_CODES
 
 
+def test_structural_attacks_cover_operator_and_value_copula():
+    evidence = runner.load_evidence()
+    regime = redteam.structural_attacks(
+        item=evidence["regime"], payload=factual_payload(evidence["regime"])
+    )
+    claims = {row["claim"] for row in regime}
+    assert "regime != expansion" in claims
+    assert "regime ≠ expansion" in claims
+    assert "regime > expansion" in claims
+    assert "regime < expansion" in claims
+    assert "2026-08-10 is expansion" in claims
+    price = redteam.structural_attacks(
+        item=evidence["daily_price"], payload=factual_payload(evidence["daily_price"])
+    )
+    price_claims = {row["claim"] for row in price}
+    assert "close > 100.5" in price_claims
+    assert "close <= 100.5" in price_claims
+    assert all(row["expected_gate"] == "UNSUPPORTED" for row in regime + price)
+
+
+def test_replay_includes_structural_operator_attacks():
+    evidence = runner.load_evidence()
+    seed = runner.load_seed(evidence)
+    claims = {(row["claim"], row["evidence_id"]) for row in seed}
+    assert ("regime != expansion", "regime") in claims
+    assert ("close > 100.5", "price:1") in claims
+    replay = runner.replay_seed(seed)
+    assert replay["failed"] == 0, replay["mismatches"][:5]
+
+
 def test_redteam_payload_is_factual_only():
     evidence = runner.load_evidence()
     item = evidence["daily_price"]
