@@ -534,3 +534,36 @@ def topdown_summary() -> dict[str, Any]:
         ),
         "scheduler_enable_allowed": False,
     }
+
+
+@router.get("/performance/summary")
+def performance_summary() -> dict[str, Any]:
+    with _conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                select horizon, status, count(*)
+                from performance_evals
+                group by horizon, status
+                order by horizon, status
+                """
+            )
+            counts = [{"horizon": r[0], "status": r[1], "n": int(r[2])} for r in cur.fetchall()]
+            cur.execute(
+                """
+                select cohort, horizon, avg(abs_return)
+                from performance_evals
+                where status='COMPLETE' and abs_return is not null
+                group by cohort, horizon
+                order by cohort, horizon
+                """
+            )
+            avgs = [
+                {
+                    "cohort": r[0],
+                    "horizon": r[1],
+                    "avg_abs_return": float(r[2]) if r[2] is not None else None,
+                }
+                for r in cur.fetchall()
+            ]
+    return {"counts": counts, "avg_abs_by_cohort": avgs, "scheduler_enable_allowed": False}

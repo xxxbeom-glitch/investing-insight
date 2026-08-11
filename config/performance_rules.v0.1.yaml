@@ -1,0 +1,24 @@
+version: performance-rules-v0.1
+horizons:
+  1M: 21
+  3M: 63
+  6M: 126
+benchmarks:
+  - SPY
+  - QQQ
+# sector benchmark deferred when security has no sector tag
+control_statuses:
+  - WATCH
+  - REJECT
+tracked_statuses:
+  - SELECTED
+  - WATCH
+  - REJECT
+# thesis_correctness heuristic (deterministic, not LLM):
+# SELECTED + abs_return > 0 → supported
+# SELECTED + abs_return < 0 → challenged
+# otherwise → inconclusive
+thesis_rules:
+  selected_positive: supported
+  selected_negative: challenged
+  default: inconclusive
