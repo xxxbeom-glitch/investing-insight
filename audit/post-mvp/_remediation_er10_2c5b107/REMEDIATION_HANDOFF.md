@@ -8,7 +8,7 @@
 - Long-Term Optional: **NOT STARTED**
 - Post-MVP tag: **not created**
 - MVP tags (unchanged): peeled commits `mvp-v0.1-pass` → `e98ff33`, `mvp-v0.1-review-pass` → `c1a6692`
-- remediation_commit: (fill after commit)
+- remediation_commit: `09ad0b9` (`09ad0b9d475b423a2d6738d4c966bdba93b0f938`)
 - review_candidate: HANDOFF hash-fill tip (bundle `git/HEAD_commit.txt` is SoT)
 
 ## Finding disposition
