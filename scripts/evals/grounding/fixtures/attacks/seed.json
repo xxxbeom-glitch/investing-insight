@@ -475,5 +475,59 @@
     "expected_gate": "SUPPORTED",
     "attack_class": "true_pair",
     "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er13-op-ne",
+    "claim": "regime != expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "operator_semantics",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er13-op-neq",
+    "claim": "regime ≠ expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "operator_semantics",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er13-op-gt",
+    "claim": "regime > expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "operator_semantics",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er13-op-lt",
+    "claim": "regime < expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "operator_semantics",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er13-op-close-gt",
+    "claim": "close > 100.5",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "operator_semantics",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er13-op-close-le",
+    "claim": "close <= 100.5",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "operator_semantics",
+    "source": "test_er11_remediation.py"
   }
 ]

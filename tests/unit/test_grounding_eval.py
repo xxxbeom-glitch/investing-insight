@@ -144,6 +144,11 @@ def test_fp_from_judge_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     assert set(judge_payload.keys()) == {"evidence_id", "factual_payload", "claim"}
 
 
+def test_redteam_includes_operator_semantics():
+    assert "operator_semantics" in redteam.ATTACK_CLASSES
+    assert "operator_semantics" in _load("judge").REASON_CODES
+
+
 def test_redteam_payload_is_factual_only():
     evidence = runner.load_evidence()
     item = evidence["daily_price"]

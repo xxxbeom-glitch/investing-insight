@@ -13,6 +13,7 @@ ATTACK_CLASSES = (
     "year_vs_date",
     "negation",
     "paraphrase",
+    "operator_semantics",
     "other",
 )
 

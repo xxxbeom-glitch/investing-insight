@@ -14,6 +14,7 @@ REASON_CODES = (
     "year_vs_date",
     "negation",
     "paraphrase",
+    "operator_semantics",
     "other",
 )
 

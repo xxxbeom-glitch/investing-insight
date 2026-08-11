@@ -91,6 +91,8 @@ _ALLOWED_CC = frozenset("\t\n\r")
 
 @dataclass(frozen=True)
 class ClaimTriple:
+    """Verification triple. `operator` is always `equals`; other relations fail closed."""
+
     field: str
     operator: str
     value: str
@@ -120,6 +122,36 @@ def claim_text_hash(text: str, evidence_id: str) -> str:
     norm = " ".join(str(text or "").split())
     blob = f"{evidence_id}\n{norm}".encode("utf-8")
     return hashlib.sha256(blob).hexdigest()
+
+
+_ASCII_CMP_OP = re.compile(r"!==|!=|<>|<=|>=")
+
+
+def _is_unsupported_relation_char(ch: str) -> bool:
+    if ch in "=＝":
+        return False
+    if ch in "<>≠≤≥≮≯≰≱≢":
+        return True
+    name = unicodedata.name(ch, "")
+    if not name or name in {"EQUALS SIGN", "FULLWIDTH EQUALS SIGN"}:
+        return False
+    return any(
+        marker in name
+        for marker in (
+            "LESS-THAN",
+            "GREATER-THAN",
+            "NOT EQUAL",
+            "NOT-EQUAL",
+            "NOT IDENTICAL",
+        )
+    )
+
+
+def _has_unsupported_operator(text: str) -> bool:
+    """Only equality is supported. Comparison/inequality symbols fail closed."""
+    if _ASCII_CMP_OP.search(text):
+        return True
+    return any(_is_unsupported_relation_char(ch) for ch in text)
 
 
 def _has_disallowed_control_or_format(text: str) -> bool:
@@ -447,6 +479,8 @@ def parse_claim_against_leaves(text: str, leaves: dict[str, Any]) -> tuple[list[
     raw = str(text or "")
     if _has_disallowed_control_or_format(raw):
         return [], {"disallowed_control_or_format"}
+    if _has_unsupported_operator(raw):
+        return [], {"unsupported_operator"}
     raw = raw.strip()
     if not raw:
         return [], {"empty_claim_or_evidence_id"}
@@ -547,6 +581,8 @@ def parse_claim(
     raw = str(claim_text or "")
     if _has_disallowed_control_or_format(raw):
         return [], {"disallowed_control_or_format"}
+    if _has_unsupported_operator(raw):
+        return [], {"unsupported_operator"}
     text = raw.strip()
     eid = str(evidence_id or "").strip()
     if not text or not eid:

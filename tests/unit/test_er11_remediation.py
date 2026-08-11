@@ -64,6 +64,23 @@ def _ids(*refs: str) -> dict:
     }
 
 
+def test_unsupported_operators_fail_closed():
+    for text in (
+        "regime != expansion",
+        "regime ≠ expansion",
+        "regime > expansion",
+        "regime < expansion",
+        "close > 100.5",
+        "close <= 100.5",
+    ):
+        eid = "price:1" if text.startswith("close") else "regime"
+        ev = _PRICE if eid == "price:1" else _REGIME
+        triples, missing = parse_claim(text, eid, ev)
+        assert triples == []
+        assert "unsupported_operator" in missing
+        assert claim_is_supported(text, eid, ev) is False
+
+
 def test_true_pair_structures_as_field_equals_value():
     triples, missing = parse_claim("regime is expansion", "regime", _REGIME)
     assert missing == set()
@@ -120,6 +137,12 @@ def test_copula_and_orientation_do_not_change_true_pair(text):
         ("regime is expansion\x7f.", "regime", _REGIME),
         ("close is 100.5\u200b.", "price:1", _PRICE),
         ("as_of is expansion 2026-08-10", "regime", _REGIME),
+        ("regime != expansion", "regime", _REGIME),
+        ("regime ≠ expansion", "regime", _REGIME),
+        ("regime > expansion", "regime", _REGIME),
+        ("regime < expansion", "regime", _REGIME),
+        ("close > 100.5", "price:1", _PRICE),
+        ("close <= 100.5", "price:1", _PRICE),
     ],
 )
 def test_generalized_attacks_fail_without_copula_list(text, eid, evidence):
