@@ -4,7 +4,7 @@ import hashlib
 import json
 from typing import Any
 
-from app.agents.claim_support import deterministic_claim_verdicts
+from app.agents.claim_support import claim_is_supported, deterministic_claim_verdicts, factual_payload
 from app.research.model_capabilities import load_recorded_model_capabilities
 from app.research.openai_responses import ResponsesResult, resolve_requested_model
 
@@ -81,6 +81,29 @@ class MockStructuredClient:
         )
 
 
+def _candidate_claim_texts(ev: dict[str, Any]) -> list[str]:
+    payload = factual_payload(ev)
+    if not isinstance(payload, dict):
+        return []
+    if "regime" in payload:
+        return [f"regime is {payload.get('regime')}"]
+    if payload.get("industry_id") is not None:
+        ind = str(payload.get("industry_id"))
+        score = payload.get("overall_score")
+        if score is not None:
+            return [f"{ind} overall_score {score}"]
+        return [f"industry_id is {ind}"]
+    texts: list[str] = []
+    for key, val in payload.items():
+        if val is None or isinstance(val, (dict, list, bool)):
+            continue
+        if isinstance(val, (int, float)):
+            texts.append(f"{key} {val}")
+        else:
+            texts.append(f"{key} is {val}")
+    return texts
+
+
 def _grounded_claims(packet: dict[str, Any]) -> list[dict[str, str]]:
     evidence = [e for e in (packet.get("evidence") or []) if isinstance(e, dict)]
     claims: list[dict[str, str]] = []
@@ -88,23 +111,16 @@ def _grounded_claims(packet: dict[str, Any]) -> list[dict[str, str]]:
         eid = str(ev.get("evidence_id") or "").strip()
         if not eid:
             continue
-        payload = ev.get("payload") if isinstance(ev.get("payload"), dict) else {}
-        if "regime" in payload:
-            claims.append({"claim": f"regime is {payload.get('regime')}", "evidence_id": eid})
-        elif payload.get("industry_id") is not None:
-            ind = str(payload.get("industry_id"))
-            score = payload.get("overall_score")
-            if score is not None:
-                claims.append({"claim": f"{ind} overall_score {score}", "evidence_id": eid})
-            else:
-                claims.append({"claim": json.dumps(payload, ensure_ascii=False, sort_keys=True), "evidence_id": eid})
-        else:
-            blob = json.dumps(payload, ensure_ascii=False, sort_keys=True) if payload else eid
-            claims.append({"claim": blob, "evidence_id": eid})
+        for text in _candidate_claim_texts(ev):
+            if claim_is_supported(text, eid, evidence):
+                claims.append({"claim": text, "evidence_id": eid})
+                break
     if not claims:
         allowed = list(packet.get("allowed_evidence_ids") or [])
         primary = allowed[0] if allowed else "regime"
-        claims = [{"claim": "regime is expansion", "evidence_id": primary}]
+        fallback = {"claim": "regime is expansion", "evidence_id": primary}
+        if claim_is_supported(fallback["claim"], primary, evidence):
+            claims = [fallback]
     return claims
 
 

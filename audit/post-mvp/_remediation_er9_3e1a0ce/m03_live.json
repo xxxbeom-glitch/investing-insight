@@ -1,0 +1,89 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "live",
+  "job_id": "9a441853-5ecc-44b7-b3b5-1523388b1638",
+  "ok": true,
+  "multi_agent_run_id": "dd2f1fa7-5fcf-49df-9677-b3c050db3932",
+  "run_id": "1667fb24-f483-47f6-863a-81eef4a20015",
+  "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "90fc9869-cde3-44ca-8f4b-4c50d6b87bf4",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "73c05e6a-01f7-47b4-a086-5af5491f2ba2",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "93469c92-0af4-48c3-9ccb-c631bd58eb72",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "2a74f086-c98e-449a-909a-416271974b22",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "36538a82-55fc-48dd-a2b0-6c81b8e41af5",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "1331a364-354d-48e4-98db-63abc5ce9d7a",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "63f96cdd-6412-4930-b75d-a15d967828d5",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "194a4cc8-10d5-4a29-ac23-9da3eb4cc934",
+      "snapshot_id": "b1b7c379-4f77-5bf1-9426-02ef8f019426"
+    }
+  ],
+  "final": {
+    "status": "WATCH",
+    "rationale_claim_refs": [
+      "claim:0",
+      "claim:1",
+      "claim:2"
+    ],
+    "bear_case_claim_refs": [],
+    "risks_claim_refs": [],
+    "invalidation_claim_refs": [],
+    "evidence_refs": [
+      "regime",
+      "assessment:software"
+    ],
+    "claim_refs": [
+      "claim:0",
+      "claim:1",
+      "claim:2"
+    ],
+    "rationale": "The regime is expansion. Software / Platforms has an overall score of 61.76. Software / Platforms has a demand score of 81.32.",
+    "bear_case": [],
+    "risks": [],
+    "invalidation_conditions": []
+  },
+  "judgment_id": "5c8f2362-62f3-4101-b13c-d34ad0a50985",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

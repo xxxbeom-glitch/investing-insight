@@ -1,0 +1,28 @@
+{
+  "proposal_id": "717c3fcb-88b9-4ab6-bfe2-6c74687ff479",
+  "approve": {
+    "proposal_id": "717c3fcb-88b9-4ab6-bfe2-6c74687ff479",
+    "status": "approved"
+  },
+  "freeze": {
+    "proposal_id": "717c3fcb-88b9-4ab6-bfe2-6c74687ff479",
+    "status": "frozen",
+    "frozen_version": "llm-profile-v0.2"
+  },
+  "replay_evaluation_id": "2b4ec9a5-232f-4bc3-9e97-09176f09a3e1",
+  "holdout_evaluation_id": "ea7a3b0e-576d-4239-97af-a43cfd9ff51e",
+  "replay_status": "PASS",
+  "holdout_status": "PASS",
+  "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+  "evaluator_version": "governance-eval-v0.5",
+  "executed": true,
+  "executed_role_count": 8,
+  "scheduler_enable_allowed": false,
+  "attach": {
+    "proposal_id": "717c3fcb-88b9-4ab6-bfe2-6c74687ff479",
+    "replay_status": "PASS",
+    "holdout_status": "PASS",
+    "replay_evaluation_id": "2b4ec9a5-232f-4bc3-9e97-09176f09a3e1",
+    "holdout_evaluation_id": "ea7a3b0e-576d-4239-97af-a43cfd9ff51e"
+  }
+}
