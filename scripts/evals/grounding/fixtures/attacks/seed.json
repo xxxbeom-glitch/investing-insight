@@ -430,5 +430,14 @@
     "expected_gate": "UNSUPPORTED",
     "attack_class": "cross_field",
     "source": "test_er9_remediation.py"
+  },
+  {
+    "id": "er11-assess-demand-letter-suffix",
+    "claim": "demand is 81.32A.",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "unicode_leftover",
+    "source": "grounding self-remediation FP"
   }
 ]

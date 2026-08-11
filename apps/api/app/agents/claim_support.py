@@ -270,6 +270,10 @@ def _collect_candidates(folded: str, inv: dict[str, _Leaf]) -> list[_Span]:
                 add(start, end, "value", leaf.path, phrase)
         if leaf.numeric_norm is not None:
             for match in _NUM_RE.finditer(folded):
+                # `81.32A` is not 81.32. _NUM_RE only blocks a leading letter.
+                nxt = folded[match.end() : match.end() + 1]
+                if nxt.isalpha():
+                    continue
                 if _norm(match.group(0)) == leaf.numeric_norm:
                     add(match.start(), match.end(), "value", leaf.path, match.group(0))
     return [
