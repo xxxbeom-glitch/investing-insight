@@ -8,6 +8,7 @@
 - Long-Term Optional: **NOT STARTED**
 - Post-MVP tag: **not created**
 - MVP tags: unchanged (`mvp-v0.1-pass` @ e98ff33, `mvp-v0.1-review-pass` @ c1a6692)
+- remediation_commit: `ff853f5` (`ff853f530a7808f7cff0b11cfe137503928f6f34`)
 - review_candidate: HANDOFF hash-fill tip on `post-mvp/phase-1` (bundle `git/HEAD_commit.txt` is SoT)
 
 ## Blocking findings closed
