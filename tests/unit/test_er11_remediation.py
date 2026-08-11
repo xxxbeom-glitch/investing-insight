@@ -64,6 +64,20 @@ def _ids(*refs: str) -> dict:
     }
 
 
+def test_value_copula_value_is_not_two_equalities():
+    for text in (
+        "2026-08-10 is expansion.",
+        "expansion is 2026-08-10",
+        "100.5 is 2026-08-10",
+    ):
+        eid = "price:1" if text.startswith("100.5") else "regime"
+        ev = _PRICE if eid == "price:1" else _REGIME
+        triples, missing = parse_claim(text, eid, ev)
+        assert triples == []
+        assert "value_value_copula" in missing
+        assert claim_is_supported(text, eid, ev) is False
+
+
 def test_unsupported_operators_fail_closed():
     for text in (
         "regime != expansion",
@@ -143,6 +157,10 @@ def test_copula_and_orientation_do_not_change_true_pair(text):
         ("regime < expansion", "regime", _REGIME),
         ("close > 100.5", "price:1", _PRICE),
         ("close <= 100.5", "price:1", _PRICE),
+        ("2026-08-10 is expansion", "regime", _REGIME),
+        ("2026-08-10 is expansion.", "regime", _REGIME),
+        ("expansion is 2026-08-10", "regime", _REGIME),
+        ("100.5 is 2026-08-10", "price:1", _PRICE),
     ],
 )
 def test_generalized_attacks_fail_without_copula_list(text, eid, evidence):

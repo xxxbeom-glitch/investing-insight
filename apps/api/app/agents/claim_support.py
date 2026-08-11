@@ -400,6 +400,27 @@ def _skip_field_scaffold(text: str, vocab: set[str]) -> tuple[str, int]:
     return text[pos:], pos
 
 
+def _has_value_value_copula(
+    folded: str,
+    value_spans: list[_Span],
+    field_spans: list[_Span],
+) -> bool:
+    """Value copula value pairs two leaves without a field. Equality contract forbids that."""
+    for left in value_spans:
+        matched = _COPULA_AFTER.match(folded[left.end :])
+        if not matched:
+            continue
+        obj_at = left.end + matched.end()
+        later = [v for v in value_spans if v.start >= obj_at]
+        if not later:
+            continue
+        nearest = min(later, key=lambda v: (v.start, v.end))
+        if any(obj_at <= fs.start and fs.end <= nearest.start for fs in field_spans):
+            continue
+        return True
+    return False
+
+
 def _copula_directed_value(
     field_span: _Span,
     folded: str,
@@ -495,6 +516,8 @@ def parse_claim_against_leaves(text: str, leaves: dict[str, Any]) -> tuple[list[
     spans = _pick_spans(_collect_candidates(folded, inv))
     field_spans = [s for s in spans if s.kind == "field"]
     value_spans = [s for s in spans if s.kind == "value"]
+    if _has_value_value_copula(folded, value_spans, field_spans):
+        return [], {"value_value_copula"}
     missing: set[str] = set()
     missing |= _leftover_tokens(folded, spans, inv)
 
