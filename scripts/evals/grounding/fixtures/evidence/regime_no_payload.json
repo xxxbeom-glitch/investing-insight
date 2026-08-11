@@ -1,0 +1,8 @@
+{
+  "id": "regime_no_payload",
+  "item": {
+    "evidence_id": "regime",
+    "kind": "regime",
+    "leaked_meta": "should-not-count"
+  }
+}

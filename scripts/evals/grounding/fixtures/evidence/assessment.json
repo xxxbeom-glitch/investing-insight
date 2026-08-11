@@ -1,0 +1,16 @@
+{
+  "id": "assessment",
+  "item": {
+    "evidence_id": "assessment:software",
+    "kind": "industry_assessment",
+    "payload": {
+      "industry_id": "software",
+      "overall_score": 61.76,
+      "details": {
+        "scores": {
+          "demand": 81.32
+        }
+      }
+    }
+  }
+}

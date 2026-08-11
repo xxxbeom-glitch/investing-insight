@@ -1,0 +1,10 @@
+{
+  "id": "daily_price",
+  "item": {
+    "evidence_id": "price:1",
+    "kind": "daily_price",
+    "ref": "secret-ref",
+    "trading_date": "2026-08-10",
+    "close": 100.5
+  }
+}

@@ -1,0 +1,434 @@
+[
+  {
+    "id": "er11-true-is",
+    "claim": "regime is expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-true-was",
+    "claim": "regime was expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-true-were",
+    "claim": "regime were expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-true-are",
+    "claim": "regime are expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-true-colon",
+    "claim": "regime: expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-true-value-is-field",
+    "claim": "expansion is regime",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-true-value-was-field",
+    "claim": "expansion was regime",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-true-with-as-of",
+    "claim": "regime is expansion as of 2026-08-10",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-reverse-is-as-of",
+    "claim": "expansion is as_of",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "reverse_relation",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-reverse-was-as-of",
+    "claim": "expansion was as_of",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "reverse_relation",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-reverse-are-as-of",
+    "claim": "expansion are as_of",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "reverse_relation",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-reverse-were-as-of",
+    "claim": "expansion were as_of",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "reverse_relation",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-cross-regime-date",
+    "claim": "regime is 2026-08-10",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-cross-as-of-expansion",
+    "claim": "as_of is expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-token-bag",
+    "claim": "expansion as_of",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "other",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-wrapper-kind",
+    "claim": "kind is regime",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "wrapper_meta",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-unicode-ko",
+    "claim": "regime is expansion and 매출 급증",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "unicode_leftover",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-unicode-zh",
+    "claim": "regime is expansion and 收入暴增",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "unicode_leftover",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-single-char",
+    "claim": "regime is expansion and X",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "leftover_fact",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-revenue-surged",
+    "claim": "regime is expansion and revenue surged",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "leftover_fact",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-ceo",
+    "claim": "The CEO resigned yesterday",
+    "evidence_id": "regime",
+    "evidence_ref": "regime",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "leftover_fact",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er7-capacity",
+    "claim": "regime is expansion and capacity booked out",
+    "evidence_id": "regime",
+    "evidence_ref": "regime_expansion_only",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "leftover_fact",
+    "source": "test_er7_remediation.py"
+  },
+  {
+    "id": "er7-negation",
+    "claim": "regime is not expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime_expansion_only",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "negation",
+    "source": "test_er7_remediation.py"
+  },
+  {
+    "id": "er7-true-only",
+    "claim": "regime is expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime_expansion_only",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er7_remediation.py"
+  },
+  {
+    "id": "er8-no-payload-true",
+    "claim": "regime is expansion",
+    "evidence_id": "regime",
+    "evidence_ref": "regime_no_payload",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "wrapper_meta",
+    "source": "test_er8_remediation.py"
+  },
+  {
+    "id": "er8-leaked-meta",
+    "claim": "leaked_meta should-not-count",
+    "evidence_id": "regime",
+    "evidence_ref": "regime_no_payload",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "wrapper_meta",
+    "source": "test_er8_remediation.py"
+  },
+  {
+    "id": "er11-price-close-is",
+    "claim": "close is 100.5",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-price-value-is-close",
+    "claim": "100.5 is close",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-price-close-was",
+    "claim": "close was 100.5",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-price-value-was-close",
+    "claim": "100.5 was close",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-price-date-is",
+    "claim": "trading_date is 2026-08-10",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-price-date-value-is-field",
+    "claim": "2026-08-10 is trading_date",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-price-close-bare",
+    "claim": "close 100.5",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-year-is-close",
+    "claim": "2026 is close",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "year_vs_date",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-year-was-close",
+    "claim": "2026 was close",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "year_vs_date",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-close-is-date",
+    "claim": "100.5 is trading_date",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "reverse_relation",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-close-was-date",
+    "claim": "100.5 was trading_date",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "reverse_relation",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-close-is-year",
+    "claim": "close is 2026",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "year_vs_date",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er9-close-date",
+    "claim": "close 2026-08-10",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er9_remediation.py"
+  },
+  {
+    "id": "er8-secret-ref",
+    "claim": "secret-ref close 100.5",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "wrapper_meta",
+    "source": "test_er8_remediation.py"
+  },
+  {
+    "id": "er8-kind-daily-price",
+    "claim": "kind is daily_price",
+    "evidence_id": "price:1",
+    "evidence_ref": "daily_price",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "wrapper_meta",
+    "source": "test_er8_remediation.py"
+  },
+  {
+    "id": "er11-assess-score",
+    "claim": "overall_score 61.76",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-assess-software-score",
+    "claim": "software overall_score 61.76",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-assess-demand",
+    "claim": "demand score of 81.32",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "SUPPORTED",
+    "attack_class": "true_pair",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-assess-demand-is-overall",
+    "claim": "81.32 is overall_score",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-assess-demand-are-overall",
+    "claim": "81.32 are overall_score",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er11-assess-overall-demand-num",
+    "claim": "overall_score 81.32",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er11_remediation.py"
+  },
+  {
+    "id": "er9-assess-overall-of-demand",
+    "claim": "overall score of 81.32",
+    "evidence_id": "assessment:software",
+    "evidence_ref": "assessment",
+    "expected_gate": "UNSUPPORTED",
+    "attack_class": "cross_field",
+    "source": "test_er9_remediation.py"
+  }
+]

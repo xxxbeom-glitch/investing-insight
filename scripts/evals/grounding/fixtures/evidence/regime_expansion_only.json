@@ -1,0 +1,10 @@
+{
+  "id": "regime_expansion_only",
+  "item": {
+    "evidence_id": "regime",
+    "kind": "regime",
+    "payload": {
+      "regime": "expansion"
+    }
+  }
+}

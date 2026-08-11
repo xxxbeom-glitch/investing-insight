@@ -1,0 +1,11 @@
+{
+  "id": "regime",
+  "item": {
+    "evidence_id": "regime",
+    "kind": "regime",
+    "payload": {
+      "regime": "expansion",
+      "as_of": "2026-08-10"
+    }
+  }
+}

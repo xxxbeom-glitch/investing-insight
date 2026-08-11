@@ -1,0 +1,13 @@
+# Grounding eval harness (non-secret). Keys stay in .env.local.
+version: grounding-eval-v0.1
+provider: openai
+api: responses
+max_attacks: 20
+redteam:
+  model: gpt-5.6-terra
+  reasoning_effort: low
+  max_output_tokens: 800
+judge:
+  model: gpt-5.6-terra
+  reasoning_effort: low
+  max_output_tokens: 220
