@@ -3,6 +3,8 @@ version: grounding-eval-v0.1
 provider: openai
 api: responses
 max_attacks: 20
+loop:
+  max_attempts: 3
 redteam:
   model: gpt-5.6-terra
   reasoning_effort: low

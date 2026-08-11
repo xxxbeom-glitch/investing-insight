@@ -21,6 +21,7 @@ alwaysApply: true
 - 각 Layer: `25-layer-audit.mdc` 루프
 - UI 손볼 때: PC-only (`35` · `50` · `06_PC_WEB_UI.md`)
 - Deterministic(코드) before LLM
+- Post-MVP P1-01 / grounding candidate: M03 전에 `60-grounding-eval.mdc` · `scripts/evals/grounding/self_remediate.py`. FP≥1이면 M03 금지. GO/tag/cron 변경 금지.
 
 ## 문서 역할
 

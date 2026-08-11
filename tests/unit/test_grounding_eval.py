@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -59,6 +60,7 @@ def test_seed_replay_matches_claim_is_supported():
 
 def test_classify_matrix():
     assert compare.classify(judge_expected="UNSUPPORTED", gate_actual="SUPPORTED") == "FP"
+    assert compare.severity("FP") == "CRITICAL"
     assert compare.classify(judge_expected="SUPPORTED", gate_actual="UNSUPPORTED") == "FN"
     assert compare.classify(judge_expected="SUPPORTED", gate_actual="SUPPORTED") == "TP"
     assert compare.classify(judge_expected="UNSUPPORTED", gate_actual="UNSUPPORTED") == "TN"
@@ -125,8 +127,15 @@ def test_fp_from_judge_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     report = runner.run(llm=True, max_attacks=1, out_dir=tmp_path, client=client)
     assert report["ok"] is False
     assert report["exit_code"] == 1
-    assert report["llm"]["matrix"]["FP"] >= 1
-    assert report["llm"]["false_positives"]
+    fp = report["llm"]["false_positives"][0]
+    assert fp["gate_actual"] == "SUPPORTED"
+    assert fp["judge_expected"] == "UNSUPPORTED"
+    assert fp["matrix"] == "FP"
+    assert fp["severity"] == "CRITICAL"
+    assert report["llm"]["matrix"]["FP"] == 1
+    md = (tmp_path / "report.md").read_text(encoding="utf-8")
+    assert "FP / CRITICAL" in md
+    assert bait in md
     judge_payload = client.payloads[1]
     assert "gate" not in judge_payload
     assert "claim_is_supported" not in str(judge_payload)
@@ -149,3 +158,60 @@ def test_redteam_payload_is_factual_only():
     assert set(user.keys()) == {"evidence_id", "factual_payload", "known_attacks", "max_new", "instruction"}
     assert "claim_is_supported" not in str(user)
     assert user["factual_payload"] == payload
+
+
+self_remediate = _load("self_remediate")
+
+
+def test_self_remediate_pass_resets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(self_remediate, "STATE_PATH", tmp_path / "loop_state.json")
+
+    def verify(*, llm: bool = True):
+        del llm
+        return {"ok": True, "fp_count": 0, "fp_fingerprint": None, "failed_step": None}
+
+    result = self_remediate.run(verify_fn=verify)
+    assert result["exit_code"] == 0
+    assert result["action"] == "pass"
+    state = json.loads((tmp_path / "loop_state.json").read_text(encoding="utf-8"))
+    assert state["attempts"] == 0
+
+
+def test_self_remediate_same_fp_stops(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(self_remediate, "STATE_PATH", tmp_path / "loop_state.json")
+    fp = compare.fp_fingerprint([{"claim": "expansion is as_of", "evidence_id": "regime"}])
+
+    def verify(*, llm: bool = True):
+        del llm
+        return {"ok": False, "fp_count": 1, "fp_fingerprint": fp, "failed_step": "grounding_llm"}
+
+    first = self_remediate.run(verify_fn=verify)
+    assert first["exit_code"] == 1
+    assert first["action"] == "continue"
+    second = self_remediate.run(verify_fn=verify)
+    assert second["exit_code"] == 2
+    assert second["action"] == "stop_repeat"
+
+
+def test_self_remediate_max_attempts_stops(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(self_remediate, "STATE_PATH", tmp_path / "loop_state.json")
+    monkeypatch.setattr(self_remediate, "_max_attempts", lambda path=None: 3)
+    n = {"i": 0}
+
+    def verify(*, llm: bool = True):
+        del llm
+        n["i"] += 1
+        return {
+            "ok": False,
+            "fp_count": 1,
+            "fp_fingerprint": f"fp-{n['i']}",
+            "failed_step": "grounding_llm",
+        }
+
+    codes = [self_remediate.run(verify_fn=verify)["action"] for _ in range(3)]
+    assert codes[0] == "continue"
+    assert codes[1] == "continue"
+    assert codes[2] == "stop_max"
+    fourth = self_remediate.run(verify_fn=verify)
+    assert fourth["exit_code"] == 2
+    assert fourth["action"] == "stop_max"

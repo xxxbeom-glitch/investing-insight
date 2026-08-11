@@ -13,7 +13,17 @@ GO/NO-GO, tag, cron을 바꾸지 않는다. FAIL이면 exit 1 + report만.
 .\apps\api\.venv\Scripts\python.exe scripts\evals\grounding\runner.py --llm
 ```
 
-External re-review bundle **직전**에 `--llm`을 사람이 실행한다.
+External re-review bundle **직전** 루프:
+
+```powershell
+.\apps\api\.venv\Scripts\python.exe scripts\evals\grounding\self_remediate.py
+```
+
+- 내부: pytest → secret_scan → web build → replay → `--llm`
+- max 3 attempts (`config/evals/grounding.yaml` `loop.max_attempts`)
+- 같은 FP fingerprint 반복 → exit 2, 사람 보고
+- FP 시 읽을 파일: `scripts/evals/grounding/out/report.json`
+- exit 0 전에 M03~M06 / bundle 금지. GO/tag/cron 변경 금지.
 
 Reports: `scripts/evals/grounding/out/` (gitignore `out/`). 키·raw reasoning 없음.
 

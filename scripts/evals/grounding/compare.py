@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
 SUPPORTED = "SUPPORTED"
@@ -41,6 +43,21 @@ def classify(*, judge_expected: str | None, gate_actual: str) -> str:
     if expected == UNSUPPORTED and gate == UNSUPPORTED:
         return "TN"
     return "UNGRADED"
+
+
+def severity(matrix: str) -> str | None:
+    if matrix == "FP":
+        return "CRITICAL"
+    return None
+
+
+def fp_fingerprint(false_positives: list[dict[str, Any]]) -> str:
+    keys = sorted(
+        claim_key(str(row.get("claim") or ""), str(row.get("evidence_id") or ""))
+        for row in false_positives
+    )
+    blob = json.dumps(keys, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
 def tally(rows: list[dict[str, Any]]) -> dict[str, int]:

@@ -209,6 +209,7 @@ def run_llm(
             "judge_reason_code": (judge_meta or {}).get("reason_code"),
             "judge_reason": (judge_meta or {}).get("reason"),
             "matrix": matrix,
+            "severity": compare.severity(matrix),
         }
         judged_rows.append(row)
         if matrix == "FP":
@@ -223,6 +224,7 @@ def run_llm(
         "judge_calls": judge_calls,
         "matrix": totals,
         "false_positives": false_positives,
+        "fp_fingerprint": compare.fp_fingerprint(false_positives),
         "rows": judged_rows,
     }
 
@@ -253,10 +255,11 @@ def render_markdown(report: dict[str, Any]) -> str:
         )
         if fps:
             lines.append("")
-            lines.append("## False positives")
+            lines.append("## False positives (FP / CRITICAL)")
             for row in fps:
                 lines.append(
-                    f"- `{row.get('claim')}` ({row.get('evidence_id')}): {row.get('judge_reason')}"
+                    f"- FP / CRITICAL `{row.get('claim')}` ({row.get('evidence_id')}): "
+                    f"gate={row.get('gate_actual')} judge={row.get('judge_expected')} — {row.get('judge_reason')}"
                 )
     lines.append("")
     lines.append("Does not change GO/NO-GO, tags, cron, or candidate disposition.")

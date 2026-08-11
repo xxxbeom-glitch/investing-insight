@@ -1,0 +1,47 @@
+---
+description: Grounding eval self-remediation (P1-01). M03보다 앞. GO/tag/cron 금지.
+alwaysApply: true
+---
+
+# Grounding eval loop
+
+P1-01 / `claim_support` / rereview candidate 작업에만 적용. 다른 작업에서 LLM eval을 돌리지 말 것.
+
+## 순서
+
+코드 수정 → `scripts/evals/grounding/self_remediate.py` → (exit 0만) M03~M06 → 사람 요청 시에만 bundle → STOP
+
+```powershell
+.\apps\api\.venv\Scripts\python.exe scripts\evals\grounding\self_remediate.py
+```
+
+내부: pytest → secret_scan → web build → grounding `--replay-only` → grounding `--llm`
+
+## exit
+
+| code | 의미 | Cursor |
+|------|------|--------|
+| 0 | FP=0, steps PASS | M03 진행은 **사용자 요청 시만** |
+| 1 | FP 또는 step FAIL, 재시도 가능 | `scripts/evals/grounding/out/report.json` + `report.md` 읽기. `claim_support.py`만 수정. 재실행 |
+| 2 | `stop_max` 또는 `stop_repeat` | **STOP**. 사람에게 FP claim/fingerprint 보고. 자동 재시도 금지 |
+
+## 한도
+
+- `config/evals/grounding.yaml` `loop.max_attempts`: **3**
+- 같은 `fp_fingerprint`가 연속이면 즉시 stop_repeat
+- 무한 루프 금지
+
+## 수정 범위 (exit 1)
+
+허용: `apps/api/app/agents/claim_support.py`, grounding fixtures, `tests/unit/test_er*.py`
+금지: production claim schema, M03~M06 의미, GO/NO-GO, tag, cron enable, Long-Term Optional, bundle 자동 생성
+
+## 읽기
+
+FP 시 SoT report: `scripts/evals/grounding/out/report.json` (키/reasoning 없음)
+마크다운: `scripts/evals/grounding/out/report.md` 의 `False positives (FP / CRITICAL)`
+
+## 통과
+
+replay 전 시드 PASS + LLM matrix FP=0 + pytest/secret_scan/web build PASS.
+통과 ≠ GO. tag 만들지 말 것.
