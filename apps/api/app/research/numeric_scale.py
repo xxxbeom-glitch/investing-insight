@@ -7,7 +7,8 @@ Claim-side absolute units (fail-closed otherwise):
 
 '$' is scaffolding. Thousands separators are mantissa punctuation.
 Percent is a different kind and never matches absolute evidence.
-ISO dates are not quantities. A number glued to a non-unit letter is not a quantity.
+ISO dates and English month-day dates (June 27, 2026) are not quantities.
+A number glued to a non-unit letter is not a quantity.
 """
 
 from __future__ import annotations
@@ -19,6 +20,14 @@ from typing import Any, Iterable
 
 _NUM_RE = re.compile(r"(?<![A-Za-z])[-+]?\d+(?:\.\d+)?(?:e[-+]?\d+)?")
 _ISO_DATE = re.compile(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)")
+_MONTH = (
+    r"January|February|March|April|May|June|July|August|September|October|"
+    r"November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec"
+)
+_ENGLISH_DATE = re.compile(
+    rf"\b(?:{_MONTH})\.?\s+\d{{1,2}}(?:st|nd|rd|th)?,?\s+\d{{4}}\b",
+    re.IGNORECASE,
+)
 _HEAD = re.compile(
     r"(?<![A-Za-z0-9])(?P<sign>[-+])?\s*\$?\s*"
     r"(?P<mant>(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?(?:e[-+]?\d+)?))"
@@ -86,18 +95,24 @@ def _decimal_places(mantissa_src: str) -> int:
     return 0
 
 
-def _in_date(start: int, end: int, dates: list[tuple[int, int]]) -> bool:
-    return any(a <= start and end <= b for a, b in dates)
+def _date_spans(text: str) -> list[tuple[int, int]]:
+    spans = [(m.start(), m.end()) for m in _ISO_DATE.finditer(text)]
+    spans.extend((m.start(), m.end()) for m in _ENGLISH_DATE.finditer(text))
+    return spans
+
+
+def _overlaps_date(start: int, end: int, dates: list[tuple[int, int]]) -> bool:
+    return any(start < b and end > a for a, b in dates)
 
 
 def iter_quantities(text: str) -> list[Quantity]:
     raw = str(text or "")
     folded = raw.casefold()
-    dates = [(m.start(), m.end()) for m in _ISO_DATE.finditer(raw)]
+    dates = _date_spans(raw)
     out: list[Quantity] = []
     for match in _HEAD.finditer(raw):
         mant_start, mant_end = match.start("mant"), match.end("mant")
-        if _in_date(match.start(), mant_end, dates):
+        if _overlaps_date(mant_start, mant_end, dates):
             continue
         rest = folded[mant_end:]
         kind = "absolute"

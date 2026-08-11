@@ -86,6 +86,9 @@ def test_unsupported_operators_fail_closed():
         "regime < expansion",
         "close > 100.5",
         "close <= 100.5",
+        "close ≈ 100.5",
+        "close ≈ 100.5.",
+        "close ~ 100.5",
     ):
         eid = "price:1" if text.startswith("close") else "regime"
         ev = _PRICE if eid == "price:1" else _REGIME
@@ -157,10 +160,15 @@ def test_copula_and_orientation_do_not_change_true_pair(text):
         ("regime < expansion", "regime", _REGIME),
         ("close > 100.5", "price:1", _PRICE),
         ("close <= 100.5", "price:1", _PRICE),
+        ("close ≈ 100.5.", "price:1", _PRICE),
+        ("trading_date ≈ 2026-08-10.", "price:1", _PRICE),
+        ("close ~ 100.5", "price:1", _PRICE),
         ("2026-08-10 is expansion", "regime", _REGIME),
         ("2026-08-10 is expansion.", "regime", _REGIME),
         ("expansion is 2026-08-10", "regime", _REGIME),
         ("100.5 is 2026-08-10", "price:1", _PRICE),
+        ("100.5 is close date", "price:1", _PRICE),
+        ("close is 100.5 date", "price:1", _PRICE),
     ],
 )
 def test_generalized_attacks_fail_without_copula_list(text, eid, evidence):

@@ -1,0 +1,45 @@
+{
+  "run_id": "4cc95063-07cf-45a3-944b-b93585f278c4",
+  "job_id": "56ec7dcd-e2cd-42cc-9ad0-4d7f8a0ade9c",
+  "candidates": [
+    {
+      "security_id": "2c3f9b93-d40c-5266-b54b-3fb355525f64",
+      "ticker": "AAPL",
+      "exchange": "XNAS",
+      "rank": 1,
+      "total_score": 88.7681439462433,
+      "components": {
+        "growth": 100.0,
+        "quality": 100.0,
+        "cashflow": 100.0,
+        "health": 28.0536233320983,
+        "valuation": 97.0673363095238,
+        "momentum": 100.0
+      },
+      "rule_version": "quant-rules-v0.1",
+      "final_status": "WATCH",
+      "research_qa": "PASS_WITH_WARNING"
+    }
+  ],
+  "qa_status": "PASS_WITH_WARNING",
+  "warnings": [
+    "research_declared_unsupported_or_missing"
+  ],
+  "judgment_status": "WATCH",
+  "thesis": "AAPL screens exceptionally well quantitatively (88.8 total score; rank 1), with maximum reported growth, quality, cash-flow, and momentum component scores. However, the packet does not provide filings, peer context, revenue, cash-flow line items, or valuation inputs needed to independently validate the screen as an investable thesis.",
+  "failed_claim_count": 0,
+  "failed_claims": [],
+  "reasons": [],
+  "claim_n": 9,
+  "claims": [
+    "Reported NetIncomeLoss was $101.464 billion for the period ended 2026-06-27.",
+    "Reported NetIncomeLoss was $84.544 billion for the period ended 2025-06-28.",
+    "Assets were $383.266 billion at 2026-06-27.",
+    "Stockholders’ equity was $107.520 billion at 2026-06-27.",
+    "Assets were $331.495 billion at 2025-06-28.",
+    "Stockholders’ equity was $65.830 billion at 2025-06-28.",
+    "The supplied close was $315.32 on 2026-07-10.",
+    "The supplied close was $294.38 on 2026-07-01.",
+    "The supplied close was $11.00 on 2024-01-01."
+  ]
+}

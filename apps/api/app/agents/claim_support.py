@@ -131,13 +131,13 @@ def claim_text_hash(text: str, evidence_id: str) -> str:
     return hashlib.sha256(blob).hexdigest()
 
 
-_ASCII_CMP_OP = re.compile(r"!==|!=|<>|<=|>=")
+_ASCII_CMP_OP = re.compile(r"!==|!=|<>|<=|>=|~=")
 
 
 def _is_unsupported_relation_char(ch: str) -> bool:
     if ch in "=＝":
         return False
-    if ch in "<>≠≤≥≮≯≰≱≢":
+    if ch in "<>≠≤≥≮≯≰≱≢≈≃≅≊~∼":
         return True
     name = unicodedata.name(ch, "")
     if not name or name in {"EQUALS SIGN", "FULLWIDTH EQUALS SIGN"}:
@@ -150,6 +150,9 @@ def _is_unsupported_relation_char(ch: str) -> bool:
             "NOT EQUAL",
             "NOT-EQUAL",
             "NOT IDENTICAL",
+            "ALMOST EQUAL",
+            "APPROXIMATELY EQUAL",
+            "ASYMPTOTICALLY EQUAL",
         )
     )
 
@@ -497,6 +500,24 @@ def _nearest_value_span(
     return group[0][3]
 
 
+def _mentioned_field_vocab(spans: list[_Span], inv: dict[str, _Leaf]) -> set[str]:
+    """Only cited field paths may absorb leftover tokens. Sibling keys are facts."""
+    toks: set[str] = set()
+    for span in spans:
+        if span.kind != "field":
+            continue
+        for path in span.paths:
+            leaf = inv.get(path)
+            if leaf is None:
+                continue
+            toks |= _key_tokens(leaf.field)
+            for part in leaf.path.replace("_", ".").split("."):
+                toks |= _key_tokens(part)
+    if "score" in toks or "scores" in toks:
+        toks.update({"score", "scores"})
+    return toks
+
+
 def _leftover_tokens(folded: str, spans: list[_Span], inv: dict[str, _Leaf]) -> set[str]:
     chars = list(folded)
     for span in spans:
@@ -504,7 +525,7 @@ def _leftover_tokens(folded: str, spans: list[_Span], inv: dict[str, _Leaf]) -> 
             chars[i] = " "
     remain = "".join(chars)
     leftover = content_tokens(remain)
-    leftover -= _field_vocab(inv)
+    leftover -= _mentioned_field_vocab(spans, inv)
     leftover -= STOPWORDS
     return leftover
 

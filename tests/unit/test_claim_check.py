@@ -126,6 +126,48 @@ def test_date_digits_are_not_financial_values():
         _aapl_assets_packet(), _map("Assets were 2026")
     )
     assert any(f.get("reason") == "numeric_not_in_packet_evidence" for f in failed)
+    failed = find_unsupported_numeric_claims(
+        _aapl_assets_packet(), _map("Assets were 27")
+    )
+    assert any(f.get("reason") == "numeric_not_in_packet_evidence" for f in failed)
+
+
+def test_live_english_date_prose_does_not_fail_grounded_raw():
+    packet = {
+        "evidence": [
+            {
+                "evidence_id": "fact:assets",
+                "kind": "financial_fact",
+                "metric_key": "Assets",
+                "value": "383266000000",
+                "period_end": "2026-06-27",
+            },
+            {
+                "evidence_id": "price:1",
+                "kind": "daily_price",
+                "close": 316.22,
+                "trading_date": "2026-07-09",
+            },
+        ],
+        "quant": {},
+    }
+    research = {
+        "summary": "See evidence",
+        "bear_case": ["competition"],
+        "claim_evidence_map": [
+            {
+                "claim": "Reported assets were 383,266,000,000 at June 27, 2026.",
+                "evidence_id": "fact:assets",
+            },
+            {
+                "claim": "The closing price was 316.22 on July 9, 2026.",
+                "evidence_id": "price:1",
+            },
+        ],
+        "unsupported_or_missing": [],
+    }
+    assert find_unsupported_numeric_claims(packet, research) == []
+    assert deterministic_qa(packet, research)["status"] != "FAIL"
 
 
 def test_cross_value_other_metric_is_not_a_free_pass():
@@ -134,3 +176,41 @@ def test_cross_value_other_metric_is_not_a_free_pass():
         packet, _map("Stockholders' equity was $107.520 billion", eid="fact:assets")
     )
     assert any(f.get("reason") == "numeric_not_in_packet_evidence" for f in failed)
+
+
+def test_bac5e73f_english_date_claims_are_grounded():
+    packet = {
+        "evidence": [
+            {"evidence_id": "fact:a", "kind": "financial_fact", "value": "383266000000"},
+            {"evidence_id": "fact:e", "kind": "financial_fact", "value": "107520000000"},
+            {"evidence_id": "fact:n", "kind": "financial_fact", "value": "101464000000"},
+            {"evidence_id": "fact:a2", "kind": "financial_fact", "value": "331495000000"},
+            {"evidence_id": "fact:e2", "kind": "financial_fact", "value": "65830000000"},
+            {"evidence_id": "fact:n2", "kind": "financial_fact", "value": "84544000000"},
+            {"evidence_id": "fact:e3", "kind": "financial_fact", "value": "73733000000"},
+            {"evidence_id": "price:a", "kind": "daily_price", "close": 294.38},
+            {"evidence_id": "price:b", "kind": "daily_price", "close": 316.22},
+            {"evidence_id": "price:c", "kind": "daily_price", "close": 315.32},
+            {"evidence_id": "price:d", "kind": "daily_price", "close": 11.0},
+        ],
+        "quant": {},
+    }
+    research = {
+        "summary": "See evidence",
+        "bear_case": ["competition"],
+        "claim_evidence_map": [
+            {"claim": "Reported assets were 383,266,000,000 at June 27, 2026.", "evidence_id": "fact:a"},
+            {"claim": "Reported stockholders’ equity was 107,520,000,000 at June 27, 2026.", "evidence_id": "fact:e"},
+            {"claim": "Reported net income was 101,464,000,000 at June 27, 2026.", "evidence_id": "fact:n"},
+            {"claim": "Reported assets were 331,495,000,000 at June 28, 2025.", "evidence_id": "fact:a2"},
+            {"claim": "Reported stockholders’ equity was 65,830,000,000 at June 28, 2025.", "evidence_id": "fact:e2"},
+            {"claim": "Reported net income was 84,544,000,000 at June 28, 2025.", "evidence_id": "fact:n2"},
+            {"claim": "Reported stockholders’ equity was 73,733,000,000 at September 27, 2025.", "evidence_id": "fact:e3"},
+            {"claim": "The closing price was 294.38 on July 1, 2026.", "evidence_id": "price:a"},
+            {"claim": "The closing price was 316.22 on July 9, 2026.", "evidence_id": "price:b"},
+            {"claim": "The latest supplied closing price was 315.32 on July 10, 2026.", "evidence_id": "price:c"},
+            {"claim": "The packet includes a closing-price observation of 11.0 dated January 1, 2024.", "evidence_id": "price:d"},
+        ],
+        "unsupported_or_missing": [],
+    }
+    assert find_unsupported_numeric_claims(packet, research) == []

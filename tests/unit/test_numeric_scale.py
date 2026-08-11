@@ -41,6 +41,17 @@ def test_iso_dates_are_not_quantities():
     assert iter_quantities("period_end 2026-06-27") == []
 
 
+def test_english_month_day_dates_are_not_quantities():
+    qtys = iter_quantities("Reported assets were 383,266,000,000 at June 27, 2026.")
+    assert [q.mantissa for q in qtys] == [Decimal("383266000000")]
+    qtys = iter_quantities("The closing price was 316.22 on July 9, 2026.")
+    assert [q.text.strip() for q in qtys] == ["316.22"]
+    qtys = iter_quantities("dated January 1, 2024.")
+    assert qtys == []
+    qtys = iter_quantities("September 27, 2025")
+    assert qtys == []
+
+
 def test_glued_non_unit_letter_is_not_a_quantity():
     assert iter_quantities("demand is 81.32A") == []
 

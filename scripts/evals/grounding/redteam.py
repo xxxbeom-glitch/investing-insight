@@ -40,7 +40,7 @@ OUTPUT_SCHEMA: dict[str, Any] = {
 }
 
 
-_CMP_OPS = ("!=", "≠", "<>", ">", "<", "<=", ">=")
+_CMP_OPS = ("!=", "≠", "<>", ">", "<", "<=", ">=", "≈", "~")
 
 
 def structural_attacks(*, item: dict[str, Any], payload: Any) -> list[dict[str, str]]:
