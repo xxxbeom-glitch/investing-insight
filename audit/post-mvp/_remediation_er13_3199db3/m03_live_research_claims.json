@@ -1,0 +1,39 @@
+{
+  "claims": [
+    {
+      "claim": "The regime is expansion.",
+      "evidence_id": "regime"
+    },
+    {
+      "claim": "Software / Platforms overall_score is 61.76.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Software / Platforms demand is 81.32.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Software / Platforms pricing is 54.11.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Software / Platforms margin is 55.0.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Software / Platforms supply is 50.0.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Software / Platforms bottleneck is 50.0.",
+      "evidence_id": "assessment:software"
+    }
+  ],
+  "bear_case": [],
+  "synthesis": "Software / Platforms overall_score is 61.76; demand is 81.32. The regime is expansion.",
+  "evidence_refs": [
+    "regime",
+    "assessment:software"
+  ],
+  "unsupported_or_missing": []
+}
