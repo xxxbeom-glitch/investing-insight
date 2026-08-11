@@ -2,7 +2,7 @@
 
 - layer_id: ER11
 - status: IMPLEMENTED
-- commit_hash: (filled after content commit)
+- commit_hash: `befd394` (`befd3948c565741f9e8053b9b261b23a3b694408`)
 - previous_layer_commit: `2422556`
 
 ## What Changed
