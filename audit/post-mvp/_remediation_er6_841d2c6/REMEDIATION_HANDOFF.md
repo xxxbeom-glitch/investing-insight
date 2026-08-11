@@ -9,7 +9,7 @@
 - Post-MVP tag: **not created**
 - MVP tags (unchanged): peeled commits `mvp-v0.1-pass` → `e98ff33`, `mvp-v0.1-review-pass` → `c1a6692`. Annotated tag objects `fffff6a0` / `229bbaec`.
 - checkpoint: `6c5eeb7` (report freeze)
-- remediation_commit: (filled after PASS commit; bundle `git/HEAD_commit.txt` is SoT)
+- remediation_commit: `ad0fb2f` (`ad0fb2fd8d969e75730baf17ce06567ceb997802`)
 - review_candidate: HANDOFF hash-fill tip on `post-mvp/phase-1` (bundle `git/HEAD_commit.txt` is SoT)
 
 ## Finding disposition
