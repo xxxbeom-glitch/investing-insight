@@ -2,6 +2,7 @@
 
 - status: DONE (diagnosis; **not GO**)
 - head_diagnosed: `ecb778e`
+- report_commit: `063077c`
 - 1차: LAB usable / product incomplete / NO-GO
 - 2차: `LAB_ONLY_OK` / `NO-GO` / confidence high
 - 2차 model: `gpt-5.6-terra` high · `resp_09224397166453b1006a7b322208a481989fd82582f27a1007`

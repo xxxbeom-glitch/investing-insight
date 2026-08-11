@@ -4,7 +4,8 @@
 |------|-----|
 | as_of | 2026-08-11 (UTC 14:30–14:45 수집) |
 | branch | `post-mvp/phase-1` |
-| HEAD | `ecb778e98d8f168b20594324e5b4bcf1ca819c42` |
+| HEAD (진단 대상) | `ecb778e98d8f168b20594324e5b4bcf1ca819c42` |
+| 본 보고서 commit | `063077c` |
 | 1차 | 구현 에이전트 (facts + live API) |
 | 2차 | `research_qa_agent` · `gpt-5.6-terra` · `reasoning.effort=high` |
 | 2차 response_id | `resp_09224397166453b1006a7b322208a481989fd82582f27a1007` |
