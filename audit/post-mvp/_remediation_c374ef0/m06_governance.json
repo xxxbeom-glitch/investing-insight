@@ -1,0 +1,13 @@
+{
+  "proposal_id": "ff163687-8f7b-4999-a2da-1319f801ceec",
+  "approve": {
+    "proposal_id": "ff163687-8f7b-4999-a2da-1319f801ceec",
+    "status": "approved"
+  },
+  "freeze": {
+    "proposal_id": "ff163687-8f7b-4999-a2da-1319f801ceec",
+    "status": "frozen",
+    "frozen_version": "v0.2-remediation"
+  },
+  "scheduler_enable_allowed": false
+}

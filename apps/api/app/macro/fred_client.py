@@ -11,7 +11,7 @@ from app.logging_setup import get_logger
 
 log = get_logger("fred")
 REPO_ROOT = Path(__file__).resolve().parents[4]
-DEFAULT_CONFIG = REPO_ROOT / "config" / "fred_series.v0.1.yaml"
+DEFAULT_CONFIG = REPO_ROOT / "config" / "fred_series.v0.2.yaml"
 DEFAULT_BASE = "https://api.stlouisfed.org"
 
 
@@ -57,6 +57,7 @@ class FredClient:
         observation_start: str | None = None,
         observation_end: str | None = None,
         sort_order: str = "asc",
+        units: str | None = None,
     ) -> list[dict[str, Any]]:
         params: dict[str, Any] = {
             "series_id": series_id,
@@ -68,6 +69,8 @@ class FredClient:
             params["observation_start"] = observation_start
         if observation_end:
             params["observation_end"] = observation_end
+        if units:
+            params["units"] = units
 
         url = f"{self.base_url}/fred/series/observations"
         last_err: Exception | None = None

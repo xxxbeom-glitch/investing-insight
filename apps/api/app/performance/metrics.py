@@ -26,18 +26,25 @@ def forward_return(
     *,
     entry_as_of: date,
     trading_days: int,
+    as_of_date: date | None = None,
 ) -> dict[str, Any]:
     """
-    prices: sorted ascending (date, close).
+    prices: sorted ascending (date, close), already capped to <= as_of_date by caller.
     Uses next available price on/after entry_as_of as entry,
     then advances `trading_days` available bars for exit.
+    Exit bar must also be <= as_of_date when provided (ER-P1-04 leakage).
     """
     if not prices or trading_days <= 0:
         return {"status": "INCOMPLETE", "reason": "no_prices_or_bad_horizon"}
 
-    # index of first bar on/after entry
+    eligible = prices
+    if as_of_date is not None:
+        eligible = [(d, p) for d, p in prices if d <= as_of_date]
+        if not eligible:
+            return {"status": "INCOMPLETE", "reason": "no_prices_on_or_before_as_of"}
+
     start_idx = None
-    for i, (d, _) in enumerate(prices):
+    for i, (d, _) in enumerate(eligible):
         if d >= entry_as_of:
             start_idx = i
             break
@@ -45,16 +52,16 @@ def forward_return(
         return {"status": "INCOMPLETE", "reason": "no_entry_price"}
 
     end_idx = start_idx + trading_days
-    if end_idx >= len(prices):
+    if end_idx >= len(eligible):
         return {
             "status": "INCOMPLETE",
             "reason": "insufficient_forward_bars",
-            "entry_date": prices[start_idx][0],
-            "entry_price": prices[start_idx][1],
+            "entry_date": eligible[start_idx][0],
+            "entry_price": eligible[start_idx][1],
         }
 
-    entry_date, entry_price = prices[start_idx]
-    exit_date, exit_price = prices[end_idx]
+    entry_date, entry_price = eligible[start_idx]
+    exit_date, exit_price = eligible[end_idx]
     if entry_price <= 0:
         return {"status": "INCOMPLETE", "reason": "non_positive_entry"}
     abs_ret = (exit_price / entry_price) - 1.0
@@ -84,16 +91,20 @@ def price_outcome(abs_ret: float | None) -> str:
     return "flat"
 
 
-def thesis_correctness(judgment_status: str, abs_ret: float | None, rules: dict[str, Any]) -> str:
+def thesis_correctness(
+    judgment_status: str,
+    abs_ret: float | None,
+    rules: dict[str, Any],
+    *,
+    thesis_driver_eval: str | None = None,
+) -> str:
+    """Price outcome must not determine thesis correctness (ER-P1-04)."""
     tr = rules.get("thesis_rules") or {}
-    if abs_ret is None:
-        return str(tr.get("default") or "inconclusive")
-    if judgment_status == "SELECTED":
-        if abs_ret > 0:
-            return str(tr.get("selected_positive") or "supported")
-        if abs_ret < 0:
-            return str(tr.get("selected_negative") or "challenged")
-    return str(tr.get("default") or "inconclusive")
+    if thesis_driver_eval:
+        return str(thesis_driver_eval)
+    # Explicitly ignore abs_ret / judgment_status price coupling
+    _ = (judgment_status, abs_ret)
+    return str(tr.get("default") or "UNASSESSED")
 
 
 def cohort_for_status(status: str, rules: dict[str, Any]) -> str:

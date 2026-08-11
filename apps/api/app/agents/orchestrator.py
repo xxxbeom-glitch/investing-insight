@@ -6,6 +6,8 @@ from typing import Any
 import psycopg
 
 from app.agents.binding import bind_multi_agent_run
+from app.agents.evidence import load_evidence_bundle
+from app.agents.judgment_project import project_final_selector_to_judgment
 from app.agents.profiles import load_multiagent_profiles
 from app.agents.runner import (
     GateBlockedError,
@@ -55,6 +57,13 @@ def run_multi_agent_pipeline(
         row = cur.fetchone()
         ticker = row[0] if row else None
 
+    evidence_bundle = load_evidence_bundle(
+        conn,
+        snapshot_id=snapshot_id,
+        security_id=security_id,
+        frozen_context=frozen,
+    )
+
     prior: dict[str, Any] = {}
     outputs_meta: list[dict[str, Any]] = []
     snapshot_ids: set[str] = set()
@@ -69,6 +78,7 @@ def run_multi_agent_pipeline(
                 security_id=security_id,
                 ticker=ticker,
                 prior_outputs=prior,
+                evidence_bundle=evidence_bundle,
             )
             if role in {"market_agent", "industry_agent"}:
                 packet["security_id"] = None
@@ -96,6 +106,7 @@ def run_multi_agent_pipeline(
             security_id=security_id,
             ticker=ticker,
             prior_outputs=prior,
+            evidence_bundle=evidence_bundle,
         )
         qa_result = run_agent_role(
             conn,
@@ -115,7 +126,11 @@ def run_multi_agent_pipeline(
             }
         )
         snapshot_ids.add(qa_result["snapshot_id"])
-        qa_status, qa_reasons = evaluate_research_qa_gate(qa_result["output"])
+        qa_status, qa_reasons = evaluate_research_qa_gate(
+            qa_result["output"],
+            research_output=prior.get("research_agent"),
+            allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],
+        )
         record_gate(
             conn,
             multi_agent_run_id=multi_id,
@@ -136,6 +151,7 @@ def run_multi_agent_pipeline(
             security_id=security_id,
             ticker=ticker,
             prior_outputs=prior,
+            evidence_bundle=evidence_bundle,
         )
         adv_result = run_agent_role(
             conn,
@@ -176,6 +192,7 @@ def run_multi_agent_pipeline(
             security_id=security_id,
             ticker=ticker,
             prior_outputs=prior,
+            evidence_bundle=evidence_bundle,
         )
         final_result = run_agent_role(
             conn,
@@ -194,6 +211,15 @@ def run_multi_agent_pipeline(
             }
         )
         snapshot_ids.add(final_result["snapshot_id"])
+
+        judgment = project_final_selector_to_judgment(
+            conn,
+            multi_agent_run_id=multi_id,
+            run_id=run_id,
+            security_id=security_id,
+            final_output=final_result["output"],
+            source_agent_output_id=final_result["output_id"],
+        )
 
         with conn.cursor() as cur:
             cur.execute(
@@ -218,6 +244,8 @@ def run_multi_agent_pipeline(
             "ticker": ticker,
             "outputs": outputs_meta,
             "final": final_result["output"],
+            "judgment_id": judgment["judgment_id"],
+            "allowed_evidence_ids": evidence_bundle.get("allowed_evidence_ids"),
             "scheduler_enable_allowed": False,
         }
     except GateBlockedError as exc:

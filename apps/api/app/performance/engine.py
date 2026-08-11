@@ -16,17 +16,34 @@ from app.performance.metrics import (
 )
 
 
-def _load_prices(conn: psycopg.Connection, security_id: str) -> list[tuple[date, float]]:
+def _load_prices(
+    conn: psycopg.Connection,
+    security_id: str,
+    *,
+    as_of_date: date | None = None,
+) -> list[tuple[date, float]]:
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            select trading_date, coalesce(adjusted_close, close)::float
-            from daily_prices
-            where security_id = %s::uuid
-            order by trading_date asc
-            """,
-            (security_id,),
-        )
+        if as_of_date is None:
+            cur.execute(
+                """
+                select trading_date, coalesce(adjusted_close, close)::float
+                from daily_prices
+                where security_id = %s::uuid
+                order by trading_date asc
+                """,
+                (security_id,),
+            )
+        else:
+            cur.execute(
+                """
+                select trading_date, coalesce(adjusted_close, close)::float
+                from daily_prices
+                where security_id = %s::uuid
+                  and trading_date <= %s
+                order by trading_date asc
+                """,
+                (security_id, as_of_date),
+            )
         return [(r[0], float(r[1])) for r in cur.fetchall()]
 
 
@@ -72,25 +89,37 @@ def evaluate_judgment_horizons(
     jid, run_id, security_id, status, created_date = row
     entry_as_of = created_date or as_of
     cohort = cohort_for_status(status, rules)
-    prices = _load_prices(conn, security_id)
+    prices = _load_prices(conn, security_id, as_of_date=as_of)
 
     bench_prices: dict[str, list[tuple[date, float]]] = {}
     for b in rules.get("benchmarks") or []:
         sid = _security_id_for_ticker(conn, b)
         if sid:
-            bench_prices[b.upper()] = _load_prices(conn, sid)
+            bench_prices[b.upper()] = _load_prices(conn, sid, as_of_date=as_of)
 
     results: list[dict[str, Any]] = []
     for horizon, days in (rules.get("horizons") or {}).items():
         trading_days = int(days)
-        fwd = forward_return(prices, entry_as_of=entry_as_of, trading_days=trading_days)
+        fwd = forward_return(
+            prices, entry_as_of=entry_as_of, trading_days=trading_days, as_of_date=as_of
+        )
         spy_fwd = (
-            forward_return(bench_prices["SPY"], entry_as_of=entry_as_of, trading_days=trading_days)
+            forward_return(
+                bench_prices["SPY"],
+                entry_as_of=entry_as_of,
+                trading_days=trading_days,
+                as_of_date=as_of,
+            )
             if "SPY" in bench_prices
             else {"status": "INCOMPLETE", "reason": "spy_missing"}
         )
         qqq_fwd = (
-            forward_return(bench_prices["QQQ"], entry_as_of=entry_as_of, trading_days=trading_days)
+            forward_return(
+                bench_prices["QQQ"],
+                entry_as_of=entry_as_of,
+                trading_days=trading_days,
+                as_of_date=as_of,
+            )
             if "QQQ" in bench_prices
             else {"status": "INCOMPLETE", "reason": "qqq_missing"}
         )

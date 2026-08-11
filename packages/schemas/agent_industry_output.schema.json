@@ -7,7 +7,19 @@
   "properties": {
     "industry_id": {"type": "string"},
     "attractiveness_view": {"type": "string"},
-    "dimension_notes": {"type": "object", "additionalProperties": {"type": "string"}},
+    "dimension_notes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "demand": {"type": "string"},
+        "capex": {"type": "string"},
+        "supply": {"type": "string"},
+        "pricing": {"type": "string"},
+        "margin": {"type": "string"},
+        "bottleneck": {"type": "string"}
+      },
+      "required": ["demand", "capex", "supply", "pricing", "margin", "bottleneck"]
+    },
     "risks": {"type": "array", "items": {"type": "string"}},
     "evidence_refs": {"type": "array", "items": {"type": "string"}},
     "unsupported_or_missing": {"type": "array", "items": {"type": "string"}}

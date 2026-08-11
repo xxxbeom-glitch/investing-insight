@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import uuid
 from datetime import datetime, timezone
@@ -8,6 +9,11 @@ from typing import Any
 import psycopg
 
 from app.snapshot.engine import create_snapshot
+
+
+def context_hash(frozen: dict[str, Any]) -> str:
+    blob = json.dumps(frozen, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
 def _load_frozen_context(conn: psycopg.Connection) -> dict[str, Any]:
@@ -106,7 +112,11 @@ def bind_multi_agent_run(
     llm_profile_version: str = "llm-profile-v0.2",
     security_limit: int = 1,
 ) -> dict[str, Any]:
-    """Freeze top-down/bottom-up context and create a shared Snapshot for all agents."""
+    """Freeze top-down/bottom-up context and create a shared Snapshot for all agents.
+
+    Multi-agent context lives on multi_agent_runs.context_hash / frozen_context —
+    never post-hash into snapshot_items (ER-P0-01).
+    """
     frozen = _load_frozen_context(conn)
     if not frozen.get("union"):
         raise RuntimeError("no shortlist_unions — run topdown slice first")
@@ -116,7 +126,6 @@ def bind_multi_agent_run(
     members = frozen["union"]["members"] or []
     security_ids = [m["security_id"] for m in members if m.get("security_id")][:security_limit]
     if not security_ids:
-        # fall back to any priced security
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -139,15 +148,15 @@ def bind_multi_agent_run(
         security_ids=security_ids,
     )
 
-    # Attach immutable context items (post-hash annotation via binding table — SoR for multi-agent)
+    ctx_hash = context_hash(frozen)
     multi_id = str(uuid.uuid4())
     with conn.cursor() as cur:
         cur.execute(
             """
             insert into multi_agent_runs (
               multi_agent_run_id, run_id, snapshot_id, union_id, bottom_up_run_id, regime_id,
-              llm_profile_version, frozen_context, status
-            ) values (%s,%s,%s,%s,%s,%s,%s,%s::jsonb,'running')
+              llm_profile_version, frozen_context, context_hash, status
+            ) values (%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,'running')
             """,
             (
                 multi_id,
@@ -158,32 +167,16 @@ def bind_multi_agent_run(
                 frozen["regime"]["regime_id"],
                 llm_profile_version,
                 json.dumps(frozen),
+                ctx_hash,
             ),
         )
-        # Also persist context copies as snapshot_items for audit visibility (does not mutate content_hash)
-        for item_type, payload in (
-            ("multiagent_union", frozen["union"]),
-            ("multiagent_regime", frozen["regime"]),
-            ("multiagent_assessments", {"items": frozen["assessments"]}),
-            ("multiagent_bottom_up", frozen.get("bottom_up") or {}),
-        ):
-            cur.execute(
-                """
-                insert into snapshot_items (snapshot_id, item_type, item_ref, payload)
-                values (%s,%s,%s,%s::jsonb)
-                """,
-                (
-                    snap["snapshot_id"],
-                    item_type,
-                    item_type,
-                    json.dumps(payload),
-                ),
-            )
     conn.commit()
     return {
         "multi_agent_run_id": multi_id,
         "run_id": snap["run_id"],
         "snapshot_id": snap["snapshot_id"],
+        "content_hash": snap["content_hash"],
+        "context_hash": ctx_hash,
         "security_ids": security_ids,
         "frozen_context": frozen,
     }

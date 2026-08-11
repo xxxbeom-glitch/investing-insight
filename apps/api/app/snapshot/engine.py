@@ -280,6 +280,11 @@ def create_snapshot(
                 """,
                 (str(snapshot_id), item["item_type"], item["item_ref"], json.dumps(item["payload"])),
             )
+        # Seal after items inserted — blocks further snapshot_items mutation (ER-P0-01)
+        cur.execute(
+            "update snapshots set sealed = true where snapshot_id = %s",
+            (str(snapshot_id),),
+        )
         cur.execute("update research_runs set status='snapshot_ready' where run_id=%s", (str(run_id),))
     conn.commit()
     return {
@@ -292,4 +297,5 @@ def create_snapshot(
             "financial_fact": sum(1 for i in items if i["item_type"] == "financial_fact"),
         },
         "manifest": public_manifest,
+        "sealed": True,
     }

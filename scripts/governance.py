@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""M06 governance CLI — proposals require replay+holdout before approve; no auto-apply."""
+"""M06 governance CLI — replay/holdout PASS artifacts required before approve."""
 
 from __future__ import annotations
 
@@ -20,11 +20,16 @@ import psycopg  # noqa: E402
 from app.governance.proposals import (  # noqa: E402
     GovernanceError,
     approve_proposal,
+    attach_eval_artifacts,
     create_proposal,
     freeze_proposal,
     submit_proposal,
 )
 from app.settings import get_settings  # noqa: E402
+
+
+def _load_json(path: str) -> dict:
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
 
 
 def main() -> int:
@@ -38,10 +43,16 @@ def main() -> int:
     c.add_argument("--rationale", required=True)
     s = sub.add_parser("submit")
     s.add_argument("--id", required=True)
+    e = sub.add_parser("attach-evals")
+    e.add_argument("--id", required=True)
+    e.add_argument("--replay-eval", required=True, help="JSON file with status=PASS + ids + metrics")
+    e.add_argument("--holdout-eval", required=True)
     a = sub.add_parser("approve")
     a.add_argument("--id", required=True)
-    a.add_argument("--replay-notes", required=True)
-    a.add_argument("--holdout-notes", required=True)
+    a.add_argument("--replay-notes", default="")
+    a.add_argument("--holdout-notes", default="")
+    a.add_argument("--replay-eval", default="", help="optional JSON file override")
+    a.add_argument("--holdout-eval", default="")
     f = sub.add_parser("freeze")
     f.add_argument("--id", required=True)
     args = p.parse_args()
@@ -65,12 +76,21 @@ def main() -> int:
                 )
             elif args.cmd == "submit":
                 out = submit_proposal(conn, args.id)
+            elif args.cmd == "attach-evals":
+                out = attach_eval_artifacts(
+                    conn,
+                    args.id,
+                    replay_eval=_load_json(args.replay_eval),
+                    holdout_eval=_load_json(args.holdout_eval),
+                )
             elif args.cmd == "approve":
                 out = approve_proposal(
                     conn,
                     args.id,
                     replay_notes=args.replay_notes,
                     holdout_notes=args.holdout_notes,
+                    replay_eval=_load_json(args.replay_eval) if args.replay_eval else None,
+                    holdout_eval=_load_json(args.holdout_eval) if args.holdout_eval else None,
                 )
             else:
                 out = freeze_proposal(conn, args.id)

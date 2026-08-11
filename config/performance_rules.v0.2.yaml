@@ -1,0 +1,23 @@
+version: performance-rules-v0.2
+horizons:
+  1M: 21
+  3M: 63
+  6M: 126
+benchmarks:
+  - SPY
+  - QQQ
+# Sector benchmark: deferred until securities.sector is populated (re-scoped from roadmap literal).
+# Absolute + SPY/QQQ relative remain required.
+sector_benchmark: deferred_until_sector_tag
+control_statuses:
+  - WATCH
+  - REJECT
+tracked_statuses:
+  - SELECTED
+  - WATCH
+  - REJECT
+# thesis_correctness is NOT inferred from price direction (ER-P1-04).
+# Until observable thesis driver / invalidation evaluation exists → UNASSESSED.
+thesis_rules:
+  default: UNASSESSED
+  with_driver_eval: inconclusive

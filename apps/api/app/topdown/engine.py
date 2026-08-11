@@ -60,6 +60,14 @@ def score_industry(
             # lower unemployment → better demand
             delta = _clamp(60 - val * 8, -20, 20)
         elif role == "inflation":
+            # Must be YoY percent (e.g. ~2–4), never CPI index level (~300)
+            unit = (obs.get("value_unit") or "").lower()
+            if unit and unit not in {"yoy_pct", "percent_yoy", "pc1"}:
+                raise ValueError(f"inflation value_unit must be yoy_pct, got {unit!r}")
+            if val > 50:
+                raise ValueError(
+                    f"inflation value {val} looks like CPI index; require FRED units=pc1 / value_unit=yoy_pct"
+                )
             delta = _clamp((val - 2.0) * 3, -15, 15)  # mild inflation ok for pricing power proxy
         elif role == "yield_curve":
             delta = _clamp(val * 10, -20, 20)

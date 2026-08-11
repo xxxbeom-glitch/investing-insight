@@ -19,6 +19,7 @@ def test_multiagent_profiles_load():
 
 def test_role_schemas_validate_defaults():
     client = MockStructuredClient()
+    bundle = {"allowed_evidence_ids": ["regime", "assessment:semis", "price:1", "fact:1", "union", "quant"]}
     for role in (
         "market_agent",
         "industry_agent",
@@ -39,12 +40,13 @@ def test_role_schemas_validate_defaults():
             prior_outputs={
                 "research_agent": {
                     "synthesis": "x",
-                    "claims": [],
+                    "claims": [{"claim": "c", "evidence_id": "regime"}],
                     "bear_case": [],
-                    "evidence_refs": ["e1"],
+                    "evidence_refs": ["regime"],
                     "unsupported_or_missing": [],
                 }
             },
+            evidence_bundle=bundle,
         )
         result = client.create_structured(
             model="gpt-5.6-terra",
@@ -74,6 +76,22 @@ def test_research_qa_gate_blocks():
     assert "c1" in reasons
     status, _ = evaluate_research_qa_gate({"status": "PASS", "failed_claims": [], "warnings": []})
     assert status == "PASS"
+    # deterministic unknown evidence blocks even if LLM says PASS
+    status, reasons = evaluate_research_qa_gate(
+        {"status": "PASS", "failed_claims": [], "warnings": []},
+        research_output={"claims": [{"claim": "x", "evidence_id": "nope"}], "evidence_refs": []},
+        allowed_evidence_ids={"regime"},
+    )
+    assert status == "FAIL"
+
+
+def test_role_prompts_exist():
+    from pathlib import Path
+    from app.agents.runner import PROMPT_DIR, _system_prompt
+
+    assert PROMPT_DIR.is_dir()
+    text = _system_prompt("research_qa_agent")
+    assert "evidence" in text.lower() or "JSON" in text
 
 
 def test_adversarial_gate_blocks_on_blockers():

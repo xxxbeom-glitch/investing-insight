@@ -46,6 +46,7 @@ def _hash(obj: Any) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
+
 def build_role_packet(
     *,
     agent_role: str,
@@ -55,22 +56,31 @@ def build_role_packet(
     security_id: str | None = None,
     ticker: str | None = None,
     prior_outputs: dict[str, Any] | None = None,
+    evidence_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Role-minimal input — same snapshot baseline, no free-form chat history."""
     prior = prior_outputs or {}
+    bundle = evidence_bundle or {}
+    allowed = list(bundle.get("allowed_evidence_ids") or [])
     base = {
         "run_id": run_id,
         "snapshot_id": snapshot_id,
         "agent_role": agent_role,
     }
     if agent_role == "market_agent":
-        return {**base, "regime": frozen_context.get("regime"), "macro_inputs": (frozen_context.get("regime") or {}).get("inputs")}
+        return {
+            **base,
+            "regime": frozen_context.get("regime"),
+            "macro_inputs": (frozen_context.get("regime") or {}).get("inputs"),
+            "allowed_evidence_ids": [x for x in allowed if x == "regime"],
+        }
     if agent_role == "industry_agent":
         return {
             **base,
             "assessments": frozen_context.get("assessments"),
             "regime": (frozen_context.get("regime") or {}).get("regime"),
             "market_agent": prior.get("market_agent"),
+            "allowed_evidence_ids": [x for x in allowed if x.startswith("assessment") or x == "regime"],
         }
     if agent_role == "company_agent":
         return {
@@ -78,10 +88,18 @@ def build_role_packet(
             "security_id": security_id,
             "ticker": ticker,
             "union_member": next(
-                (m for m in (frozen_context.get("union") or {}).get("members") or [] if m.get("security_id") == security_id or m.get("ticker") == ticker),
+                (
+                    m
+                    for m in (frozen_context.get("union") or {}).get("members") or []
+                    if m.get("security_id") == security_id or m.get("ticker") == ticker
+                ),
                 {"ticker": ticker, "security_id": security_id},
             ),
             "industry_agent": prior.get("industry_agent"),
+            "prices": bundle.get("prices") or [],
+            "financial_facts": bundle.get("financial_facts") or [],
+            "quant": bundle.get("quant"),
+            "allowed_evidence_ids": allowed,
         }
     if agent_role == "event_agent":
         return {
@@ -89,7 +107,9 @@ def build_role_packet(
             "security_id": security_id,
             "ticker": ticker,
             "company_agent": prior.get("company_agent"),
-            "unsupported_hint": "filings/events may be incomplete in lab snapshot",
+            "filings_or_events": bundle.get("filings_or_events") or [],
+            "financial_facts": bundle.get("financial_facts") or [],
+            "allowed_evidence_ids": [x for x in allowed if x.startswith("filing") or x.startswith("fact")],
         }
     if agent_role == "research_agent":
         return {
@@ -100,25 +120,35 @@ def build_role_packet(
             "industry_agent": prior.get("industry_agent"),
             "company_agent": prior.get("company_agent"),
             "event_agent": prior.get("event_agent"),
+            "evidence": bundle.get("evidence") or [],
+            "allowed_evidence_ids": allowed,
         }
     if agent_role == "research_qa_agent":
+        research = prior.get("research_agent") or {}
         return {
             **base,
-            "research_agent": prior.get("research_agent"),
-            "allowed_evidence_refs": (prior.get("research_agent") or {}).get("evidence_refs") or [],
+            "research_agent": research,
+            "claims": research.get("claims") or [],
+            "evidence": bundle.get("evidence") or [],
+            "allowed_evidence_ids": allowed,
         }
     if agent_role == "adversarial_agent":
         return {
             **base,
             "research_agent": prior.get("research_agent"),
             "research_qa_agent": prior.get("research_qa_agent"),
+            "evidence": bundle.get("evidence") or [],
+            "allowed_evidence_ids": allowed,
         }
     if agent_role == "final_selector_agent":
         return {
             **base,
+            "security_id": security_id,
+            "ticker": ticker,
             "research_agent": prior.get("research_agent"),
             "research_qa_agent": prior.get("research_qa_agent"),
             "adversarial_agent": prior.get("adversarial_agent"),
+            "allowed_evidence_ids": allowed,
         }
     raise ValueError(f"unknown agent_role: {agent_role}")
 
@@ -127,11 +157,7 @@ def _system_prompt(agent_role: str) -> str:
     path = PROMPT_DIR / f"{agent_role}.v0.1.txt"
     if path.is_file():
         return path.read_text(encoding="utf-8")
-    return (
-        f"You are the {agent_role} for investing-insight. "
-        "Use only provided JSON facts. Output must match the JSON schema. "
-        "Do not invent evidence ids. Do not give buy/sell sizing advice."
-    )
+    raise FileNotFoundError(f"missing role prompt: {path}")
 
 
 def run_agent_role(
@@ -297,7 +323,19 @@ def record_gate(
     return {"gate_id": gate_id, "gate_type": gate_type, "status": status, "reasons": reasons}
 
 
-def evaluate_research_qa_gate(output: dict[str, Any]) -> tuple[str, list[str]]:
+
+def evaluate_research_qa_gate(
+    output: dict[str, Any],
+    *,
+    research_output: dict[str, Any] | None = None,
+    allowed_evidence_ids: list[str] | set[str] | None = None,
+) -> tuple[str, list[str]]:
+    from app.agents.evidence import validate_research_evidence_ids
+
+    if research_output is not None and allowed_evidence_ids is not None:
+        det_status, det_reasons = validate_research_evidence_ids(research_output, allowed_evidence_ids)
+        if det_status != "PASS":
+            return "FAIL", det_reasons
     status = output.get("status")
     reasons = list(output.get("failed_claims") or [])
     if status != "PASS":

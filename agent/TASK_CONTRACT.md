@@ -1,10 +1,7 @@
-﻿# Active Task Contract
+﻿# TASK CONTRACT — Post-MVP External Review Remediation
 
-## Task
-- Task ID: POSTMVP-ROADMAP-COMPLETE
-- Status: IDLE
-
-## Note
-Spec `08_POST_MVP_ROADMAP.md` Gate0 + Milestone 1–6 PASS.
-Long-Term Optional은 사용자 명시 요청 전 착수하지 않는다.
-Production cron은 비활성 유지.
+- scope: ER-P0-01, ER-P1-01…05 only
+- order: M02 → M03 → M04 → M05 linkage → M06
+- constraints: production cron DISABLED; Long-Term Optional NOT STARTED
+- status: remediation implemented; external re-review bundle next
+- report: `EXTERNAL_REVIEW_POST_MVP_c374ef0.md`

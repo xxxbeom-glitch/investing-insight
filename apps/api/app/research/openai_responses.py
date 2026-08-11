@@ -43,6 +43,22 @@ def _extract_output_text(payload: dict[str, Any]) -> str:
     raise ResponsesApiError("Responses API returned no output text")
 
 
+def _sanitize_openai_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """OpenAI strict json_schema rejects $id/$schema; keep nested objects strict."""
+    drop = {"$schema", "$id"}
+    out: dict[str, Any] = {}
+    for k, v in schema.items():
+        if k in drop:
+            continue
+        if isinstance(v, dict):
+            out[k] = _sanitize_openai_schema(v)
+        elif isinstance(v, list):
+            out[k] = [_sanitize_openai_schema(i) if isinstance(i, dict) else i for i in v]
+        else:
+            out[k] = v
+    return out
+
+
 class OpenAIResponsesClient:
     def __init__(self, settings: Settings, *, timeout: float = 120.0):
         if not settings.openai_api_key:
@@ -60,6 +76,7 @@ class OpenAIResponsesClient:
         output_schema: dict[str, Any],
         schema_name: str,
     ) -> ResponsesResult:
+        clean_schema = _sanitize_openai_schema(output_schema)
         body = {
             "model": model,
             "reasoning": {"effort": reasoning_effort},
@@ -74,7 +91,7 @@ class OpenAIResponsesClient:
                 "format": {
                     "type": "json_schema",
                     "name": schema_name,
-                    "schema": output_schema,
+                    "schema": clean_schema,
                     "strict": True,
                 }
             },

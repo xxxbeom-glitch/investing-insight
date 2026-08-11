@@ -30,6 +30,7 @@ def main() -> int:
     a.add_argument("--severity", default="P2")
     a.add_argument("--judgment-id", default="")
     a.add_argument("--run-id", default="")
+    a.add_argument("--performance-eval-id", default="")
     l = sub.add_parser("list")
     l.add_argument("--type", default="")
     l.add_argument("--limit", type=int, default=20)
@@ -56,6 +57,7 @@ def main() -> int:
                     severity=args.severity,
                     judgment_id=args.judgment_id or None,
                     run_id=args.run_id or None,
+                    performance_eval_id=args.performance_eval_id or None,
                 )
             except InvalidErrorType as exc:
                 print(json.dumps({"ok": False, "error_code": "InvalidErrorType", "error": str(exc)}))

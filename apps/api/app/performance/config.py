@@ -6,7 +6,7 @@ from typing import Any
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-DEFAULT_PATH = REPO_ROOT / "config" / "performance_rules.v0.1.yaml"
+DEFAULT_PATH = REPO_ROOT / "config" / "performance_rules.v0.2.yaml"
 
 
 def load_performance_rules(path: Path | None = None) -> dict[str, Any]:

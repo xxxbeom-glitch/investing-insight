@@ -27,8 +27,16 @@ def ingest_fred_series(
     for spec in cfg["series"]:
         series_id = spec["id"]
         role = spec.get("role")
-        obs = client.get_observations(series_id, observation_start=start)
-        payload = {"series_id": series_id, "n": len(obs), "start": start}
+        units = spec.get("units")
+        value_unit = spec.get("value_unit")
+        obs = client.get_observations(series_id, observation_start=start, units=units)
+        payload = {
+            "series_id": series_id,
+            "n": len(obs),
+            "start": start,
+            "units": units,
+            "value_unit": value_unit,
+        }
         raw_hash = stable_raw_hash(payload)
         source_id = uuid.uuid5(uuid.NAMESPACE_URL, f"fred:{series_id}:{raw_hash}")
         storage = Path(f"storage/raw/fred/{series_id}/{raw_hash}.json")
@@ -59,14 +67,15 @@ def ingest_fred_series(
                     """
                     insert into macro_observations (
                       observation_id, provider, series_id, role, observation_date, value,
-                      collected_at, source_id, config_version
-                    ) values (%s,'fred',%s,%s,%s,%s,%s,%s,%s)
+                      collected_at, source_id, config_version, value_unit
+                    ) values (%s,'fred',%s,%s,%s,%s,%s,%s,%s,%s)
                     on conflict (provider, series_id, observation_date) do update set
                       value = excluded.value,
                       role = excluded.role,
                       collected_at = excluded.collected_at,
                       source_id = excluded.source_id,
-                      config_version = excluded.config_version
+                      config_version = excluded.config_version,
+                      value_unit = excluded.value_unit
                     """,
                     (
                         str(oid),
@@ -77,6 +86,7 @@ def ingest_fred_series(
                         now,
                         sid,
                         version,
+                        value_unit,
                     ),
                 )
                 stats["upserted"] += 1
@@ -89,15 +99,20 @@ def latest_by_role(conn: psycopg.Connection) -> dict[str, dict[str, Any]]:
     with conn.cursor() as cur:
         cur.execute(
             """
-            select distinct on (role) role, series_id, observation_date::text, value
+            select distinct on (role) role, series_id, observation_date::text, value, value_unit
             from macro_observations
             where role is not null and value is not null
             order by role, observation_date desc
             """
         )
         out: dict[str, dict[str, Any]] = {}
-        for role, series_id, d, value in cur.fetchall():
-            out[role] = {"series_id": series_id, "date": d, "value": float(value)}
+        for role, series_id, d, value, value_unit in cur.fetchall():
+            out[role] = {
+                "series_id": series_id,
+                "date": d,
+                "value": float(value),
+                "value_unit": value_unit,
+            }
         return out
 
 

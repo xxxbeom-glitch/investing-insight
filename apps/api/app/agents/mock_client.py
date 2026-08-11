@@ -37,45 +37,59 @@ class MockStructuredClient:
 
 def _default_output(role: str, packet: dict[str, Any]) -> dict[str, Any]:
     ticker = packet.get("ticker") or "TEST"
+    allowed = list(packet.get("allowed_evidence_ids") or [])
+    # Prefer real allowed ids so deterministic QA can PASS under mock
+    primary = allowed[0] if allowed else "regime"
     if role == "market_agent":
         return {
             "regime_view": "expansion",
             "key_macro_points": ["labor stable"],
             "risks": ["policy"],
-            "evidence_refs": ["regime"],
+            "evidence_refs": [x for x in allowed if x == "regime"][:1] or ["regime"],
             "unsupported_or_missing": [],
         }
     if role == "industry_agent":
+        refs = [x for x in allowed if x.startswith("assessment")][:1] or [primary]
         return {
             "industry_id": "semis",
             "attractiveness_view": "constructive",
-            "dimension_notes": {"demand": "ok"},
+            "dimension_notes": {
+                "demand": "ok",
+                "capex": "ok",
+                "supply": "ok",
+                "pricing": "ok",
+                "margin": "ok",
+                "bottleneck": "ok",
+            },
             "risks": ["cycle"],
-            "evidence_refs": ["assessment:semis"],
+            "evidence_refs": refs,
             "unsupported_or_missing": [],
         }
     if role == "company_agent":
+        refs = [x for x in allowed if x.startswith("price") or x.startswith("fact") or x == "quant"][:2] or [primary]
         return {
             "ticker": ticker,
-            "thesis": "mock thesis",
+            "thesis": "mock thesis grounded in snapshot facts",
             "positives": ["scale"],
             "negatives": ["competition"],
-            "evidence_refs": ["union"],
+            "evidence_refs": refs,
             "unsupported_or_missing": [],
         }
     if role == "event_agent":
+        refs = [x for x in allowed if x.startswith("filing") or x.startswith("fact")][:2]
         return {
-            "events": ["none material in snapshot"],
+            "events": ["snapshot filing/fact evidence reviewed"] if refs else ["none material in snapshot"],
             "near_term_catalysts": [],
-            "evidence_refs": [],
-            "unsupported_or_missing": ["full event calendar"],
+            "evidence_refs": refs,
+            "unsupported_or_missing": [] if refs else ["full event calendar"],
         }
     if role == "research_agent":
+        refs = allowed[:3] or [primary]
         return {
-            "synthesis": "mock synthesis",
-            "claims": [{"claim": "demand resilient", "evidence_id": "assessment:semis"}],
+            "synthesis": "mock synthesis using allowed evidence only",
+            "claims": [{"claim": "demand resilient", "evidence_id": refs[0]}],
             "bear_case": ["multiple compression"],
-            "evidence_refs": ["assessment:semis", "regime"],
+            "evidence_refs": refs,
             "unsupported_or_missing": [],
         }
     if role == "research_qa_agent":
@@ -94,6 +108,6 @@ def _default_output(role: str, packet: dict[str, Any]) -> dict[str, Any]:
             "bear_case": ["competition"],
             "risks": ["valuation"],
             "invalidation_conditions": ["QA regresses"],
-            "evidence_refs": ["assessment:semis"],
+            "evidence_refs": allowed[:2] or [primary],
         }
     raise ValueError(f"no mock for {role}")

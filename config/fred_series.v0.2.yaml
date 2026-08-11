@@ -1,0 +1,28 @@
+version: fred-series-v0.2
+provider: fred
+base_url: https://api.stlouisfed.org
+# Fail-closed: missing FRED_API_KEY must not silent-skip
+# CPI uses FRED units=pc1 (percent change from year ago) — never raw index levels for inflation scoring
+series:
+  - id: UNRATE
+    role: labor
+    description: Unemployment rate
+    value_unit: percent
+  - id: CPIAUCSL
+    role: inflation
+    description: CPI all urban consumers YoY percent
+    units: pc1
+    value_unit: yoy_pct
+  - id: T10Y2Y
+    role: yield_curve
+    description: 10Y-2Y treasury spread
+    value_unit: percent
+  - id: FEDFUNDS
+    role: policy_rate
+    description: Federal funds rate
+    value_unit: percent
+  - id: INDPRO
+    role: industrial_production
+    description: Industrial production index
+    value_unit: index
+default_observation_start: "2018-01-01"
