@@ -42,7 +42,8 @@ def test_paraphrase_supported_but_novel_fact_in_same_sentence_is_not():
             "payload": {"regime": "expansion", "as_of": "2026-08-10", "inputs": {"inflation": 3.46353}},
         }
     ]
-    assert claim_is_supported(
+    assert claim_is_supported("regime is expansion as of 2026-08-10", "regime", evidence)
+    assert not claim_is_supported(
         "The supplied macro framework classifies the environment as expansion as of 2026-08-10.",
         "regime",
         evidence,

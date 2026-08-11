@@ -1,0 +1,2 @@
+next build: PASS (Next.js 15.1.0)
+scheduler_enable_allowed: false

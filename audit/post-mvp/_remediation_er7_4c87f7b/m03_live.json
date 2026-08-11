@@ -1,0 +1,52 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "live",
+  "job_id": "4a1958ab-a308-49f6-a9cc-fb182a3a435c",
+  "ok": true,
+  "multi_agent_run_id": "708c3c7b-94c8-4432-aa44-94a8c92ffd6b",
+  "run_id": "3fccec22-d25d-4aca-96d4-f596f600284a",
+  "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {"agent_role": "market_agent", "output_id": "2b352013-d49a-4bc6-a3d3-66f4aefd8bbd", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"},
+    {"agent_role": "industry_agent", "output_id": "5a9fbdd7-261d-4be3-b7f2-d5a0e38ad3ce", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"},
+    {"agent_role": "company_agent", "output_id": "f5908fc0-baab-4c58-8410-1706e6e9885d", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"},
+    {"agent_role": "event_agent", "output_id": "6933379a-bc11-460d-bf23-8ffaa79c52bf", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"},
+    {"agent_role": "research_agent", "output_id": "296f975b-0ede-4d92-bd7a-b9fa0cfefe4d", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"},
+    {"agent_role": "research_qa_agent", "output_id": "ffdffa21-34d2-4d34-8738-1b008b94617a", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"},
+    {"agent_role": "adversarial_agent", "output_id": "ca783f66-0a10-4dc4-bc99-9b2380e09455", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"},
+    {"agent_role": "final_selector_agent", "output_id": "a414eb48-aea1-402a-aeb8-98d7a1944a50", "snapshot_id": "6fc6282e-1325-59d0-a96c-273ff9805862"}
+  ],
+  "final": {
+    "status": "WATCH",
+    "rationale_claim_refs": ["claim:0", "claim:1"],
+    "bear_case_claim_refs": ["claim:1", "claim:2", "claim:3"],
+    "risks_claim_refs": ["claim:1"],
+    "invalidation_claim_refs": [],
+    "evidence_refs": ["regime", "assessment:software", "assessment:semis", "assessment:energy_equip"],
+    "claim_refs": ["claim:0", "claim:1", "claim:2", "claim:3"],
+    "rationale": "as_of: 2026-08-10; regime: expansion. name: Software / Platforms; scores: overall 61.76, demand 81.32, pricing 54.11.",
+    "bear_case": [
+      "name: Software / Platforms; scores: overall 61.76, demand 81.32, pricing 54.11.",
+      "name: Semiconductors; scores: overall 56.16, demand 66.02, pricing 54.39.",
+      "name: Energy Equipment; scores: overall 55.92, demand 61.32, pricing 54.39."
+    ],
+    "risks": [
+      "name: Software / Platforms; scores: overall 61.76, demand 81.32, pricing 54.11."
+    ],
+    "invalidation_conditions": []
+  },
+  "judgment_id": "0c0f5a2c-a22d-4e45-a981-b7ff3eab5a89",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

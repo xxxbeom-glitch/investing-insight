@@ -1,0 +1,14 @@
+{
+  "proposal_id": "3515ce86-03fe-46c0-ac81-5223450c7ad9",
+  "approve": {"proposal_id": "3515ce86-03fe-46c0-ac81-5223450c7ad9", "status": "approved"},
+  "freeze": {"proposal_id": "3515ce86-03fe-46c0-ac81-5223450c7ad9", "status": "frozen", "frozen_version": "llm-profile-v0.2"},
+  "replay_evaluation_id": "f5199a3e-8801-4154-ab02-cc2012180b47",
+  "holdout_evaluation_id": "4f8fe2ad-6557-4820-88e0-32d67f72552c",
+  "replay_status": "PASS",
+  "holdout_status": "PASS",
+  "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+  "evaluator_version": "governance-eval-v0.5",
+  "executed": true,
+  "executed_role_count": 8,
+  "scheduler_enable_allowed": false
+}

@@ -97,7 +97,7 @@ def _grounded_claims(packet: dict[str, Any]) -> list[dict[str, str]]:
             if score is not None:
                 claims.append({"claim": f"{ind} overall_score {score}", "evidence_id": eid})
             else:
-                claims.append({"claim": f"{ind} assessment", "evidence_id": eid})
+                claims.append({"claim": json.dumps(payload, ensure_ascii=False, sort_keys=True), "evidence_id": eid})
         else:
             blob = json.dumps(payload, ensure_ascii=False, sort_keys=True) if payload else eid
             claims.append({"claim": blob, "evidence_id": eid})

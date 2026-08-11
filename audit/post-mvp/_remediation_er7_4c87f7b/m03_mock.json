@@ -1,0 +1,97 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "mock",
+  "job_id": "be88f81b-5232-4b67-b8df-406c8b562dc8",
+  "ok": true,
+  "multi_agent_run_id": "5e91416b-777c-480a-b5fc-252622f5db6b",
+  "run_id": "7c980be4-4f2b-46ad-bc9a-938308c6243a",
+  "snapshot_id": "7c659b73-b685-549b-9949-472d90289323",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "4c8907af-ee8d-4884-a320-d4e1038469f6",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "2436b1af-fbb7-4df5-96d3-c8a9fd21fca9",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "a0e8b65b-5514-46fe-b29d-5e8338059b44",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "1c12c789-c426-43e6-8b1d-b98742b5e133",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "79f1dc90-0e40-4f6a-b14b-40b6e924dbbc",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "4008e383-c814-443f-b03a-a62927b69e90",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "40c0c8d8-7285-4878-a8be-e0356bdf6b66",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "deb7b204-00aa-416f-ba6c-6ddb2ab1866c",
+      "snapshot_id": "7c659b73-b685-549b-9949-472d90289323"
+    }
+  ],
+  "final": {
+    "status": "WATCH",
+    "rationale_claim_refs": [
+      "claim:0"
+    ],
+    "bear_case_claim_refs": [
+      "claim:0"
+    ],
+    "risks_claim_refs": [
+      "claim:0"
+    ],
+    "invalidation_claim_refs": [
+      "claim:0"
+    ],
+    "evidence_refs": [
+      "assessment:energy_equip",
+      "assessment:semis"
+    ],
+    "claim_refs": [
+      "claim:0"
+    ],
+    "rationale": "regime is expansion",
+    "bear_case": [
+      "regime is expansion"
+    ],
+    "risks": [
+      "regime is expansion"
+    ],
+    "invalidation_conditions": [
+      "regime is expansion"
+    ]
+  },
+  "judgment_id": "dcfb5e15-1fb8-406d-adb2-84f6163c880c",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

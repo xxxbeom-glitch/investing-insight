@@ -341,7 +341,7 @@ def evaluate_research_qa_gate(
     allowed_evidence_ids: list[str] | set[str] | None = None,
     evidence_bundle: dict[str, Any] | None = None,
 ) -> tuple[str, list[str]]:
-    from app.agents.claim_support import deterministic_claim_verdicts
+    from app.agents.claim_support import claim_unsupported_tokens, deterministic_claim_verdicts
     from app.agents.evidence import validate_research_evidence_ids
 
     if research_output is not None and allowed_evidence_ids is not None:
@@ -373,7 +373,17 @@ def evaluate_research_qa_gate(
                 support_reasons.append(f"claim_verdict_hash_mismatch:{cid}")
             qa_support = str(verdict.get("support") or "").upper()
             if row["support"] == "UNSUPPORTED" or qa_support != "SUPPORTED":
-                support_reasons.append(f"unsupported_claim:{cid}")
+                idx = int(cid.split(":")[-1]) if cid.startswith("claim:") and cid.split(":")[-1].isdigit() else -1
+                claim_row = claims[idx] if 0 <= idx < len(claims) and isinstance(claims[idx], dict) else {}
+                missing = sorted(
+                    claim_unsupported_tokens(
+                        str(claim_row.get("claim") or ""),
+                        str(claim_row.get("evidence_id") or ""),
+                        evidence,
+                    )
+                )
+                suffix = f":{','.join(missing)}" if missing else ""
+                support_reasons.append(f"unsupported_claim:{cid}{suffix}")
             elif qa_support != row["support"]:
                 support_reasons.append(f"claim_verdict_mismatch:{cid}")
         if support_reasons:

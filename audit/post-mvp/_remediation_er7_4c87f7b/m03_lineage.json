@@ -1,0 +1,54 @@
+{
+  "multi_agent_run_id": "708c3c7b-94c8-4432-aa44-94a8c92ffd6b",
+  "lineage": {
+    "regime_id": "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+    "regime_as_of": "2026-08-10",
+    "assessment_as_of": [
+      "2026-08-10",
+      "2026-08-10",
+      "2026-08-10"
+    ],
+    "topdown_assessment_ids": [
+      "9b668487-23ec-455d-bfbe-de71811b7514",
+      "0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+      "2a70eb40-d7ff-4dfc-bda9-2419d78eca8f"
+    ]
+  },
+  "union_assessment_ids": [
+    "9b668487-23ec-455d-bfbe-de71811b7514",
+    "0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "2a70eb40-d7ff-4dfc-bda9-2419d78eca8f"
+  ],
+  "regime_id": "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+  "assessment_ids": [
+    "9b668487-23ec-455d-bfbe-de71811b7514",
+    "0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "2a70eb40-d7ff-4dfc-bda9-2419d78eca8f"
+  ],
+  "assessment_regime_ids": [
+    "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+    "889d1f45-d030-4d79-9f7b-8a4dace27c6d",
+    "889d1f45-d030-4d79-9f7b-8a4dace27c6d"
+  ],
+  "quant_n": 0,
+  "gates": [
+    {
+      "gate_type": "research_qa",
+      "status": "PASS"
+    },
+    {
+      "gate_type": "adversarial",
+      "status": "PASS"
+    },
+    {
+      "gate_type": "final_selector",
+      "status": "PASS"
+    }
+  ],
+  "judgment": {
+    "judgment_id": "0c0f5a2c-a22d-4e45-a981-b7ff3eab5a89",
+    "status": "WATCH",
+    "multi_agent_run_id": "708c3c7b-94c8-4432-aa44-94a8c92ffd6b"
+  },
+  "scheduler_enable_allowed": false
+}

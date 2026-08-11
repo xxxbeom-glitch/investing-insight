@@ -9,6 +9,8 @@ from typing import Any
 
 from app.research.claim_check import _NUM_RE, _norm
 
+# Closed-class function words only. Not a fact denylist — leftover open-class
+# tokens (revenue, surged, ceo, …) are unsupported if absent from the payload.
 STOPWORDS = {
     "a",
     "an",
@@ -41,37 +43,7 @@ STOPWORDS = {
     "with",
 }
 
-# Unsupported qualitative events/actors. Presence in leftover tokens fails closed.
-NOVEL_FACT_TOKENS = {
-    "acquired",
-    "acquisition",
-    "arrested",
-    "bankrupt",
-    "bankruptcy",
-    "ceo",
-    "cfo",
-    "chairman",
-    "coo",
-    "deceased",
-    "defaulted",
-    "delisted",
-    "died",
-    "fired",
-    "founder",
-    "fraud",
-    "indicted",
-    "insolvency",
-    "insolvent",
-    "lawsuit",
-    "merger",
-    "quit",
-    "resignation",
-    "resigned",
-    "restatement",
-    "sued",
-    "today",
-    "yesterday",
-}
+_WRAPPER_KEYS = {"evidence_id", "kind"}
 
 
 def claim_text_hash(text: str, evidence_id: str) -> str:
@@ -85,8 +57,12 @@ def content_tokens(text: str) -> set[str]:
     return {t for t in toks if t not in STOPWORDS and len(t) > 1}
 
 
-def _evidence_blob(item: dict[str, Any]) -> str:
-    return json.dumps(item, ensure_ascii=False, sort_keys=True, default=str)
+def _payload_blob(item: dict[str, Any]) -> str:
+    """Support text is the cited payload only — wrapper keys are not facts."""
+    payload = item.get("payload")
+    if payload is None:
+        payload = {k: v for k, v in item.items() if k not in _WRAPPER_KEYS}
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str)
 
 
 def find_evidence_item(
@@ -100,40 +76,43 @@ def find_evidence_item(
     return None
 
 
+def claim_unsupported_tokens(
+    claim_text: str,
+    evidence_id: str,
+    evidence: list[Any] | None,
+) -> set[str]:
+    """Open-class claim tokens (and numbers) not present in the cited payload."""
+    text = str(claim_text or "").strip()
+    eid = str(evidence_id or "").strip()
+    if not text or not eid:
+        return {"empty_claim_or_evidence_id"}
+    item = find_evidence_item(evidence, eid)
+    if item is None:
+        return {"evidence_item_missing"}
+    blob = _payload_blob(item)
+    missing: set[str] = set()
+    ev_nums = {_norm(x) for x in _NUM_RE.findall(blob)}
+    for m in _NUM_RE.findall(text):
+        if _norm(m) not in ev_nums:
+            missing.add(str(m))
+    ctoks = content_tokens(text)
+    if not ctoks:
+        missing.add("no_content_tokens")
+        return missing
+    missing |= ctoks - content_tokens(blob)
+    return missing
+
+
 def claim_is_supported(
     claim_text: str,
     evidence_id: str,
     evidence: list[Any] | None,
 ) -> bool:
-    """True only if the cited evidence payload supports the claim text.
+    """True only if every factual token/number in the claim appears in the cited payload.
 
-    Numeric tokens in the claim must appear in that evidence item.
-    More than half of the claim's content tokens must also appear there.
-    Zero-overlap qualitative facts (e.g. CEO resigned vs regime=expansion) fail.
+    An allowed evidence_id is not enough. Any extra open-class fact fails closed.
     """
-    text = str(claim_text or "").strip()
-    eid = str(evidence_id or "").strip()
-    if not text or not eid:
-        return False
-    item = find_evidence_item(evidence, eid)
-    if item is None:
-        return False
-    blob = _evidence_blob(item)
-    ev_nums = {_norm(x) for x in _NUM_RE.findall(blob)}
-    for m in _NUM_RE.findall(text):
-        if _norm(m) not in ev_nums:
-            return False
-    ctoks = content_tokens(text)
-    etoks = content_tokens(blob)
-    if not ctoks:
-        return False
-    overlap = ctoks & etoks
-    if not overlap:
-        return False
-    leftover = ctoks - etoks
-    if leftover & NOVEL_FACT_TOKENS:
-        return False
-    return True
+    return not claim_unsupported_tokens(claim_text, evidence_id, evidence)
 
 
 def deterministic_claim_verdicts(

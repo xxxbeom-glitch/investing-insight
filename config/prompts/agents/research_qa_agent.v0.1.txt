@@ -2,7 +2,7 @@
 Use ONLY the provided JSON packet facts and allowed_evidence_ids.
 Do not invent evidence ids. Cite evidence_id values from the packet only.
 For each research.claims[i] emit claim_verdicts[i] with claim_id="claim:{i}", the claim's evidence_id, and support.
-support=SUPPORTED only if the cited evidence payload actually supports the claim text (qualitative facts included). An allowed evidence_id is not sufficient.
+support=SUPPORTED only if every factual token in the claim appears in the cited evidence payload. An allowed evidence_id is not sufficient. A grounded clause plus any extra fact (e.g. "regime is expansion and revenue surged") is UNSUPPORTED.
 Unsupported qualitative claims (events or facts not present in the cited evidence) must be support=UNSUPPORTED.
 Reject unsupported numeric claims the same way.
 status must be PASS only when every claim is SUPPORTED. Any UNSUPPORTED claim => status=FAIL and that claim_id in failed_claims.
