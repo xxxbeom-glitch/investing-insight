@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
+import { IBM_Plex_Mono, Noto_Sans_KR } from "next/font/google";
 import { Shell } from "@/components/Shell";
 import "./globals.css";
 
-const sans = IBM_Plex_Sans({
+const sans = Noto_Sans_KR({
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
-});
-const serif = IBM_Plex_Serif({
-  subsets: ["latin"],
-  weight: ["500", "600"],
-  variable: "--font-serif",
 });
 const mono = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -21,7 +16,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "investing-insight",
-  description: "AI stock research + decision audit (PC)",
+  description: "미국 주식 AI 리서치·판단 감사 (PC)",
 };
 
 export default function RootLayout({
@@ -30,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
+    <html lang="ko" className={`${sans.variable} ${mono.variable}`}>
       <body>
         <Shell>{children}</Shell>
       </body>

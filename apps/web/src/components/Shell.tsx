@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 const NAV = [
-  { href: "/", label: "Dashboard" },
-  { href: "/runs", label: "Research Runs" },
-  { href: "/candidates", label: "Candidates" },
-  { href: "/audit", label: "Audit & QA" },
-  { href: "/ops", label: "Ops Health" },
-  { href: "/settings", label: "Settings" },
+  { href: "/", label: "대시보드" },
+  { href: "/runs", label: "리서치 실행" },
+  { href: "/candidates", label: "후보 종목" },
+  { href: "/audit", label: "감사·QA" },
+  { href: "/ops", label: "운영 상태" },
+  { href: "/settings", label: "설정" },
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {
@@ -21,7 +21,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <p className="sidebar-note">PC · 1280px+ audit console</p>
+        <p className="sidebar-note">PC · 가로 1280px 이상</p>
       </aside>
       <div className="main-wrap">{children}</div>
     </div>

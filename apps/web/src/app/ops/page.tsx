@@ -21,6 +21,13 @@ type OpsHealth = {
   providers?: Record<string, boolean>;
 };
 
+function jobStatus(status: string) {
+  if (status === "success") return "성공";
+  if (status === "running") return "실행 중";
+  if (status === "failed") return "실패";
+  return status;
+}
+
 export default async function OpsPage() {
   const ops = await apiGet<OpsHealth>("/v1/ops/health");
   const d = ops.data;
@@ -28,33 +35,33 @@ export default async function OpsPage() {
 
   return (
     <main>
-      <h1>Ops Health</h1>
-      <p className="lead">Scheduler jobs · Free-plan backup readiness · provider flags (no secrets)</p>
+      <h1>운영 상태</h1>
+      <p className="lead">스케줄 작업 · 백업 준비 · 공급자 플래그 (비밀키 없음)</p>
       <div className="stats">
         <div className="stat">
           <div className="k">API</div>
-          <div className={ops.ok ? "v ok" : "v bad"}>{ops.ok ? "PASS" : "FAIL"}</div>
+          <div className={ops.ok ? "v ok" : "v bad"}>{ops.ok ? "정상" : "실패"}</div>
         </div>
         <div className="stat">
-          <div className="k">Backup</div>
+          <div className="k">백업</div>
           <div className={d?.backup_ready ? "v ok" : "v bad"}>
-            {d?.backup_ready ? "READY" : "PENDING"}
+            {d?.backup_ready ? "준비됨" : "대기"}
           </div>
         </div>
         <div className="stat">
-          <div className="k">PITR</div>
-          <div className="v bad">{d?.pitr_available ? "ON" : "N/A (Free)"}</div>
+          <div className="k">시점복구(PITR)</div>
+          <div className="v bad">{d?.pitr_available ? "켜짐" : "없음 (Free)"}</div>
         </div>
         <div className="stat">
-          <div className="k">Schedulers</div>
+          <div className="k">스케줄러</div>
           <div className="v bad">
-            {d?.scheduler_enable_allowed ? "ALLOWED" : "BLOCKED"}
+            {d?.scheduler_enable_allowed ? "허용" : "차단"}
           </div>
         </div>
       </div>
       <div className="stats">
         <div className="stat">
-          <div className="k">Failed 24h</div>
+          <div className="k">24시간 실패</div>
           <div className={`v ${(d?.failed_jobs_24h ?? 0) > 0 ? "bad" : "ok"}`}>
             {d?.failed_jobs_24h ?? "—"}
           </div>
@@ -62,7 +69,7 @@ export default async function OpsPage() {
       </div>
       <div className="grid">
         <div className="row">
-          <div className="label">Providers</div>
+          <div className="label">공급자</div>
           <div className="mono">
             {d?.providers
               ? Object.entries(d.providers)
@@ -72,9 +79,9 @@ export default async function OpsPage() {
           </div>
         </div>
       </div>
-      <h2>Recent jobs</h2>
+      <h2>최근 작업</h2>
       {jobs.length === 0 ? (
-        <p className="lead">No ops_jobs yet. Run daily/biweekly CLIs after migration 0010.</p>
+        <p className="lead">아직 운영 작업이 없습니다. 마이그레이션 0010 이후 CLI로 실행하세요.</p>
       ) : (
         <div className="grid">
           {jobs.map((j) => (
@@ -84,11 +91,11 @@ export default async function OpsPage() {
               </div>
               <div>
                 <span className={j.status === "success" ? "ok" : j.status === "running" ? "" : "bad"}>
-                  {j.status}
+                  {jobStatus(j.status)}
                 </span>
                 <div className="mono">
                   {j.stage}
-                  {j.error_code ? ` · ${j.error_code}` : ""} · retry={j.retry_count}
+                  {j.error_code ? ` · ${j.error_code}` : ""} · 재시도={j.retry_count}
                 </div>
                 <div className="mono">{j.started_at}</div>
               </div>
@@ -97,7 +104,7 @@ export default async function OpsPage() {
         </div>
       )}
       <p className="lead">
-        <Link href="/">← Dashboard</Link>
+        <Link href="/">← 대시보드</Link>
       </p>
     </main>
   );

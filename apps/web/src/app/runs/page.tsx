@@ -20,20 +20,20 @@ export default async function RunsPage() {
   const runs = res.data?.runs ?? [];
   return (
     <main>
-      <h1>Research Runs</h1>
-      <p className="lead">Cutoff · status · versions · candidate/selected counts</p>
-      {!res.ok && <p className="bad">API FAIL: {res.error}</p>}
+      <h1>리서치 실행</h1>
+      <p className="lead">기준시각 · 상태 · 버전 · 후보/선정 건수</p>
+      {!res.ok && <p className="bad">API 오류: {res.error}</p>}
       <table className="table">
         <thead>
           <tr>
-            <th>run_id</th>
-            <th>status</th>
-            <th>cutoff</th>
-            <th>quant</th>
-            <th>llm</th>
-            <th>candidates</th>
-            <th>selected</th>
-            <th>commit</th>
+            <th>실행 ID</th>
+            <th>상태</th>
+            <th>기준시각</th>
+            <th>퀀트</th>
+            <th>LLM</th>
+            <th>후보</th>
+            <th>선정</th>
+            <th>커밋</th>
           </tr>
         </thead>
         <tbody>

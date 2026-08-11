@@ -20,11 +20,11 @@ export default async function CompanyPage({
   const { securityId } = await params;
   const { run_id } = await searchParams;
   if (!run_id) {
-    return <main><h1>Company</h1><p className="bad">run_id query required</p></main>;
+    return <main><h1>종목</h1><p className="bad">실행 ID(run_id)가 필요합니다</p></main>;
   }
   const res = await apiGet<Company>(`/v1/companies/${securityId}?run_id=${run_id}`);
   if (!res.ok || !res.data) {
-    return <main><h1>Company</h1><p className="bad">{res.error}</p></main>;
+    return <main><h1>종목</h1><p className="bad">{res.error}</p></main>;
   }
   const d = res.data;
   const qaFail = d.research?.qa_status === "FAIL";
@@ -34,26 +34,26 @@ export default async function CompanyPage({
         {d.identity.ticker} <span style={{ color: "var(--muted)", fontSize: "1rem" }}>{d.identity.exchange}</span>
       </h1>
       <p className="lead">
-        {d.identity.name ?? "—"} · <Link href={`/runs/${d.run_id}`}>run</Link>
-        {qaFail && <span className="bad"> · Research QA FAIL</span>}
+        {d.identity.name ?? "—"} · <Link href={`/runs/${d.run_id}`}>실행</Link>
+        {qaFail && <span className="bad"> · 리서치 QA 실패</span>}
       </p>
       <div className="grid">
         <div className="row">
-          <div className="label">Quant</div>
+          <div className="label">퀀트</div>
           <div className="mono">{d.quant ? JSON.stringify(d.quant, null, 2) : "—"}</div>
         </div>
         <div className="row">
-          <div className="label">Judgment</div>
+          <div className="label">판단</div>
           <div className="mono">{d.judgment ? JSON.stringify(d.judgment, null, 2) : "—"}</div>
         </div>
         <div className="row">
-          <div className="label">AI Research / QA</div>
+          <div className="label">AI 리서치 / QA</div>
           <div className="mono">{d.research ? JSON.stringify(d.research, null, 2) : "—"}</div>
         </div>
         <div className="row">
-          <div className="label">Evidence / packet</div>
+          <div className="label">근거 / 패킷</div>
           <div className="mono">
-            hash {d.packet?.input_hash ?? "—"}
+            해시 {d.packet?.input_hash ?? "—"}
             <pre>{JSON.stringify(d.packet?.evidence ?? [], null, 2)}</pre>
           </div>
         </div>

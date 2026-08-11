@@ -44,7 +44,7 @@ body {
 }
 
 .brand {
-  font-family: var(--font-serif), "Georgia", serif;
+  font-family: var(--font-sans), "Malgun Gothic", sans-serif;
   font-size: 1.35rem;
   letter-spacing: -0.03em;
   margin-bottom: 20px;
@@ -75,7 +75,7 @@ body {
 }
 
 h1 {
-  font-family: var(--font-serif), "Georgia", serif;
+  font-family: var(--font-sans), "Malgun Gothic", sans-serif;
   font-size: 1.85rem;
   letter-spacing: -0.03em;
   margin: 0 0 8px;
