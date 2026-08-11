@@ -1,0 +1,100 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "live",
+  "job_id": "5293b484-7a6b-479b-812d-8c124cb5ccc5",
+  "ok": true,
+  "multi_agent_run_id": "333cc7eb-21e3-49ef-b000-fac72db19043",
+  "run_id": "b8097258-d54b-4856-9a49-02ef1d2e4788",
+  "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "1f029411-c0b9-4a23-b230-0ed2adb2eb1f",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "5ca91849-df36-4473-b172-596968ea2103",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "c330256c-47ac-40d2-a5d4-3362aeec53ea",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "a18203a2-dbd0-4a6d-ba00-3421cb53e455",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "b7626af0-cd12-4dc1-b53b-65ac4ce1ae3d",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "30e7d4aa-2c32-452f-8940-4b1aa7ad815e",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "02004ca0-430b-4636-887b-f209d12251f8",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "6880ad50-9910-4887-a094-4e85230f7518",
+      "snapshot_id": "7a8f3ab7-5c70-5618-b43e-f18afd169cbd"
+    }
+  ],
+  "final": {
+    "status": "REJECT",
+    "rationale": "The supplied industry scores and macro regime classification do not establish any Microsoft-specific exposure, outcome, or investment implication. No packet evidence establishes that Microsoft has exposure to, or can translate, the industry-level assessment into company-specific financial or market outcomes.",
+    "bear_case": [
+      "The supplied industry scores do not establish that demand is the principal driver of the overall ranking because no weighting or scoring methodology is provided.",
+      "The packet does not provide underlying demand data or scoring methodology to validate persistence of the supplied demand score.",
+      "The differing input dates qualify interpretation of the expansion classification as a simultaneous real-time reading."
+    ],
+    "risks": [
+      "Software / Platforms has the highest supplied overall assessment score among the three listed industries, but the assessment provides no underlying operating or financial evidence explaining its scores.",
+      "The supplied macro framework classifies the regime as expansion as of 2026-08-10, while the macro inputs have differing observation dates.",
+      "No packet evidence establishes that Microsoft can translate the industry-level assessment into company-specific financial or market outcomes."
+    ],
+    "invalidation_conditions": [
+      "The supplied industry scores and macro regime classification do not establish any Microsoft-specific exposure, outcome, or investment implication.",
+      "The supplied Software / Platforms assessment provides scores but no underlying operating or financial evidence explaining the demand, capex, supply, pricing, margin, or bottleneck scores."
+    ],
+    "evidence_refs": [
+      "assessment:software",
+      "assessment:semis",
+      "assessment:energy_equip",
+      "regime"
+    ],
+    "claim_refs": [
+      "adv:counter_thesis",
+      "research_bear:3",
+      "adv:broken:0",
+      "research_bear:0",
+      "adv:broken:2",
+      "claim:0",
+      "claim:2",
+      "claim:3",
+      "claim:4"
+    ]
+  },
+  "judgment_id": "5e1899ff-a984-4a09-a9c4-1ff56f63d140",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

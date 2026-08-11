@@ -1,0 +1,18 @@
+{
+  "proposal_id": "d1010f28-0ef4-4505-aa7b-9429ef026bcc",
+  "approve": {
+    "proposal_id": "d1010f28-0ef4-4505-aa7b-9429ef026bcc",
+    "status": "approved"
+  },
+  "freeze": {
+    "proposal_id": "d1010f28-0ef4-4505-aa7b-9429ef026bcc",
+    "status": "frozen",
+    "frozen_version": "llm-profile-v0.2"
+  },
+  "replay_evaluation_id": "f35aab08-7b47-40b3-8691-478996d43aca",
+  "holdout_evaluation_id": "96469e44-87f8-4eab-b8aa-b95a97d077f9",
+  "replay_status": "PASS",
+  "holdout_status": "PASS",
+  "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+  "scheduler_enable_allowed": false
+}

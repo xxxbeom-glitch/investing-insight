@@ -1,0 +1,86 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "mock",
+  "job_id": "8530fdca-849c-4d62-aa95-8f0122f61994",
+  "ok": true,
+  "multi_agent_run_id": "2c824287-0e13-4c49-82a2-0dc6d20e4e7c",
+  "run_id": "de2c5fe9-1661-417f-b253-0360b7702f79",
+  "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "outputs": [
+    {
+      "agent_role": "market_agent",
+      "output_id": "a4f18c0e-aeee-4207-8733-9e76209b4bb7",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    },
+    {
+      "agent_role": "industry_agent",
+      "output_id": "15556a2f-ba3f-4b25-bebb-83c3a1dd11fa",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    },
+    {
+      "agent_role": "company_agent",
+      "output_id": "7523e0d1-9333-4fef-98f0-5fcfd05fe315",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    },
+    {
+      "agent_role": "event_agent",
+      "output_id": "8c2bbcc2-6fe0-4ce3-8329-a644fb50bd9a",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    },
+    {
+      "agent_role": "research_agent",
+      "output_id": "fd0db5e6-495d-4ac3-8881-6e57684d0545",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    },
+    {
+      "agent_role": "research_qa_agent",
+      "output_id": "1f55b89c-11f2-4ad7-acbb-24a3d0fe8259",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    },
+    {
+      "agent_role": "adversarial_agent",
+      "output_id": "cf23aad3-1feb-4bf9-bea9-7bfe81b0754c",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    },
+    {
+      "agent_role": "final_selector_agent",
+      "output_id": "38aeca61-55fc-4597-a075-b90afa4855d7",
+      "snapshot_id": "d0384c74-e7bd-55b9-a54c-dc5995592601"
+    }
+  ],
+  "final": {
+    "status": "WATCH",
+    "rationale": "demand resilient",
+    "bear_case": [
+      "multiple compression"
+    ],
+    "risks": [
+      "multiple compression"
+    ],
+    "invalidation_conditions": [
+      "demand resilient"
+    ],
+    "evidence_refs": [
+      "assessment:energy_equip",
+      "assessment:semis"
+    ],
+    "claim_refs": [
+      "claim:0",
+      "research_bear:0"
+    ]
+  },
+  "judgment_id": "cd106d55-fc6b-423b-8dbd-5d4283c34d0f",
+  "allowed_evidence_ids": [
+    "assessment:energy_equip",
+    "assessment:semis",
+    "assessment:software",
+    "assessment_id:0b0ac439-1c80-4acd-bc34-a4799b7f31c2",
+    "assessment_id:2a70eb40-d7ff-4dfc-bda9-2419d78eca8f",
+    "assessment_id:9b668487-23ec-455d-bfbe-de71811b7514",
+    "regime",
+    "union"
+  ]
+}

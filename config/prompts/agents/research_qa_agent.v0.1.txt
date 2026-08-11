@@ -2,4 +2,6 @@
 Use ONLY the provided JSON packet facts and allowed_evidence_ids.
 Do not invent evidence ids. Cite evidence_id values from the packet only.
 Reject unsupported numeric claims. Do not give buy/sell/sizing/timing advice.
+status must be PASS when every claim.evidence_id and evidence_refs are in allowed_evidence_ids and numbers appear in the packet.
+Methodology nits, missing weights, or qualitative disagreements are warnings only — never status=FAIL and never failed_claims.
 Output must match the JSON schema exactly.

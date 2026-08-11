@@ -102,12 +102,17 @@ def _default_output(role: str, packet: dict[str, Any]) -> dict[str, Any]:
             "gate_blockers": [],
         }
     if role == "final_selector_agent":
+        catalog = packet.get("approved_claims") or []
+        claim_ids = [c.get("claim_id") for c in catalog if c.get("claim_id")][:2] or ["claim:0"]
+        claim_text = (catalog[0].get("text") if catalog else None) or "demand resilient"
+        bear = (packet.get("research_agent") or {}).get("bear_case") or ["multiple compression"]
         return {
             "status": "WATCH",
-            "rationale": "gates passed; tracking only",
-            "bear_case": ["competition"],
-            "risks": ["valuation"],
-            "invalidation_conditions": ["QA regresses"],
+            "rationale": claim_text,
+            "bear_case": list(bear)[:1] or ["multiple compression"],
+            "risks": list(bear)[:1] or ["multiple compression"],
+            "invalidation_conditions": [claim_text],
             "evidence_refs": allowed[:2] or [primary],
+            "claim_refs": claim_ids,
         }
     raise ValueError(f"no mock for {role}")

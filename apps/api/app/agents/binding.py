@@ -11,9 +11,52 @@ import psycopg
 from app.snapshot.engine import create_snapshot
 
 
+class FrozenContextError(RuntimeError):
+    pass
+
+
 def context_hash(frozen: dict[str, Any]) -> str:
     blob = json.dumps(frozen, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
+
+
+def bind_union_lineage(
+    union: dict[str, Any],
+    assessments: list[dict[str, Any]],
+    regimes: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Bind exact union assessment IDs and their shared regime — never latest-by-created_at."""
+    raw_ids = list(union.get("topdown_assessment_ids") or [])
+    ids = [str(x) for x in raw_ids if str(x).strip()]
+    if not ids:
+        raise FrozenContextError("union missing topdown_assessment_ids")
+    if len(ids) != len(set(ids)):
+        raise FrozenContextError("duplicate assessment ids in union")
+    by_id = {str(a.get("assessment_id")): a for a in assessments}
+    ordered: list[dict[str, Any]] = []
+    for aid in ids:
+        row = by_id.get(aid)
+        if not row:
+            raise FrozenContextError(f"assessment missing: {aid}")
+        ordered.append(row)
+    regime_ids = {str(a.get("regime_id") or "") for a in ordered}
+    if "" in regime_ids or len(regime_ids) != 1:
+        raise FrozenContextError("assessments span inconsistent regime lineage")
+    rid = next(iter(regime_ids))
+    regime = next((r for r in regimes if str(r.get("regime_id")) == rid), None)
+    if not regime:
+        raise FrozenContextError(f"regime missing: {rid}")
+    as_ofs = {str(a.get("as_of") or "") for a in ordered}
+    if "" in as_ofs or len(as_ofs) != 1:
+        raise FrozenContextError("assessments span inconsistent as_of lineage")
+    if str(regime.get("as_of") or "") not in as_ofs:
+        raise FrozenContextError("regime as_of diverges from assessments")
+    return {
+        "assessments": ordered,
+        "regime": regime,
+        "topdown_assessment_ids": ids,
+        "regime_id": rid,
+    }
 
 
 def _load_frozen_context(conn: psycopg.Connection) -> dict[str, Any]:
@@ -26,57 +69,81 @@ def _load_frozen_context(conn: psycopg.Connection) -> dict[str, Any]:
     with conn.cursor() as cur:
         cur.execute(
             """
-            select union_id::text, as_of::text, bottom_up_run_id::text, members
+            select union_id::text, as_of::text, bottom_up_run_id::text, members, topdown_assessment_ids
             from shortlist_unions
             order by created_at desc
             limit 1
             """
         )
         row = cur.fetchone()
-        if row:
-            ctx["union"] = {
-                "union_id": row[0],
-                "as_of": row[1],
-                "bottom_up_run_id": row[2],
-                "members": row[3] if isinstance(row[3], list) else json.loads(row[3] or "[]"),
-            }
+        if not row:
+            return ctx
+        ids = row[4] or []
+        if hasattr(ids, "tolist"):
+            ids = list(ids)
+        elif not isinstance(ids, list):
+            ids = list(ids)
+        ctx["union"] = {
+            "union_id": row[0],
+            "as_of": row[1],
+            "bottom_up_run_id": row[2],
+            "members": row[3] if isinstance(row[3], list) else json.loads(row[3] or "[]"),
+            "topdown_assessment_ids": [str(x) for x in ids],
+        }
         cur.execute(
             """
-            select regime_id::text, as_of::text, regime, inputs, rule_version
-            from market_regimes
-            order by created_at desc
-            limit 1
-            """
-        )
-        row = cur.fetchone()
-        if row:
-            inputs = row[3] if isinstance(row[3], dict) else json.loads(row[3] or "{}")
-            ctx["regime"] = {
-                "regime_id": row[0],
-                "as_of": row[1],
-                "regime": row[2],
-                "inputs": inputs,
-                "rule_version": row[4],
-            }
-        cur.execute(
-            """
-            select distinct on (industry_id)
-              assessment_id::text, industry_id, overall_score, as_of::text, details
+            select assessment_id::text, industry_id, overall_score, as_of::text, details,
+                   regime_id::text
             from industry_assessments
-            order by industry_id, created_at desc
-            """
+            where assessment_id = any(%s::uuid[])
+            """,
+            (ctx["union"]["topdown_assessment_ids"],),
         )
-        for aid, industry_id, overall, as_of, details in cur.fetchall():
+        assessments = []
+        for aid, industry_id, overall, as_of, details, regime_id in cur.fetchall():
             det = details if isinstance(details, dict) else json.loads(details or "{}")
-            ctx["assessments"].append(
+            assessments.append(
                 {
                     "assessment_id": aid,
                     "industry_id": industry_id,
                     "overall_score": float(overall),
                     "as_of": as_of,
                     "details": det,
+                    "regime_id": regime_id,
                 }
             )
+        regime_ids = sorted({a["regime_id"] for a in assessments if a.get("regime_id")})
+        regimes: list[dict[str, Any]] = []
+        if regime_ids:
+            cur.execute(
+                """
+                select regime_id::text, as_of::text, regime, inputs, rule_version
+                from market_regimes
+                where regime_id = any(%s::uuid[])
+                """,
+                (regime_ids,),
+            )
+            for rid, as_of, regime, inputs, rule_version in cur.fetchall():
+                inp = inputs if isinstance(inputs, dict) else json.loads(inputs or "{}")
+                regimes.append(
+                    {
+                        "regime_id": rid,
+                        "as_of": as_of,
+                        "regime": regime,
+                        "inputs": inp,
+                        "rule_version": rule_version,
+                    }
+                )
+        bound = bind_union_lineage(ctx["union"], assessments, regimes)
+        ctx["assessments"] = bound["assessments"]
+        ctx["regime"] = bound["regime"]
+        ctx["union"]["topdown_assessment_ids"] = bound["topdown_assessment_ids"]
+        ctx["lineage"] = {
+            "topdown_assessment_ids": bound["topdown_assessment_ids"],
+            "regime_id": bound["regime_id"],
+            "assessment_as_of": [a.get("as_of") for a in bound["assessments"]],
+            "regime_as_of": bound["regime"].get("as_of"),
+        }
         bottom_run = (ctx["union"] or {}).get("bottom_up_run_id")
         if bottom_run:
             cur.execute(
@@ -103,10 +170,6 @@ def _load_frozen_context(conn: psycopg.Connection) -> dict[str, Any]:
                 ],
             }
     return ctx
-
-
-class FrozenContextError(RuntimeError):
-    pass
 
 
 def verify_frozen_context(conn: psycopg.Connection, multi_agent_run_id: str) -> dict[str, Any]:

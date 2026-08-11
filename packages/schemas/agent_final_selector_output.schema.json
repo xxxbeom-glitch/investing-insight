@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "agent_final_selector_output.v0.1",
   "type": "object",
-  "required": ["status", "rationale", "bear_case", "risks", "invalidation_conditions", "evidence_refs"],
+  "required": ["status", "rationale", "bear_case", "risks", "invalidation_conditions", "evidence_refs", "claim_refs"],
   "additionalProperties": false,
   "properties": {
     "status": {"type": "string", "enum": ["SELECTED", "WATCH", "REJECT"]},
@@ -10,6 +10,7 @@
     "bear_case": {"type": "array", "items": {"type": "string"}},
     "risks": {"type": "array", "items": {"type": "string"}},
     "invalidation_conditions": {"type": "array", "items": {"type": "string"}},
-    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "claim_refs": {"type": "array", "items": {"type": "string"}}
   }
 }

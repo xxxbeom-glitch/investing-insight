@@ -1,0 +1,59 @@
+{
+  "evaluation_id": "96469e44-87f8-4eab-b8aa-b95a97d077f9",
+  "eval_kind": "holdout",
+  "evaluator_version": "governance-eval-v0.2",
+  "artifact_type": "llm_profile",
+  "artifact_ref": "llm_profiles.v0.2.yaml",
+  "candidate_version": "llm-profile-v0.2",
+  "dataset_id": "holdout-llm_profile-6416d990d6d9",
+  "dataset_hash": "2789c98522bd3667954c1657811153729a5f9261375db57e815a056372e5dd9a",
+  "sample_count": 1,
+  "metrics": {
+    "artifact_loaded": true,
+    "artifact_path": "config/llm_profiles.v0.2.yaml",
+    "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892",
+    "artifact_type": "llm_profile",
+    "candidate_version": "llm-profile-v0.2",
+    "profile": {
+      "kind": "multiagent",
+      "version": "llm-profile-v0.2",
+      "roles": [
+        "market_agent",
+        "industry_agent",
+        "company_agent",
+        "event_agent",
+        "research_agent",
+        "research_qa_agent",
+        "adversarial_agent",
+        "final_selector_agent"
+      ]
+    },
+    "gates": {
+      "results": [
+        {
+          "packet_id": "holdout-assessment-watch",
+          "qa": "PASS",
+          "adversarial": "PASS",
+          "final": "PASS",
+          "reasons": []
+        }
+      ],
+      "gate_pass_rate": 1.0,
+      "sample_count": 1
+    }
+  },
+  "baseline": {
+    "artifact_content_hash": "6416d990d6d967e974e1448894bc4e7433f24d925fc0f2f801feb69390f37892"
+  },
+  "thresholds": {
+    "replay_gate_pass_rate_min": 1.0,
+    "holdout_gate_pass_rate_min": 1.0,
+    "holdout_min_sample": 1,
+    "quant_weight_sum": 100,
+    "quant_score_min": 0.0,
+    "quant_score_max": 100.0
+  },
+  "status": "PASS",
+  "generated_at": "2026-08-11T03:46:05.872005+00:00",
+  "output_hash": "cf5f779b6bd0d5630e743c3ef7039fa43f6597860b9eea1ede4b42d5cdeb14eb"
+}

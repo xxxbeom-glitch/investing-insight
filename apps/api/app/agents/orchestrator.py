@@ -217,6 +217,8 @@ def run_multi_agent_pipeline(
             final_result["output"],
             allowed_evidence_ids=evidence_bundle.get("allowed_evidence_ids") or [],
             evidence_bundle=evidence_bundle,
+            research_output=prior.get("research_agent"),
+            adversarial_output=prior.get("adversarial_agent"),
         )
         record_gate(
             conn,

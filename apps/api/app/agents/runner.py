@@ -141,6 +141,9 @@ def build_role_packet(
             "allowed_evidence_ids": allowed,
         }
     if agent_role == "final_selector_agent":
+        from app.agents.final_gate import approved_claim_catalog
+
+        catalog = approved_claim_catalog(prior.get("research_agent"), prior.get("adversarial_agent"))
         return {
             **base,
             "security_id": security_id,
@@ -148,6 +151,7 @@ def build_role_packet(
             "research_agent": prior.get("research_agent"),
             "research_qa_agent": prior.get("research_qa_agent"),
             "adversarial_agent": prior.get("adversarial_agent"),
+            "approved_claims": catalog,
             "allowed_evidence_ids": allowed,
         }
     raise ValueError(f"unknown agent_role: {agent_role}")
