@@ -1,0 +1,41 @@
+{
+  "claims": [
+    {
+      "claim": "The regime is expansion.",
+      "evidence_id": "regime"
+    },
+    {
+      "claim": "Software / Platforms overall score is 61.76.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Software / Platforms demand score is 81.32.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Software / Platforms pricing score is 54.11.",
+      "evidence_id": "assessment:software"
+    },
+    {
+      "claim": "Semiconductors pricing score is 54.39.",
+      "evidence_id": "assessment:semis"
+    },
+    {
+      "claim": "Energy Equipment pricing score is 54.39.",
+      "evidence_id": "assessment:energy_equip"
+    }
+  ],
+  "bear_case": [
+    "Software / Platforms pricing score is 54.11.",
+    "Semiconductors pricing score is 54.39.",
+    "Energy Equipment pricing score is 54.39."
+  ],
+  "synthesis": "The regime is expansion. Software / Platforms overall score is 61.76. Software / Platforms demand score is 81.32. Software / Platforms pricing score is 54.11.",
+  "evidence_refs": [
+    "regime",
+    "assessment:software",
+    "assessment:semis",
+    "assessment:energy_equip"
+  ],
+  "unsupported_or_missing": []
+}

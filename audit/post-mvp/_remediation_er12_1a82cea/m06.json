@@ -1,0 +1,42 @@
+{
+  "proposal_id": "1b9bd295-232c-4a78-8692-b99cd0b50d39",
+  "create": {
+    "ok": true,
+    "proposal_id": "1b9bd295-232c-4a78-8692-b99cd0b50d39",
+    "status": "draft",
+    "scheduler_enable_allowed": false
+  },
+  "submit": {
+    "ok": true,
+    "proposal_id": "1b9bd295-232c-4a78-8692-b99cd0b50d39",
+    "status": "proposed",
+    "scheduler_enable_allowed": false
+  },
+  "approve": {
+    "ok": true,
+    "proposal_id": "1b9bd295-232c-4a78-8692-b99cd0b50d39",
+    "status": "approved",
+    "scheduler_enable_allowed": false
+  },
+  "freeze": {
+    "ok": true,
+    "proposal_id": "1b9bd295-232c-4a78-8692-b99cd0b50d39",
+    "status": "frozen",
+    "frozen_version": "llm-profile-v0.2",
+    "scheduler_enable_allowed": false
+  },
+  "replay_evaluation_id": "cb57f240-eb91-46fb-ad81-904b069631fb",
+  "holdout_evaluation_id": "1e950ee1-6313-4bc1-9d0b-64340cf9214b",
+  "replay_status": "PASS",
+  "holdout_status": "PASS",
+  "attach": {
+    "ok": true,
+    "proposal_id": "1b9bd295-232c-4a78-8692-b99cd0b50d39",
+    "replay_status": "PASS",
+    "holdout_status": "PASS",
+    "replay_evaluation_id": "cb57f240-eb91-46fb-ad81-904b069631fb",
+    "holdout_evaluation_id": "1e950ee1-6313-4bc1-9d0b-64340cf9214b",
+    "scheduler_enable_allowed": false
+  },
+  "scheduler_enable_allowed": false
+}
