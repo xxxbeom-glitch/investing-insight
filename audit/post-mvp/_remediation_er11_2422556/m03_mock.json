@@ -1,0 +1,13 @@
+{
+  "job_type": "multi_agent",
+  "scheduler_enable_allowed": false,
+  "mode": "mock",
+  "job_id": "103f6718-cc28-4640-9bb4-1d5ea8ff577e",
+  "ok": true,
+  "multi_agent_run_id": "9e7a6745-6e44-44a3-8379-5b83b692945c",
+  "run_id": "85592dc5-3864-4886-9d17-5eadcfe58345",
+  "snapshot_id": "afcd44a6-6f2a-52ce-80ab-1e7faf7ffc3f",
+  "security_id": "b9fae537-2c1d-582d-91cb-502d3e261147",
+  "ticker": "MSFT",
+  "judgment_id": "d91e0ee5-996f-42da-afb5-feb69f338749"
+}

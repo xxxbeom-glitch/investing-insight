@@ -1,0 +1,26 @@
+> web@0.1.0 build
+> next build
+
+   Next.js 15.1.0
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/10) ...
+ Generating static pages (10/10)
+
+Route (app)                              Size     First Load JS
+┌ ƒ /                                    185 B           109 kB
+├ ○ /_not-found                          979 B           106 kB
+├ ƒ /audit                               139 B           105 kB
+├ ƒ /candidates                          185 B           109 kB
+├ ƒ /companies/[securityId]              185 B           109 kB
+├ ƒ /ops                                 185 B           109 kB
+├ ƒ /runs                                185 B           109 kB
+├ ƒ /runs/[runId]                        185 B           109 kB
+└ ƒ /settings                            139 B           105 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
