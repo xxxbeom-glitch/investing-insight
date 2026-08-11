@@ -1,0 +1,144 @@
+{
+  "meta": {
+    "requested_model": "gpt-5.6-terra",
+    "resolved_model": "gpt-5.6-terra",
+    "reasoning_effort": "high",
+    "response_id": "resp_09224397166453b1006a7b322208a481989fd82582f27a1007",
+    "token_usage": {
+      "input_tokens": 1457,
+      "input_tokens_details": {
+        "cache_write_tokens": 1454,
+        "cached_tokens": 0
+      },
+      "output_tokens": 2768,
+      "output_tokens_details": {
+        "reasoning_tokens": 913
+      },
+      "total_tokens": 4225
+    },
+    "role": "research_qa_agent"
+  },
+  "diagnosis": {
+    "verdict": "LAB_ONLY_OK",
+    "go_recommendation": "NO-GO",
+    "confidence": "high",
+    "severity_counts": {
+      "P0": 0,
+      "P1": 4,
+      "P2": 5,
+      "P3": 1
+    },
+    "findings": [
+      {
+        "id": "RQA-P1-01",
+        "severity": "P1",
+        "title": "Post-MVP release authorization is not closed",
+        "evidence": "post_mvp_tag is null, go_declared is false, and the remaining always-on-product specification explicitly lists “Post-MVP seal (GO+tag) — not done.” Existing tags are MVP pass/review tags only.",
+        "implication": "There is no factual basis for a product GO or a Post-MVP release declaration, regardless of MVP and milestone PASS statuses."
+      },
+      {
+        "id": "RQA-P1-02",
+        "severity": "P1",
+        "title": "Production serving and scheduled operation are not authorized",
+        "evidence": "Hosting is limited to localhost:3000 and 127.0.0.1:8000; cron is DISABLED; scheduler_enable_allowed is false; and the specification says hosted PC web is not live and scheduler enablement is blocked.",
+        "implication": "The system is suitable only for controlled local/lab use, not an always-on or publicly hosted product."
+      },
+      {
+        "id": "RQA-P1-03",
+        "severity": "P1",
+        "title": "Biweekly research path has a current failed end-to-end example",
+        "evidence": "The local AAPL biweekly run (job e5f98040-49e5-442e-aa9d-8a936cb01678; run 31835b24-8823-4306-be7a-c48b43a4b66d) received research_qa=FAIL and judgment=REJECT, with six failed claims due to numeric_not_in_packet_evidence. Its thesis begins “Reject: packet not eligible because Research QA FAIL.”",
+        "implication": "Fail-closed behavior prevented unsupported output, which is positive; however, the available demonstrated company run is not an operator-usable PASS-QA research result. This does not support GO for the biweekly product path."
+      },
+      {
+        "id": "RQA-P1-04",
+        "severity": "P1",
+        "title": "Two grounding implementations lack demonstrated equivalence",
+        "evidence": "M03 gating uses claim_support.py structural field/equals/value checks, while L08 biweekly uses claim_check.py numeric_not_in_packet_evidence bag checks. The stated primary diagnosis identifies possible divergence as a GO blocker. Historical external reviews found multiple structural holes; current evidence is self-QA only after further external rereview was declined.",
+        "implication": "Grounding assurance may differ by path. A PASS result in one implementation cannot establish equivalent protection in the other without alignment or explicit, tested dual-path semantics."
+      },
+      {
+        "id": "RQA-P2-01",
+        "severity": "P2",
+        "title": "PITR is unavailable for future scheduler operation",
+        "evidence": "ops_health reports pitr_available=false. G00 passed specifically because PITR was unavailable on Free and was not faked, while G00-P2-01 requires PITR before enabling schedulers.",
+        "implication": "Recovery capability remains an explicit prerequisite for any future scheduler decision; it is not safe to treat backup_ready as equivalent to PITR."
+      },
+      {
+        "id": "RQA-P2-02",
+        "severity": "P2",
+        "title": "Operational failures require triage evidence",
+        "evidence": "ops_health reports failed_jobs_24h=13, but the supplied facts provide no causes, affected job types, remediation status, or acceptance threshold.",
+        "implication": "Operational reliability cannot be established from the available health data. The count alone should not be dismissed or interpreted as a known-benign condition."
+      },
+      {
+        "id": "RQA-P2-03",
+        "severity": "P2",
+        "title": "Evaluation evidence remains incomplete for portions of M04",
+        "evidence": "M04 is PASS in code, but lab evaluations are often INCOMPLETE because horizons have not elapsed; SPY/QQQ history is missing in lab (M04-P2-01).",
+        "implication": "Code-level completion does not provide complete live or historical evaluation evidence for these evaluation paths."
+      },
+      {
+        "id": "RQA-P2-04",
+        "severity": "P2",
+        "title": "Deployment artifact evidence is incomplete",
+        "evidence": "M01 passed deploy packaging and jobs, but M01-P2-01 states that the Docker image is not CI-evidenced. Hosting remains local only.",
+        "implication": "Packaging exists, but reproducible CI-backed deployment evidence and a live-hosting validation are not established."
+      },
+      {
+        "id": "RQA-P2-05",
+        "severity": "P2",
+        "title": "Known capability gaps remain in configuration, scale, and automation",
+        "evidence": "Open P2 items include config-limited industry-ticker maps, multi-security batch not load-tested, auto-classification not wired, and older replay/holdout notes still manual despite an evaluator now existing.",
+        "implication": "These do not justify a P0/P1 incident from the supplied facts, but they constrain breadth, scale confidence, and operational automation."
+      },
+      {
+        "id": "RQA-P3-01",
+        "severity": "P3",
+        "title": "UI localization is incomplete for JSON payloads",
+        "evidence": "UI labels are Korean as of 071e9ff, while JSON payloads remain English.",
+        "implication": "This is a presentation consistency gap, not a release-blocking safety or correctness finding."
+      }
+    ],
+    "agreements_with_primary": [
+      "The product is not complete and is not ready for GO.",
+      "The current state is usable for controlled lab/local work only; it is not an always-on hosted product.",
+      "No Post-MVP seal/GO, disabled schedulers, and lack of hosted deployment are explicit unclosed release gates.",
+      "The AAPL biweekly run demonstrates fail-closed rejection rather than a qualified PASS-QA research output.",
+      "The two grounding paths require alignment or a documented and tested reason to remain separate.",
+      "Self-QA PASS evidence must not be treated as product GO evidence."
+    ],
+    "disagreements_with_primary": [
+      "No material factual disagreement. For independent readiness accounting, the unclosed release/operation gates and the currently failed demonstrated biweekly run are classified as P1 GO blockers even though the supplied open_p0_p1 list is empty.",
+      "The 13 failed jobs in 24 hours cannot be characterized as benign, transient, or product-breaking from the supplied facts; only missing triage evidence is established."
+    ],
+    "next_actions": [
+      {
+        "priority": 1,
+        "action": "Keep the release state as lab-only and retain NO-GO until a Post-MVP authorization decision is supported by closed evidence for the stated release gates.",
+        "do_not": "Do not create a Post-MVP tag, declare GO, or represent MVP/milestone PASS tags as product-release approval."
+      },
+      {
+        "priority": 2,
+        "action": "Investigate the AAPL biweekly rejection: trace each of the six numeric_not_in_packet_evidence failures from packet evidence through claim generation and claim_check evaluation; preserve fail-closed behavior. Produce a reviewable PASS-QA company run only after the evidence/claim mismatch is resolved or intentionally excluded.",
+        "do_not": "Do not bypass, relax, or convert the QA rejection into acceptance merely to obtain a visible PASS result."
+      },
+      {
+        "priority": 3,
+        "action": "Reconcile claim_support.py and claim_check.py: either share a canonical grounding policy/implementation or document distinct scopes and add cross-path regression cases covering historical structural attack classes and numeric packet-evidence checks.",
+        "do_not": "Do not infer equivalence from separate self-QA results or from a PASS in only one path."
+      },
+      {
+        "priority": 4,
+        "action": "Before any future scheduler consideration, obtain and test the required PITR/recovery capability, triage the 13 failed jobs with recorded causes and outcomes, and close applicable operational evidence gaps.",
+        "do_not": "Do not enable cron or any scheduler while scheduler_enable_allowed is false and PITR remains unavailable."
+      },
+      {
+        "priority": 5,
+        "action": "Build deployment readiness evidence separately: establish CI evidence for the Docker image and validate hosted deployment requirements only after release authorization criteria are met.",
+        "do_not": "Do not treat local localhost operation or packaging-only PASS as proof of a live public deployment."
+      }
+    ],
+    "summary_ko": "판정: LAB_ONLY_OK, 권고: NO-GO. MVP 및 일부 Post-MVP 마일스톤 PASS는 로컬/통제된 실험 사용을 뒷받침하지만, Post-MVP GO·태그가 없고 호스팅은 localhost뿐이며 cron은 비활성화·허용 금지 상태입니다. 또한 AAPL 바이위클리 실행은 6개 숫자 근거 불일치로 QA FAIL/REJECT였고, M03와 L08의 근거 검증 구현도 서로 달라 동등성이 입증되지 않았습니다. PITR 부재와 최근 실패 작업 13건의 미분석도 남아 있습니다. 따라서 태그·GO·cron·공개 배포는 진행하지 말고, 먼저 근거 검증 경로 정합성, PASS-QA 실행 증거, 복구/운영 및 배포 증거를 닫아야 합니다."
+  }
+}

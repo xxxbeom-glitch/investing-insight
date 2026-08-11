@@ -1,0 +1,105 @@
+{
+  "as_of": "2026-08-11T14:30:00+00:00",
+  "branch": "post-mvp/phase-1",
+  "head": "ecb778e",
+  "tags": ["mvp-v0.1-pass", "mvp-v0.1-review-pass"],
+  "post_mvp_tag": null,
+  "go_declared": false,
+  "cron": "DISABLED",
+  "scheduler_enable_allowed": false,
+  "long_term_optional": "NOT_STARTED",
+  "hosting": "localhost:3000 + 127.0.0.1:8000 only",
+  "mvp": {
+    "layers": "L00-L10",
+    "status": "PASS",
+    "pass_tag": "e98ff33",
+    "review_tag": "c1a6692"
+  },
+  "post_mvp_milestones": {
+    "G00": "PASS (review gate; PITR unavailable on Free; not faked)",
+    "M01": "PASS (deploy packaging + jobs; schedulers intentionally disabled)",
+    "M02": "PASS (top-down/FRED; web page deferred P3)",
+    "M03": "PASS in audit; live 8-role re-run during ER remediation; GateBlockedError on some live retries (empty invalidation when SELECTED)",
+    "M04": "PASS code; lab evals often INCOMPLETE (horizons not elapsed; SPY/QQQ history P2)",
+    "M05": "PASS (manual error DB; auto-class P2)",
+    "M06": "PASS (replay/holdout execute 8 roles; freeze recorded)"
+  },
+  "open_p0_p1": [],
+  "open_p2_sample": [
+    "G00-P2-01 PITR before enabling schedulers",
+    "M01-P2-03 production scheduler enable is separate ops decision",
+    "M01-P2-01 Docker image not CI-evidenced",
+    "M02-P2-01 industry-ticker maps config-limited",
+    "M03-P2-02 multi-security batch not load-tested",
+    "M04-P2-01 SPY/QQQ history missing in lab",
+    "M05-P2-01 auto-classification not wired",
+    "M06-P2-01 replay/holdout notes still manual in older issue (evaluator now exists)"
+  ],
+  "grounding_self_qa": {
+    "self_remediate_exit": 0,
+    "replay": "160/160",
+    "llm_redteam": "20/20",
+    "FP": 0,
+    "judge_calls": 0,
+    "structural_attacks": "payload-generated operators/value-copula/control/cross-field",
+    "note": "pass != product GO"
+  },
+  "p1_01_history": [
+    "external rereview repeatedly found structural holes (control/Cf, as_of copula, copula-object, !=/> operators)",
+    "operator_semantics now fail-closed in claim_support.py",
+    "value copula value fail-closed",
+    "user declined further external rereview; self-QA is the gate"
+  ],
+  "two_qa_paths": {
+    "m03_gate": "claim_support.py structural field/equals/value",
+    "l08_biweekly": "claim_check.py numeric_not_in_packet_evidence bag check"
+  },
+  "local_demo_research": {
+    "script": "run_biweekly_research.py --limit 5",
+    "job_id": "e5f98040-49e5-442e-aa9d-8a936cb01678",
+    "run_id": "31835b24-8823-4306-be7a-c48b43a4b66d",
+    "ticker": "AAPL",
+    "quant_score": 88.77,
+    "research_qa": "FAIL",
+    "judgment": "REJECT",
+    "failed_claim_count": 6,
+    "failed_reason": "numeric_not_in_packet_evidence",
+    "warning": "research_declared_unsupported_or_missing",
+    "thesis_head": "Reject: packet not eligible because Research QA FAIL"
+  },
+  "ops_health": {
+    "api": "ok",
+    "db": "ok",
+    "backup_ready": true,
+    "pitr_available": false,
+    "failed_jobs_24h": 13,
+    "providers_set": ["supabase_db", "openai", "massive", "sec_ua", "fred"]
+  },
+  "ui": {
+    "language": "Korean labels as of 071e9ff",
+    "json_payloads_still_english": true
+  },
+  "primary_diagnosis_summary": {
+    "product_complete": false,
+    "lab_usable": true,
+    "blocking_for_GO": [
+      "no Post-MVP tag / GO by design",
+      "cron disabled",
+      "no hosted URL",
+      "biweekly path QA FAIL on AAPL (packet vs claim numbers)",
+      "two distinct grounding implementations may diverge"
+    ],
+    "next_spec_steps": [
+      "do not GO/tag/cron yet",
+      "align L08 claim_check with M03 claim_support or document dual-path",
+      "produce a PASS-QA visible company for operator review",
+      "then hosted deploy packaging vs live deploy as separate ops"
+    ]
+  },
+  "spec_remaining_to_always_on_product": [
+    "Post-MVP seal (GO+tag) — not done",
+    "enable daily/biweekly schedulers — blocked",
+    "hosted PC web — not live"
+  ],
+  "spec_not_required": ["Long-Term Optional trading/broker"]
+}

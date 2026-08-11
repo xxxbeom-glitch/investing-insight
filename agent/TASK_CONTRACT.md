@@ -1,7 +1,7 @@
-﻿# TASK CONTRACT — 로컬 데모 리서치 (화면 결과물)
+﻿# TASK CONTRACT — 이중 상태 진단
 
-- scope: 수동 `run_biweekly_research.py` 1회 + audit 흔적
+- scope: 1차 상태 진단 + 2차 `research_qa_agent` 진단 + `REPORT.md`
 - constraints: production cron DISABLED; Long-Term Optional NOT STARTED; no Post-MVP tag; no GO
-- status: 로컬 1회 완료 (AAPL REJECT / QA FAIL). 화면 확인 대기
-- evidence: `audit/post-mvp/local_demo_research_071e9ff/`
-- run_id: `31835b24-8823-4306-be7a-c48b43a4b66d`
+- status: 진단 완료. 교차 판정 LAB_ONLY_OK / NO-GO
+- evidence: `audit/post-mvp/status_diagnosis_ecb778e/`
+- previous demo run_id: `31835b24-8823-4306-be7a-c48b43a4b66d`

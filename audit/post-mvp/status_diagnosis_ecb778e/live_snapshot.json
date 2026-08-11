@@ -1,0 +1,239 @@
+{
+  "ops": {
+    "status": "ok",
+    "backup_ready": true,
+    "pitr_available": false,
+    "scheduler_enable_allowed": false,
+    "failed_jobs_24h": 13,
+    "providers": {
+      "supabase_db_set": true,
+      "openai_key_set": true,
+      "massive_key_set": true,
+      "sec_ua_set": true,
+      "fred_key_set": true
+    },
+    "recent_job_statuses": [
+      {
+        "job_type": "biweekly_research",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "performance_eval",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "failed",
+        "error_code": "GateBlockedError"
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "performance_eval",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "failed",
+        "error_code": "GateBlockedError"
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "failed",
+        "error_code": "GateBlockedError"
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "success",
+        "error_code": null
+      }
+    ],
+    "failed_recent": [
+      {
+        "job_type": "multi_agent",
+        "status": "failed",
+        "error_code": "GateBlockedError",
+        "started_at": "2026-08-11 13:39:13.940466+00"
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "failed",
+        "error_code": "GateBlockedError",
+        "started_at": "2026-08-11 12:37:31.775597+00"
+      },
+      {
+        "job_type": "multi_agent",
+        "status": "failed",
+        "error_code": "GateBlockedError",
+        "started_at": "2026-08-11 07:30:21.985879+00"
+      }
+    ]
+  },
+  "company": {
+    "ticker": "AAPL",
+    "name": "Apple Inc.",
+    "quant_total": 88.7681439462433,
+    "judgment_status": "REJECT",
+    "thesis": "Reject: the packet is not eligible for selection because Research QA status is FAIL. The evidence set is insufficiently reliable for an investable conclusion.",
+    "qa_status": "FAIL",
+    "warnings": [
+      "research_declared_unsupported_or_missing"
+    ],
+    "failed_claims": [
+      {
+        "claim": "Assets were $383.266 billion at 2026-06-27.",
+        "field": "",
+        "number": "383.266",
+        "reason": "numeric_not_in_packet_evidence",
+        "evidence_id": ""
+      },
+      {
+        "claim": "Stockholders' equity was $107.520 billion at 2026-06-27.",
+        "field": "",
+        "number": "107.520",
+        "reason": "numeric_not_in_packet_evidence",
+        "evidence_id": ""
+      },
+      {
+        "claim": "Reported NetIncomeLoss was $101.464 billion at 2026-06-27.",
+        "field": "",
+        "number": "101.464",
+        "reason": "numeric_not_in_packet_evidence",
+        "evidence_id": ""
+      },
+      {
+        "claim": "Assets were $359.241 billion at 2025-09-27.",
+        "field": "",
+        "number": "359.241",
+        "reason": "numeric_not_in_packet_evidence",
+        "evidence_id": ""
+      },
+      {
+        "claim": "Stockholders' equity was $73.733 billion at 2025-09-27.",
+        "field": "",
+        "number": "73.733",
+        "reason": "numeric_not_in_packet_evidence",
+        "evidence_id": ""
+      },
+      {
+        "claim": "Reported NetIncomeLoss was $112.010 billion at 2025-09-27.",
+        "field": "",
+        "number": "112.010",
+        "reason": "numeric_not_in_packet_evidence",
+        "evidence_id": ""
+      }
+    ],
+    "claim_evidence_map": [
+      {
+        "claim": "Assets were $383.266 billion at 2026-06-27.",
+        "evidence_id": "fact:918a0aa6-03ff-59a9-94c7-ca9a322fa770"
+      },
+      {
+        "claim": "Stockholders' equity was $107.520 billion at 2026-06-27.",
+        "evidence_id": "fact:71d4dcc4-2cd2-5c66-bfa7-11200739af17"
+      },
+      {
+        "claim": "Reported NetIncomeLoss was $101.464 billion at 2026-06-27.",
+        "evidence_id": "fact:88a02896-cfb9-5954-aec2-ef3def151f51"
+      },
+      {
+        "claim": "Assets were $359.241 billion at 2025-09-27.",
+        "evidence_id": "fact:f863a786-1c94-5c0d-9862-d8c93935ff9b"
+      },
+      {
+        "claim": "Stockholders' equity was $73.733 billion at 2025-09-27.",
+        "evidence_id": "fact:4736ba7d-5fb5-508e-b5ce-3b4a4da636de"
+      },
+      {
+        "claim": "Reported NetIncomeLoss was $112.010 billion at 2025-09-27.",
+        "evidence_id": "fact:499a4c3a-2dad-519f-9343-2d4f2c302646"
+      },
+      {
+        "claim": "The close was $294.38 on 2026-07-01 and $315.32 on 2026-07-10.",
+        "evidence_id": "price:2c3f9b93-d40c-5266-b54b-3fb355525f64:2026-07-01"
+      },
+      {
+        "claim": "The close was $294.38 on 2026-07-01 and $315.32 on 2026-07-10.",
+        "evidence_id": "price:2c3f9b93-d40c-5266-b54b-3fb355525f64:2026-07-10"
+      },
+      {
+        "claim": "The close declined from $316.22 on 2026-07-09 to $315.32 on 2026-07-10.",
+        "evidence_id": "price:2c3f9b93-d40c-5266-b54b-3fb355525f64:2026-07-09"
+      },
+      {
+        "claim": "The close declined from $316.22 on 2026-07-09 to $315.32 on 2026-07-10.",
+        "evidence_id": "price:2c3f9b93-d40c-5266-b54b-3fb355525f64:2026-07-10"
+      },
+      {
+        "claim": "The supplied series includes a $11.00 close dated 2024-01-01.",
+        "evidence_id": "price:2c3f9b93-d40c-5266-b54b-3fb355525f64:2024-01-01"
+      }
+    ]
+  }
+}
