@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -21,12 +22,20 @@ def _python() -> str:
     return sys.executable
 
 
+def _npm() -> str:
+    for name in ("npm.cmd", "npm.exe", "npm"):
+        found = shutil.which(name)
+        if found:
+            return found
+    raise FileNotFoundError("npm not found on PATH")
+
+
 def steps(*, llm: bool) -> list[tuple[str, list[str], Path]]:
     py = _python()
     out: list[tuple[str, list[str], Path]] = [
         ("pytest", [py, "-m", "pytest", "tests", "-q"], REPO),
         ("secret_scan", [py, str(REPO / "scripts" / "secret_scan.py")], REPO),
-        ("web_build", ["npm", "run", "build"], REPO / "apps" / "web"),
+        ("web_build", [_npm(), "run", "build"], REPO / "apps" / "web"),
         (
             "grounding_replay",
             [py, str(HERE / "runner.py"), "--replay-only", "--out-dir", str(HERE / "out")],
@@ -44,8 +53,34 @@ def steps(*, llm: bool) -> list[tuple[str, list[str], Path]]:
     return out
 
 
+def _clean_web_next() -> None:
+    nxt = REPO / "apps" / "web" / ".next"
+    if nxt.is_dir():
+        shutil.rmtree(nxt, ignore_errors=True)
+
+
 def run_step(name: str, cmd: list[str], cwd: Path) -> dict[str, Any]:
-    proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False)
+    if name == "web_build":
+        _clean_web_next()
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        return {
+            "name": name,
+            "ok": False,
+            "exit_code": 127,
+            "cmd": cmd,
+            "stdout_tail": "",
+            "stderr_tail": str(exc)[:1000],
+        }
     return {
         "name": name,
         "ok": proc.returncode == 0,

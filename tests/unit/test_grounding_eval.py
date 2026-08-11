@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -160,7 +161,14 @@ def test_redteam_payload_is_factual_only():
     assert user["factual_payload"] == payload
 
 
+pre_rereview = _load("pre_rereview")
 self_remediate = _load("self_remediate")
+
+
+def test_web_build_uses_resolvable_npm():
+    cmd = next(c for name, c, _cwd in pre_rereview.steps(llm=False) if name == "web_build")
+    assert Path(cmd[0]).name.lower() in {"npm.cmd", "npm.exe", "npm"}
+    assert shutil.which(cmd[0]) or Path(cmd[0]).is_file()
 
 
 def test_self_remediate_pass_resets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
