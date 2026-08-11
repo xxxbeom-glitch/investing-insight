@@ -82,6 +82,9 @@ _KIND_FACTUAL_FIELDS: dict[str, tuple[str, ...]] = {
 _TOKEN_RE = re.compile(r"[0-9]+(?:\.[0-9]+)?|[^\W\d_]+", re.UNICODE)
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}")
 _DATE_ONLY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_COPULA_AFTER = re.compile(r"^\s*(?:is|was|were|are)(?![\w])\s*|^\s*:\s*")
+_COPULA_BEFORE = re.compile(r"(?:(?<![A-Za-z])(?:is|was|were|are)|:)\s*$")
+_SCAFFOLD_TOKEN = re.compile(r"\s*([^\W\d_]+)", re.UNICODE)
 # Keep ordinary whitespace; reject other Cc and all Cf (ZWSP, DEL, BOM, …).
 _ALLOWED_CC = frozenset("\t\n\r")
 
@@ -351,6 +354,54 @@ def _span_gap(a: _Span, b: _Span) -> int | None:
     return None
 
 
+def _skip_field_scaffold(text: str, vocab: set[str]) -> tuple[str, int]:
+    """Skip cited field-name scaffolding (`score` in `demand score is 81.32`). Do not skip copulas."""
+    pos = 0
+    while True:
+        m = _SCAFFOLD_TOKEN.match(text[pos:])
+        if not m:
+            break
+        tok = m.group(1)
+        if tok in {"is", "was", "were", "are"} or tok not in vocab:
+            break
+        pos += m.end()
+    return text[pos:], pos
+
+
+def _copula_directed_value(
+    field_span: _Span,
+    folded: str,
+    value_spans: list[_Span],
+    vocab: set[str],
+) -> tuple[bool, _Span | None]:
+    """If a copula attaches to this field, return that object only (no farther rescue)."""
+    after_raw = folded[field_span.end :]
+    after, skipped = _skip_field_scaffold(after_raw, vocab)
+    matched = _COPULA_AFTER.match(after)
+    if matched:
+        obj_at = field_span.end + skipped + matched.end()
+        later = [v for v in value_spans if v.start >= obj_at]
+        return True, min(later, key=lambda v: (v.start, v.end)) if later else None
+    before = folded[: field_span.start]
+    matched_b = _COPULA_BEFORE.search(before)
+    if matched_b:
+        earlier = [v for v in value_spans if v.end <= matched_b.start()]
+        return True, max(earlier, key=lambda v: (v.end, v.start)) if earlier else None
+    return False, None
+
+
+def _bind_value_span(
+    field_span: _Span,
+    folded: str,
+    value_spans: list[_Span],
+    inv: dict[str, _Leaf],
+) -> _Span | None:
+    found, copula_value = _copula_directed_value(field_span, folded, value_spans, _field_vocab(inv))
+    if found:
+        return copula_value
+    return _nearest_value_span(field_span, value_spans, inv)
+
+
 def _nearest_value_span(
     field_span: _Span,
     value_spans: list[_Span],
@@ -420,7 +471,7 @@ def parse_claim_against_leaves(text: str, leaves: dict[str, Any]) -> tuple[list[
     mentioned_paths = {path for fs in field_spans for path in fs.paths}
 
     for field_span in field_spans:
-        nearest = _nearest_value_span(field_span, value_spans, inv)
+        nearest = _bind_value_span(field_span, folded, value_spans, inv)
         label = field_span.phrase.replace(" ", "_") or "field"
         if nearest is None:
             missing.add(f"field_mismatch:{label}")

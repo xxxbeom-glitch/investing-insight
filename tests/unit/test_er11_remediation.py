@@ -34,6 +34,20 @@ _ASSESS = [
         },
     }
 ]
+_ASSESS_NAMED = [
+    {
+        "evidence_id": "assessment:software",
+        "kind": "industry_assessment",
+        "payload": {
+            "industry_id": "software",
+            "overall_score": 61.76,
+            "details": {
+                "name": "Software / Platforms",
+                "scores": {"demand": 81.32, "pricing": 54.11},
+            },
+        },
+    }
+]
 _BUNDLE = {"ticker": "MSFT", "evidence": _REGIME}
 
 
@@ -129,6 +143,10 @@ def test_generalized_attacks_fail_without_copula_list(text, eid, evidence):
         ("software overall_score 61.76", "assessment:software", _ASSESS),
         ("demand score of 81.32", "assessment:software", _ASSESS),
         ("close 100.5", "price:1", _PRICE),
+        ("The regime is expansion.", "regime", _REGIME),
+        ("Software / Platforms overall score is 61.76.", "assessment:software", _ASSESS_NAMED),
+        ("Software / Platforms demand score is 81.32.", "assessment:software", _ASSESS_NAMED),
+        ("Software / Platforms pricing score is 54.11.", "assessment:software", _ASSESS_NAMED),
     ],
 )
 def test_existing_true_claims_still_pass(text, eid, evidence):
